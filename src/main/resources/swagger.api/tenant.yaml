@@ -1,0 +1,122 @@
+openapi: 3.0.0
+info:
+  title: Tenant API
+  version: v1
+paths:
+  /tenant:
+    post:
+      description: Provision a new / update an existing tenant
+      operationId: postTenant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/tenantAttributes"
+            example:
+              $ref: "examples/moduleInfo.sample"
+        required: true
+      responses:
+        "200":
+          description: tenant id upgraded successfully, returns a list of commands that
+            have failed while initializing the tenant
+          content:
+            application/json:
+              schema:
+                type: string
+            text/plain:
+              schema:
+                type: string
+        "201":
+          description: tenant id added successfully, returns a list of commands that have
+            failed while initializing the tenant
+          content:
+            application/json:
+              schema:
+                type: string
+            text/plain:
+              schema:
+                type: string
+        "204":
+          description: tenant id exists, nothing will be added
+          content:
+            application/json:
+              schema:
+                type: string
+            text/plain:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: string
+            text/plain:
+              schema:
+                type: string
+        "422":
+          $ref: "#/components/responses/trait_validate_422"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Internal server error, contact administrator
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error, contact administrator
+    get:
+      description: Does tenant id already exist
+      operationId: getTenant
+      responses:
+        "200":
+          description: true or false indicator
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: true
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error, contact administrator
+    delete:
+      description: drop tenant id
+      operationId: deleteTenant
+      responses:
+        "204":
+          description: Delete succeeded
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error, contact administrator
+servers:
+  - url: /_/
+components:
+  responses:
+    trait_validate_422:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errors"
+          examples:
+            response:
+              value: examples/errors.sample
+  schemas:
+    tenantAttributes:
+      $ref: schemas/moduleInfo.json
+    errors:
+      $ref: schemas/errors.json
+    metadata:
+      $ref: schemas/metadata.json
