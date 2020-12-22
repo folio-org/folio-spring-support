@@ -1,5 +1,7 @@
 package org.folio.spring.data;
 
+import java.util.Objects;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -65,5 +67,29 @@ public class OffsetRequest implements Pageable {
   @Override
   public boolean hasPrevious() {
     return offset > limit;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (o == null || getClass() != o.getClass()) return false;
+
+    OffsetRequest that = (OffsetRequest) o;
+    return offset == that.offset && limit == that.limit && Objects.equals(sort, that.sort);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(offset, limit, sort);
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this)
+        .append("offset", offset)
+        .append("limit", limit)
+        .append("sort", sort)
+        .toString();
   }
 }
