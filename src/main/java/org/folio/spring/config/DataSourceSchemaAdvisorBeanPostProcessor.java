@@ -1,10 +1,12 @@
 package org.folio.spring.config;
 
 import javax.sql.DataSource;
+import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
-import org.springframework.aop.scope.ScopedProxyFactoryBean;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
+@Log4j2
 public class DataSourceSchemaAdvisorBeanPostProcessor implements BeanPostProcessor {
 
   private final FolioExecutionContext folioExecutionContext;
@@ -19,12 +21,15 @@ public class DataSourceSchemaAdvisorBeanPostProcessor implements BeanPostProcess
   public Object postProcessAfterInitialization(Object bean, String beanName) {
     if (DATASOURCE_BEAN_NAME.equals(beanName)) {
       DataSource dataSource;
-      if (bean instanceof ScopedProxyFactoryBean) {
-        if (((ScopedProxyFactoryBean) bean).getObject() instanceof DataSource) {
-          dataSource = (DataSource) ((ScopedProxyFactoryBean) bean).getObject();
-        } else {
-          throw new IllegalStateException(
-            "Bean with dataSource name should be instance of DataSource");
+      if (bean instanceof FactoryBean) {
+        try {
+          if (((FactoryBean) bean).getObject() instanceof DataSource) {
+            dataSource = (DataSource) ((FactoryBean) bean).getObject();
+          } else {
+            throw unknownDatasourceException();
+          }
+        } catch (Exception e) {
+          throw unknownDatasourceException();
         }
       } else {
         dataSource = (DataSource) bean;
@@ -34,4 +39,10 @@ public class DataSourceSchemaAdvisorBeanPostProcessor implements BeanPostProcess
       return bean;
     }
   }
+
+  private IllegalStateException unknownDatasourceException() {
+    return new IllegalStateException(
+      "Bean with dataSource name should be instance of DataSource or FactoryBean");
+  }
+
 }
