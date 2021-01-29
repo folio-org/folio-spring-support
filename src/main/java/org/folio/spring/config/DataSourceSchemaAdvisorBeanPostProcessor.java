@@ -3,7 +3,6 @@ package org.folio.spring.config;
 import javax.sql.DataSource;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
-import org.springframework.aop.scope.ScopedProxyFactoryBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
@@ -23,13 +22,13 @@ public class DataSourceSchemaAdvisorBeanPostProcessor implements BeanPostProcess
     if (DATASOURCE_BEAN_NAME.equals(beanName)) {
       DataSource dataSource;
       if (bean instanceof FactoryBean) {
-        if (((ScopedProxyFactoryBean) bean).getObject() instanceof DataSource) {
-          try {
+        try {
+          if (((FactoryBean) bean).getObject() instanceof DataSource) {
             dataSource = (DataSource) ((FactoryBean) bean).getObject();
-          } catch (Exception e) {
+          } else {
             throw unknownDatasourceException();
           }
-        } else {
+        } catch (Exception e) {
           throw unknownDatasourceException();
         }
       } else {
