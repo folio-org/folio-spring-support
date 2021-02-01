@@ -1,5 +1,6 @@
 package org.folio.spring.controller;
 
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.springframework.http.ResponseEntity.noContent;
 import static org.springframework.http.ResponseEntity.notFound;
 import static org.springframework.http.ResponseEntity.ok;
@@ -77,10 +78,10 @@ public class TenantController implements TenantApi {
     return ok(String.valueOf(tenantExists(tenant)));
   }
 
-  private Boolean tenantExists(String tenant) {
-    return jdbcTemplate.query(EXIST_SQL,
+  private boolean tenantExists(String tenant) {
+    return isTrue(jdbcTemplate.query(EXIST_SQL,
       (ResultSet resultSet) -> resultSet.next() && resultSet.getBoolean(1),
-      getSchemaName(tenant));
+      getSchemaName(tenant)));
   }
 
   private String getSchemaName(String tenantId) {
