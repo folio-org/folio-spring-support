@@ -95,9 +95,12 @@ class TenantControllerIT {
 
   @Test
   void cannotDeleteNonexistentTenant() throws Exception {
+    final String tenant = "cannot_delete_nonexistent_tenant";
+
     mockMvc.perform(delete("/_/tenant")
-      .header(TENANT, "cannot_delete_nonexistent_tenant"))
-      .andExpect(status().isNotFound());
+      .header(TENANT, tenant))
+      .andExpect(status().isNotFound())
+      .andExpect(content().string("Tenant does not exist: " + tenant));
   }
 
   @SneakyThrows
