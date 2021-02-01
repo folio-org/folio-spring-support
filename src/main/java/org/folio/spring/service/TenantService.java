@@ -25,10 +25,7 @@ public class TenantService {
 
   public void createTenant(String tenant) throws LiquibaseException {
     if (folioSpringLiquibase != null) {
-      var tenantId = context.getTenantId();
-      var schemaName = context.getFolioModuleMetadata().getDBSchemaName(tenantId);
-
-      folioSpringLiquibase.setDefaultSchema(schemaName);
+      folioSpringLiquibase.setDefaultSchema(getSchemaName(tenant));
       log.info("About to start liquibase update for tenant [{}]", tenant);
       folioSpringLiquibase.performLiquibaseUpdate();
       log.info("Liquibase update for tenant [{}] executed successfully", tenant);
