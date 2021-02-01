@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureEmbeddedDatabase(beanName = "dataSource")
 @EnableAutoConfiguration(exclude = FlywayAutoConfiguration.class)
 @AutoConfigureMockMvc
-class TenantControllerTest {
+class TenantControllerIT {
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   @Autowired
