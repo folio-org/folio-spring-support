@@ -7,6 +7,8 @@ paths:
     post:
       description: Provision a new / update an existing tenant
       operationId: postTenant
+      parameters:
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
       requestBody:
         content:
           application/json:
@@ -70,6 +72,8 @@ paths:
     get:
       description: Does tenant id already exist
       operationId: getTenant
+      parameters:
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
       responses:
         "200":
           description: true or false indicator
@@ -88,6 +92,8 @@ paths:
     delete:
       description: drop tenant id
       operationId: deleteTenant
+      parameters:
+        - $ref: '#/components/parameters/x-okapi-tenant-header'
       responses:
         "204":
           description: Delete succeeded
@@ -120,3 +126,11 @@ components:
       $ref: schemas/errors.json
     metadata:
       $ref: schemas/metadata.json
+  parameters:
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: X-Okapi-Tenant header value
+      required: true
+      schema:
+        type: string

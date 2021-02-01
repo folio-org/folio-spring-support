@@ -25,6 +25,8 @@
     <feign-okhttp.version>10.10.1</feign-okhttp.version>
     <!-- -->
     <tenant.yaml.file>${project.basedir}/src/main/resources/swagger.api/tenant.yaml</tenant.yaml.file>
+    <lombok.version>1.18.16</lombok.version>
+    <mapstruct.version>1.4.1.Final</mapstruct.version>
   </properties>
 
   <repositories>
@@ -115,6 +117,24 @@
       <groupId>org.openapitools</groupId>
       <artifactId>jackson-databind-nullable</artifactId>
       <version>${jackson-databind-nullable.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${mapstruct.version}</version>
+    </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.zonky.test</groupId>
+      <artifactId>embedded-database-spring-test</artifactId>
+      <version>1.6.2</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
