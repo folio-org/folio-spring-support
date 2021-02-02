@@ -23,33 +23,38 @@ public class TenantService {
   private final FolioExecutionContext context;
   private final FolioSpringLiquibase folioSpringLiquibase;
 
-  public void createTenant(String tenant) throws LiquibaseException {
+  public void createTenant() throws LiquibaseException {
     if (folioSpringLiquibase != null) {
-      folioSpringLiquibase.setDefaultSchema(getSchemaName(tenant));
-      log.info("About to start liquibase update for tenant [{}]", tenant);
+      folioSpringLiquibase.setDefaultSchema(getSchemaName());
+      log.info("About to start liquibase update for tenant [{}]",
+        context.getTenantId());
+
       folioSpringLiquibase.performLiquibaseUpdate();
-      log.info("Liquibase update for tenant [{}] executed successfully", tenant);
+
+      log.info("Liquibase update for tenant [{}] executed successfully",
+        context.getTenantId());
     }
   }
 
   /**
    * @throws NotFoundException when tenant not found.
    */
-  public void deleteTenant(String tenant) {
-    if (!tenantExists(tenant)) {
-      throw new NotFoundException("Tenant does not exist: " + tenant);
+  public void deleteTenant() {
+    if (!tenantExists()) {
+      throw new NotFoundException("Tenant does not exist: " + context.getTenantId());
     }
 
-    jdbcTemplate.execute(String.format(DESTROY_SQL, getSchemaName(tenant)));
+    log.info("Removing [{}] tenant...", context.getTenantId());
+    jdbcTemplate.execute(String.format(DESTROY_SQL, getSchemaName()));
   }
 
-  public boolean tenantExists(String tenant) {
+  public boolean tenantExists() {
     return isTrue(jdbcTemplate.query(EXIST_SQL,
       (ResultSet resultSet) -> resultSet.next() && resultSet.getBoolean(1),
-      getSchemaName(tenant)));
+      getSchemaName()));
   }
 
-  private String getSchemaName(String tenantId) {
-    return context.getFolioModuleMetadata().getDBSchemaName(tenantId);
+  private String getSchemaName() {
+    return context.getFolioModuleMetadata().getDBSchemaName(context.getTenantId());
   }
 }

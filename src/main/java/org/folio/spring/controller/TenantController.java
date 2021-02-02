@@ -26,10 +26,10 @@ public class TenantController implements TenantApi {
   private final TenantService tenantService;
 
   @Override
-  public ResponseEntity<String> postTenant(String tenant, @Valid TenantAttributes tenantAttributes) {
-    log.info("Initializing [{}] tenant...", tenant);
+  public ResponseEntity<String> postTenant(@Valid TenantAttributes tenantAttributes) {
+    log.info("Initializing tenant...");
     try {
-      tenantService.createTenant(tenant);
+      tenantService.createTenant();
     } catch (LiquibaseException e) {
       log.error("Liquibase error", e);
       return status(HttpStatus.INTERNAL_SERVER_ERROR).body("Liquibase error: " + e.getMessage());
@@ -39,19 +39,17 @@ public class TenantController implements TenantApi {
   }
 
   @Override
-  public ResponseEntity<Void> deleteTenant(String tenant) {
-    log.info("Destroying [{}] tenant...", tenant);
+  public ResponseEntity<Void> deleteTenant() {
+    log.info("Destroying tenant...");
 
-    tenantService.deleteTenant(tenant);
+    tenantService.deleteTenant();
 
-    log.info("Tenant [{}] destroyed successfully", tenant);
+    log.info("Tenant destroyed successfully");
     return noContent().build();
   }
 
   @Override
-  public ResponseEntity<String> getTenant(String tenant) {
-    log.info("Executing get [{}] tenant...", tenant);
-
-    return ok(String.valueOf(tenantService.tenantExists(tenant)));
+  public ResponseEntity<String> getTenant() {
+    return ok(String.valueOf(tenantService.tenantExists()));
   }
 }
