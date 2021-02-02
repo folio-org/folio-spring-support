@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: folio-spring-base
+  liquibase:
+    enabled: true
+    change-log: classpath:changelog-master.xml
