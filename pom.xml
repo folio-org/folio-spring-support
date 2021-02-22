@@ -28,6 +28,7 @@
     <tenant.yaml.file>${project.basedir}/src/main/resources/swagger.api/tenant.yaml</tenant.yaml.file>
     <lombok.version>1.18.16</lombok.version>
     <mapstruct.version>1.4.1.Final</mapstruct.version>
+    <wiremock.version>2.27.2</wiremock.version>
   </properties>
 
   <repositories>
@@ -135,6 +136,12 @@
       <groupId>io.zonky.test</groupId>
       <artifactId>embedded-database-spring-test</artifactId>
       <version>1.6.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-standalone</artifactId>
+      <version>${wiremock.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
