@@ -25,7 +25,7 @@ public class DbSystemUserRepository implements SystemUserRepository {
   @Override
   public Optional<SystemUser> getByTenantId(String tenantId) {
     try {
-      var resultList = jdbcTemplate.query("SELECT * FROM " + getFullTableName(tenantId),
+      var resultList = jdbcTemplate.query(getSelectQuery(tenantId),
         new BeanPropertyRowMapper<>(SystemUser.class));
 
       return resultList.isEmpty()
@@ -45,7 +45,8 @@ public class DbSystemUserRepository implements SystemUserRepository {
       .execute(new BeanPropertySqlParameterSource(systemUser));
   }
 
-  private String getFullTableName(String tenantId) {
-    return moduleMetadata.getDBSchemaName(tenantId) + "." + TABLE_NAME;
+  private String getSelectQuery(String tenantId) {
+    return String.format("SELECT * FROM \"%s\".\"%s\"", moduleMetadata.getDBSchemaName(tenantId),
+      TABLE_NAME);
   }
 }
