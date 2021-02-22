@@ -1,9 +1,13 @@
 package org.folio.spring.client;
 
+import static org.folio.spring.integration.XOkapiHeaders.TENANT;
+import static org.folio.spring.integration.XOkapiHeaders.TOKEN;
+
 import feign.Client;
 import feign.Request;
 import feign.Response;
 import feign.okhttp.OkHttpClient;
+import java.util.List;
 import org.folio.spring.FolioExecutionContext;
 
 import java.io.IOException;
@@ -34,10 +38,19 @@ public class EnrichUrlAndHeadersClient implements Client {
       url = request.url();
     }
 
-    Map<String, Collection<String>> allHeaders = new HashMap<>(request.headers());
+    var requestWithURL = Request.create(request.httpMethod(), url, getHeaders(request),
+      request.body(), request.charset(), request.requestTemplate());
+
+    return delegate.execute(requestWithURL, options);
+  }
+
+  private Map<String, Collection<String>> getHeaders(Request request) {
+    var allHeaders = new HashMap<>(request.headers());
     allHeaders.putAll(folioExecutionContext.getOkapiHeaders());
 
-    var requestWithURL = Request.create(request.httpMethod(), url, allHeaders, request.body(), request.charset(), request.requestTemplate());
-    return delegate.execute(requestWithURL, options);
+    allHeaders.put(TENANT, List.of(folioExecutionContext.getTenantId()));
+    allHeaders.put(TOKEN, List.of(folioExecutionContext.getToken()));
+
+    return allHeaders;
   }
 }
