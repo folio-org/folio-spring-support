@@ -16,10 +16,10 @@ Please add following properties to your application property file:
 ```yaml
 application:
   system-user:
-    username: folio-spring-base
-    password: folio-spring-base-pwd
-    lastname: System
-    permissionsFilePath: classpath:user-permissions.csv
+    username: <username-for-the-user>
+    password: <password-for-the-user>
+    lastname: <lastname> # e.g. System
+    permissionsFilePath: <path-to-csv-file-with-permissions> # e.g. classpath:user-permissions.csv
 ```
 
 Please note that `username` should be unique for FOLIO. Also, make sure to add following 
