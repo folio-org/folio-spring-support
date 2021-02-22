@@ -8,12 +8,16 @@ import org.folio.spring.client.PermissionsClient;
 import org.folio.spring.client.UsersClient;
 import org.folio.spring.repository.SystemUserRepository;
 import org.folio.spring.repository.impl.DbSystemUserRepository;
+import org.folio.spring.repository.impl.InMemorySystemUserRepository;
 import org.folio.spring.service.SystemUserService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
@@ -26,7 +30,15 @@ public class FolioSystemUserConfig {
   private final FolioSystemUserProperties systemUserConf;
 
   @Bean
-  public SystemUserRepository systemUserRepository(
+  @ConditionalOnMissingBean
+  public SystemUserRepository inMemorySystemUserRepository() {
+    return new InMemorySystemUserRepository();
+  }
+
+  @Bean
+  @Primary
+  @ConditionalOnBean(JdbcTemplate.class)
+  public SystemUserRepository dbSystemUserRepository(
     JdbcTemplate jdbcTemplate, FolioModuleMetadata moduleMetadata) {
 
     return new DbSystemUserRepository(jdbcTemplate, moduleMetadata);

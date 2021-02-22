@@ -1,8 +1,5 @@
 package org.folio.spring.service;
 
-import static org.apache.commons.lang3.BooleanUtils.isTrue;
-
-import java.sql.ResultSet;
 import java.util.Optional;
 import liquibase.exception.LiquibaseException;
 import lombok.RequiredArgsConstructor;
@@ -23,18 +20,18 @@ public class TenantService {
   private static final String DESTROY_SQL = "DROP SCHEMA IF EXISTS %1$s CASCADE; DROP ROLE IF EXISTS %1$s";
   private static final String EXIST_SQL = "SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname=?)";
 
-  private final JdbcTemplate jdbcTemplate;
+  private final Optional<JdbcTemplate> jdbcTemplateOpt;
   private final FolioExecutionContext context;
-  private final FolioSpringLiquibase folioSpringLiquibase;
-  private final Optional<SystemUserService> optionalSecurityManagerService;
+  private final Optional<FolioSpringLiquibase> folioSpringLiquibaseOpt;
+  private final Optional<SystemUserService> optionalSecurityManagerServiceOpt;
 
   public void createTenant() throws LiquibaseException {
-    if (folioSpringLiquibase != null) {
-      folioSpringLiquibase.setDefaultSchema(getSchemaName());
+    if (folioSpringLiquibaseOpt.isPresent()) {
+      folioSpringLiquibaseOpt.get().setDefaultSchema(getSchemaName());
       log.info("About to start liquibase update for tenant [{}]",
         context.getTenantId());
 
-      folioSpringLiquibase.performLiquibaseUpdate();
+      folioSpringLiquibaseOpt.get().performLiquibaseUpdate();
 
       log.info("Liquibase update for tenant [{}] executed successfully",
         context.getTenantId());
@@ -51,14 +48,17 @@ public class TenantService {
       throw new NotFoundException("Tenant does not exist: " + context.getTenantId());
     }
 
-    log.info("Removing [{}] tenant...", context.getTenantId());
-    jdbcTemplate.execute(String.format(DESTROY_SQL, getSchemaName()));
+    jdbcTemplateOpt.ifPresent(template -> {
+      log.info("Removing [{}] tenant...", context.getTenantId());
+
+      template.execute(String.format(DESTROY_SQL, getSchemaName()));
+    });
   }
 
   public boolean tenantExists() {
-    return isTrue(jdbcTemplate.query(EXIST_SQL,
-      (ResultSet resultSet) -> resultSet.next() && resultSet.getBoolean(1),
-      getSchemaName()));
+    return jdbcTemplateOpt
+      .map(template -> template.queryForObject(EXIST_SQL, Boolean.class, getSchemaName()))
+      .orElse(false);
   }
 
   private String getSchemaName() {
@@ -66,16 +66,18 @@ public class TenantService {
   }
 
   private void prepareSystemUser() {
-    if (optionalSecurityManagerService.isEmpty()) {
-      log.info("Skipping system user creation...");
-      return;
-    }
+    jdbcTemplateOpt.ifPresent(template -> {
+      log.info("Creating 'system_user_parameters' table...");
 
-    log.info("Creating 'system_user_parameters' table...");
-    jdbcTemplate.execute(createUserParametersTableQuery());
+      template.execute(createUserParametersTableQuery());
+    });
 
-    log.info("Preparing system user...");
-    optionalSecurityManagerService.get().prepareSystemUser();
+
+    optionalSecurityManagerServiceOpt.ifPresentOrElse(service -> {
+        log.info("Preparing system user...");
+
+        service.prepareSystemUser();
+      }, () -> log.info("Skipping system user creation"));
   }
 
   private String createUserParametersTableQuery() {

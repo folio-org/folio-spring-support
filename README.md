@@ -44,8 +44,12 @@ inventory-storage.instance.item.post
 inventory-storage.instance.item.get
 ```
 
-We also create a new table `system_user_parameters` to persist user credentials. If your module
-supports caching than it will be automatically applied for the `system_user_parameters` table.
+### Storing system user parameters in DB vs in memory
+
+If your module supports DB (i.e. there is a dataSource bean) we will create a new table `system_user_parameters` 
+to persist user credentials caching is also supported if it is enabled by the module.
+
+If DB is not supported, then credentials are stored in memory.
 
 ### System user naming convention
 
