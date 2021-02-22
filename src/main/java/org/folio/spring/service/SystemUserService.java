@@ -127,7 +127,8 @@ public class SystemUserService {
       try {
         permissionsClient.addPermission(userId, p);
       } catch (Exception e) {
-        log.info("Error adding permission {} to System User. Permission may be already assigned.", permission);
+        log.info("Error adding permission {} to System User. Permission may be already assigned. Error was {}",
+          permission, e);
       }
     });
   }
