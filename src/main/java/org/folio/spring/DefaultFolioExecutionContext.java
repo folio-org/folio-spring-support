@@ -1,14 +1,20 @@
 package org.folio.spring;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.folio.spring.integration.XOkapiHeaders.OKAPI_HEADERS_PREFIX;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 import static org.folio.spring.integration.XOkapiHeaders.TOKEN;
 import static org.folio.spring.integration.XOkapiHeaders.URL;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import org.folio.spring.domain.SystemUser;
+
+@Builder
+@AllArgsConstructor
 public class DefaultFolioExecutionContext implements FolioExecutionContext {
   private final FolioModuleMetadata folioModuleMetadata;
   private final Map<String, Collection<String>> allHeaders;
@@ -32,7 +38,21 @@ public class DefaultFolioExecutionContext implements FolioExecutionContext {
     this.userName = "NO_USER";
   }
 
-  private String retrieveFirstSafe(Collection<String> strings) {
+  public static DefaultFolioExecutionContext forSystemUser(
+    FolioModuleMetadata folioModuleMetadata, SystemUser systemUser) {
+
+    return DefaultFolioExecutionContext.builder()
+      .allHeaders(Collections.emptyMap())
+      .okapiHeaders(Collections.emptyMap())
+      .folioModuleMetadata(folioModuleMetadata)
+      .tenantId(systemUser.getTenantId())
+      .okapiUrl(systemUser.getOkapiUrl())
+      .token(systemUser.getOkapiToken())
+      .userName(systemUser.getUsername())
+      .build();
+  }
+
+  private static String retrieveFirstSafe(Collection<String> strings) {
     return strings != null && !strings.isEmpty() ? strings.iterator().next() : "";
   }
 
