@@ -1,5 +1,7 @@
 package org.folio.spring.config;
 
+import static org.folio.spring.utils.TenantUtil.isValidTenantName;
+
 import org.apache.commons.lang3.StringUtils;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.datasource.DelegatingDataSource;
@@ -7,11 +9,8 @@ import org.springframework.jdbc.datasource.DelegatingDataSource;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.regex.Pattern;
 
 public class DataSourceFolioWrapper extends DelegatingDataSource {
-  private static final Pattern NON_WORD_CHARACTERS = Pattern.compile("[^a-zA-Z0-9_]");
-
   private final FolioExecutionContext folioExecutionContext;
 
   public DataSourceFolioWrapper(DataSource targetDataSource, FolioExecutionContext folioExecutionContext) {
@@ -25,7 +24,7 @@ public class DataSourceFolioWrapper extends DelegatingDataSource {
       var schemaName = "public";
       var tenantId = folioExecutionContext.getTenantId();
       if (StringUtils.isNotBlank(tenantId)) {
-        if (NON_WORD_CHARACTERS.matcher(tenantId).find()) {
+        if (!isValidTenantName(tenantId)) {
           throw new IllegalArgumentException("Invalid tenant name: " + tenantId);
         }
         schemaName = folioExecutionContext.getFolioModuleMetadata().getDBSchemaName(tenantId) + ", public";

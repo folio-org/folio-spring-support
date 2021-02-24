@@ -1,5 +1,7 @@
 package org.folio.spring.config;
 
+import static org.folio.spring.utils.TenantUtil.isValidTenantName;
+
 import org.apache.commons.lang3.StringUtils;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -28,15 +30,16 @@ public class FolioSpringConfiguration {
       }
 
       /**
-       * Schema name MUST in in lowercase
+       * Schema name MUST in lowercase
        *
-       * @param tenantId
-       * @return
+       * @param tenantId - Tenant id
+       * @return Schema name
+       * @throws IllegalArgumentException if tenant name is not valid (to prevent SQL injections)
        */
       @Override
       public String getDBSchemaName(String tenantId) {
-        if (StringUtils.isBlank(tenantId)) {
-          throw new IllegalArgumentException("tenantId can't be null or empty");
+        if (!isValidTenantName(tenantId)) {
+          throw new IllegalArgumentException(String.format("Invalid tenant name ['%s']", tenantId));
         }
         return tenantId.toLowerCase() + schemaSuffix;
       }
