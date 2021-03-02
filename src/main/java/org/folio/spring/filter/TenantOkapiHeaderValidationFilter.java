@@ -22,7 +22,8 @@ public class TenantOkapiHeaderValidationFilter extends GenericFilterBean {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest req = (HttpServletRequest) request;
-    if (StringUtils.isBlank(req.getHeader(XOkapiHeaders.TENANT))) {
+    if (!req.getServletPath().startsWith("/admin/") // don't require x-okapi-tenant when calling admin endpoints
+        && StringUtils.isBlank(req.getHeader(XOkapiHeaders.TENANT))) {
       var res = (HttpServletResponse) response;
       res.setContentType("text/plain");
       res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
