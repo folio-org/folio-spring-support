@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import javax.sql.DataSource;
 import lombok.SneakyThrows;
+import org.folio.spring.filter.TenantOkapiHeaderValidationFilter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +52,8 @@ class TenantControllerIT {
       @Value("${header.validation.x-okapi-tenant.exclude.base-paths}") String[] excludeBasePaths) throws Exception {
     for (String basePath : excludeBasePaths) {
       mockMvc.perform(get(basePath))
-        .andExpect(status().is(404)) // will be 200 if actuator is added
-        .andExpect(content().string(not(startsWith("x-okapi-tenant header must be provided"))));
+        .andExpect(status().is(404))
+        .andExpect(content().string(not(startsWith(TenantOkapiHeaderValidationFilter.ERROR_MSG))));
     }
   }
 
@@ -60,7 +61,7 @@ class TenantControllerIT {
   void cannotCallOtherEndpointsWithoutTenantHeader() throws Exception {
     mockMvc.perform(get("/_/tenant"))
       .andExpect(status().is(400))
-      .andExpect(content().string(startsWith("x-okapi-tenant header must be provided")));
+      .andExpect(content().string(startsWith(TenantOkapiHeaderValidationFilter.ERROR_MSG)));
   }
 
   @Test
