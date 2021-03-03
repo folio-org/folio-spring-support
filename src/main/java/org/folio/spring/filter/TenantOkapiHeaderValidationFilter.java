@@ -2,6 +2,7 @@ package org.folio.spring.filter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.folio.spring.integration.XOkapiHeaders;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -19,10 +20,14 @@ import java.io.IOException;
 @ConditionalOnMissingBean(name = "tenantOkapiHeaderValidationFilter")
 @ConditionalOnProperty(prefix = "folio.tenant.validation", name = "enabled", matchIfMissing = true)
 public class TenantOkapiHeaderValidationFilter extends GenericFilterBean {
+
+  @Value("${management.endpoints.web.base-path:/admin}")
+  private String mgmtBasePath;
+
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest req = (HttpServletRequest) request;
-    if (!req.getServletPath().startsWith("/admin/") // don't require x-okapi-tenant when calling admin endpoints
+    if (!req.getRequestURI().startsWith(mgmtBasePath) // don't require x-okapi-tenant when calling management/admin endpoints
         && StringUtils.isBlank(req.getHeader(XOkapiHeaders.TENANT))) {
       var res = (HttpServletResponse) response;
       res.setContentType("text/plain");

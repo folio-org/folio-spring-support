@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
@@ -15,6 +17,7 @@ import lombok.SneakyThrows;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -40,6 +43,21 @@ class TenantControllerIT {
     DataSource dataSource() {
       return DataSourceBuilder.create().build();
     }
+  }
+
+  @Test
+  void canCallManagementEndpointWithoutTenantHeader(
+      @Value("${management.endpoints.web.base-path:/admin}") String mgmtBasePath) throws Exception {
+    mockMvc.perform(get(mgmtBasePath + "/health"))
+      .andExpect(status().is(404)) // will be 200 if actuator is added
+      .andExpect(content().string(not(startsWith("x-okapi-tenant header must be provided"))));
+  }
+
+  @Test
+  void cannotCallOtherEndpointsWithoutTenantHeader() throws Exception {
+    mockMvc.perform(get("/_/tenant"))
+      .andExpect(status().is(400))
+      .andExpect(content().string(startsWith("x-okapi-tenant header must be provided")));
   }
 
   @Test
