@@ -36,7 +36,7 @@ public class TenantOkapiHeaderValidationFilter extends GenericFilterBean {
       var res = ((HttpServletResponse) response);
       res.setContentType("text/plain");
       res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      res.getWriter().println(XOkapiHeaders.TENANT + " header must be provided");
+      res.getWriter().println(ERROR_MSG);
     }
   }
 }
