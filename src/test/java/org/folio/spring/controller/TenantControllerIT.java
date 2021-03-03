@@ -27,7 +27,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
+@SpringBootTest(
+    properties = {"header.validation.x-okapi-tenant.exclude.base-paths=/admin,/swagger-ui"})
 @AutoConfigureEmbeddedDatabase(beanName = "dataSource")
 @EnableAutoConfiguration(exclude = FlywayAutoConfiguration.class)
 @AutoConfigureMockMvc
@@ -47,10 +48,12 @@ class TenantControllerIT {
 
   @Test
   void canCallManagementEndpointWithoutTenantHeader(
-      @Value("${management.endpoints.web.base-path:/admin}") String mgmtBasePath) throws Exception {
-    mockMvc.perform(get(mgmtBasePath + "/health"))
-      .andExpect(status().is(404)) // will be 200 if actuator is added
-      .andExpect(content().string(not(startsWith("x-okapi-tenant header must be provided"))));
+      @Value("${header.validation.x-okapi-tenant.exclude.base-paths}") String[] excludeBasePaths) throws Exception {
+    for (String basePath : excludeBasePaths) {
+      mockMvc.perform(get(basePath))
+        .andExpect(status().is(404)) // will be 200 if actuator is added
+        .andExpect(content().string(not(startsWith("x-okapi-tenant header must be provided"))));
+    }
   }
 
   @Test
