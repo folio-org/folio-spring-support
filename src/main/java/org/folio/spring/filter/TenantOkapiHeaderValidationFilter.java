@@ -14,6 +14,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component("defaultTenantOkapiHeaderValidationFilter")
 @ConditionalOnMissingBean(name = "tenantOkapiHeaderValidationFilter")
@@ -28,19 +29,14 @@ public class TenantOkapiHeaderValidationFilter extends GenericFilterBean {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest req = (HttpServletRequest) request;
-    for (String basePath : excludeBasePaths) {
-      if (req.getRequestURI().startsWith(basePath)) {
-        chain.doFilter(request, response);
-        return;
-      }
-    }
-    if (StringUtils.isBlank(req.getHeader(XOkapiHeaders.TENANT))) {
-      var res = (HttpServletResponse) response;
+    if (StringUtils.isNotBlank(req.getHeader(XOkapiHeaders.TENANT)) || Arrays.stream(excludeBasePaths)
+      .anyMatch(req.getRequestURI()::startsWith)) {
+      chain.doFilter(request, response);
+    } else {
+      var res = ((HttpServletResponse) response);
       res.setContentType("text/plain");
       res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      res.getWriter().println(ERROR_MSG);
-    } else {
-      chain.doFilter(request, response);
+      res.getWriter().println(XOkapiHeaders.TENANT + " header must be provided");
     }
   }
 }
