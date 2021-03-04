@@ -4,9 +4,11 @@
   "type": "object",
   "properties": {
     "key": {
+      "description": "The key for this parameter",
       "type": "string"
     },
     "value": {
+      "description": "The value of this parameter",
       "type": "string"
     }
   },
