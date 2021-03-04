@@ -5,6 +5,7 @@ import org.folio.spring.FolioModuleMetadata;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
 
 public class EmptyFolioExecutionContextHolder {
   private final EmptyFolioExecutionContext emptyFolioExecutionContext;
@@ -36,6 +37,11 @@ public class EmptyFolioExecutionContextHolder {
 
     @Override
     public String getToken() {
+      return null;
+    }
+
+    @Override
+    public UUID getUserId() {
       return null;
     }
 
