@@ -2,19 +2,39 @@ package org.folio.spring;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
 
 public interface FolioExecutionContext {
-  String getTenantId();
 
-  String getOkapiUrl();
+  default String getTenantId() {
+    return null;
+  }
 
-  String getToken();
+  default String getOkapiUrl() {
+    return null;
+  }
 
-  String getUserName();
+  default String getToken() {
+    return null;
+  }
 
-  Map<String, Collection<String>> getAllHeaders();
+  default UUID getUserId() {
+    return null;
+  }
 
-  Map<String, Collection<String>> getOkapiHeaders();
+  default String getUserName() {
+    return null;
+  }
 
-  FolioModuleMetadata getFolioModuleMetadata();
+  default Map<String, Collection<String>> getAllHeaders() {
+    return null;
+  }
+
+  default Map<String, Collection<String>> getOkapiHeaders() {
+    return null;
+  }
+
+  default FolioModuleMetadata getFolioModuleMetadata() {
+    return null;
+  }
 }
