@@ -11,7 +11,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @UtilityClass
 public class JWTokenUtils {
 
@@ -22,6 +24,7 @@ public class JWTokenUtils {
       String[] split = token.split("\\.");
       return Optional.of(parse(split[1]));
     } catch (Exception e) {
+      log.error("JWT parsing failed with exception", e);
       return Optional.empty();
     }
   }

@@ -6,19 +6,35 @@ import java.util.UUID;
 
 public interface FolioExecutionContext {
 
-  String getTenantId();
+  default String getTenantId() {
+    return null;
+  }
 
-  String getOkapiUrl();
+  default String getOkapiUrl() {
+    return null;
+  }
 
-  String getToken();
+  default String getToken() {
+    return null;
+  }
 
-  UUID getUserId();
+  default UUID getUserId() {
+    return null;
+  }
 
-  String getUserName();
+  default String getUserName() {
+    return null;
+  }
 
-  Map<String, Collection<String>> getAllHeaders();
+  default Map<String, Collection<String>> getAllHeaders() {
+    return null;
+  }
 
-  Map<String, Collection<String>> getOkapiHeaders();
+  default Map<String, Collection<String>> getOkapiHeaders() {
+    return null;
+  }
 
-  FolioModuleMetadata getFolioModuleMetadata();
+  default FolioModuleMetadata getFolioModuleMetadata() {
+    return null;
+  }
 }
