@@ -1,3 +1,6 @@
+## 1.0.3 2021-03-04
+ * FOLSPRINGB-13 Don't require x-okapi-tenant for admin endpoints
+
 ## 1.0.2 2021-03-01
  * FOLSPRINGB-11 Fix issue with unsatisfied dependency
 
