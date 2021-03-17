@@ -22,6 +22,10 @@ public interface FolioExecutionContext {
     return null;
   }
 
+  /**
+   * @deprecated Make API call to 'mod-users' to get userName.
+   */
+  @Deprecated(forRemoval = true)
   default String getUserName() {
     return null;
   }
