@@ -1,3 +1,6 @@
+## 1.0.5 2021-03-25
+ * FOLSPRINGB-15 Use x-okapi-user-id header to populate userId
+
 ## 1.0.4 2021-03-10
  * FOLSPRINGB-14 Fetch userId and userName from `x-okapi-token`
 
