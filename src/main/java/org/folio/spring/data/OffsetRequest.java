@@ -1,32 +1,46 @@
 package org.folio.spring.data;
 
 import java.util.Objects;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.lang.NonNull;
 
+@EqualsAndHashCode
+@ToString
 public class OffsetRequest implements Pageable {
 
-  private final int offset;
+  public static final Sort DEFAULT_SORT = Sort.by(Direction.ASC, "id");
+
+  private final long offset;
   private final int limit;
   private final Sort sort;
 
-  public OffsetRequest(int offset, int limit) {
-    this.limit = limit;
-    this.offset = offset;
-    this.sort = Sort.by(Direction.ASC, "id");
+
+  public OffsetRequest(long offset, int limit) {
+    this(offset, limit, DEFAULT_SORT);
   }
 
-  public OffsetRequest(int offset, int limit, Sort sort) {
-    this.limit = limit;
+  public OffsetRequest(long offset, int limit, Sort sort) {
+    if (offset < 0) {
+      throw new IllegalArgumentException("Negative offset is not allowed: " + offset);
+    }
     this.offset = offset;
-    this.sort = sort;
+
+    if (limit <= 0) {
+      throw new IllegalArgumentException("Limit cannot be negative or zero: " + limit);
+    }
+    this.limit = limit;
+
+    this.sort = Objects.requireNonNull(sort, "Sorting cannot be null. Use Sort.unsorted() instead");
   }
 
   @Override
   public int getPageNumber() {
-    return offset / limit;
+    return Math.toIntExact(offset / limit);
   }
 
   @Override
@@ -40,28 +54,31 @@ public class OffsetRequest implements Pageable {
   }
 
   @Override
+  @NonNull
   public Sort getSort() {
     return sort;
   }
 
   @Override
+  @NonNull
   public Pageable next() {
-    return new OffsetRequest((int) (getOffset() + getPageSize()), getPageSize());
+    return new OffsetRequest(getOffset() + getPageSize(), getPageSize(), getSort());
   }
 
   public Pageable previous() {
-    return hasPrevious() ?
-      new OffsetRequest((int) (getOffset() - getPageSize()), getPageSize()) : this;
+    return hasPrevious() ? new OffsetRequest(getOffset() - getPageSize(), getPageSize(), getSort()) : this;
   }
 
   @Override
+  @NonNull
   public Pageable previousOrFirst() {
     return hasPrevious() ? previous() : first();
   }
 
   @Override
+  @NonNull
   public Pageable first() {
-    return new OffsetRequest(0, getPageSize());
+    return new OffsetRequest(0, getPageSize(), getSort());
   }
 
   @Override
@@ -69,27 +86,4 @@ public class OffsetRequest implements Pageable {
     return offset > limit;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-
-    if (o == null || getClass() != o.getClass()) return false;
-
-    OffsetRequest that = (OffsetRequest) o;
-    return offset == that.offset && limit == that.limit && Objects.equals(sort, that.sort);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(offset, limit, sort);
-  }
-
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this)
-        .append("offset", offset)
-        .append("limit", limit)
-        .append("sort", sort)
-        .toString();
-  }
 }
