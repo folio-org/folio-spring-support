@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class FolioExecutionContextTest {
+class FolioExecutionContextTest {
 
-  private FolioExecutionContext context = new FolioExecutionContext() {};
+  private final FolioExecutionContext context = new FolioExecutionContext() {};
 
   @Test
   void shouldReturnNullsForDefaultImplementation() {
