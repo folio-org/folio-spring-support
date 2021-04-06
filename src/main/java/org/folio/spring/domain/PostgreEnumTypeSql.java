@@ -1,18 +1,19 @@
 package org.folio.spring.domain;
 
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.usertype.EnhancedUserType;
-
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.usertype.EnhancedUserType;
+
 /**
  * Simple type to support PostgreSQL ENUM types
  */
 public class PostgreEnumTypeSql implements EnhancedUserType {
+
   @Override
   public String objectToSQLString(Object value) {
     return value != null ? value.toString() : null;
@@ -34,7 +35,7 @@ public class PostgreEnumTypeSql implements EnhancedUserType {
   }
 
   @Override
-  public Class returnedClass() {
+  public Class<String> returnedClass() {
     return String.class;
   }
 
@@ -49,12 +50,14 @@ public class PostgreEnumTypeSql implements EnhancedUserType {
   }
 
   @Override
-  public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner) throws SQLException {
+  public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner)
+      throws SQLException {
     return rs.getString(names[0]);
   }
 
   @Override
-  public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor session) throws SQLException {
+  public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor session)
+      throws SQLException {
     if (value == null) {
       st.setNull(index, Types.OTHER);
     } else {
