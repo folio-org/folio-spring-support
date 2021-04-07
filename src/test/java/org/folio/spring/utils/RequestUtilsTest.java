@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -129,7 +130,14 @@ class RequestUtilsTest {
   private static Map<String, Collection<String>> keysToLowercase(Map<String, Collection<String>> headers) {
     Map<String, Collection<String>> result = new HashMap<>();
 
-    headers.forEach((key, values) -> result.put(key.toLowerCase(), values));
+    headers.forEach((key, values) -> result.merge(key.toLowerCase(), values, (existing, added) -> {
+      List<String> combined = new ArrayList<>(existing.size() + added.size());
+
+      combined.addAll(existing);
+      combined.addAll(added);
+
+      return combined;
+    }));
 
     return result;
   }

@@ -22,7 +22,7 @@ import org.folio.junit.extension.RandomInt;
 import org.folio.junit.extension.RandomLong;
 import org.folio.junit.extension.RandomParametersExtension;
 
-@ExtendWith({RandomParametersExtension.class})
+@ExtendWith(RandomParametersExtension.class)
 class OffsetRequestTest {
 
   private OffsetRequest req;
