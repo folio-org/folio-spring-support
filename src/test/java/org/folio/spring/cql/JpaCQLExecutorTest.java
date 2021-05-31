@@ -80,8 +80,27 @@ class JpaCQLExecutorTest {
   }
 
   @Test
+  public void testSelectAllRecordsByNameOrAge() {
+    var page = personRepository.findByCQL("name=John or age<21", OffsetRequest.of(0, 10));
+    assertThat(page)
+      .hasSize(3)
+      .extracting(Person::getAge)
+      .startsWith(20)
+      .endsWith(40);
+  }
+
+  @Test
+  public void testSelectAllRecordsByNameNot() {
+    var page = personRepository.findByCQL("cql.allRecords=1 NOT age>=22", OffsetRequest.of(0, 10));
+    assertThat(page)
+      .hasSize(1)
+      .extracting(Person::getAge)
+      .contains(20);
+  }
+
+  @Test
   public void testSelectAllRecordsByCityNameEquals() {
-    var page = personRepository.findByCQL("city.name=Kyiv", OffsetRequest.of(0, 10));
+    var page = personRepository.findByCQL("city.name==Kyiv", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(1)
       .extracting(Person::getCity)
