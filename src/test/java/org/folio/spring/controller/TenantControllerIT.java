@@ -28,8 +28,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest(
-    properties = {"header.validation.x-okapi-tenant.exclude.base-paths=/admin,/swagger-ui"})
+@SpringBootTest(properties = {
+  "header.validation.x-okapi-tenant.exclude.base-paths=/admin,/swagger-ui",
+  "folio.jpa.repository.base-packages=org.folio.spring.controller"
+})
 @AutoConfigureEmbeddedDatabase(beanName = "dataSource")
 @EnableAutoConfiguration(exclude = FlywayAutoConfiguration.class)
 @AutoConfigureMockMvc
