@@ -140,9 +140,8 @@ class JpaCQLExecutorTest {
 
   @Test
   void testUnsupportedFeatureQuery() {
-    var offsetRequest = OffsetRequest.of(0, 10);
     Assertions.assertThrows(CqlQueryValidationException.class,
-      () -> personRepository.findByCQL("name prox Jon", offsetRequest)
+      () -> personRepository.count("name prox Jon")
     );
   }
 }
