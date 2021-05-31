@@ -38,8 +38,8 @@ class JpaCQLExecutorTest {
 
   @Test
   void testTypesOfRepositories() {
-    assertThat(personRepository.getClass()).isInstanceOf(JpaCqlRepository.class);
-    assertThat(cityRepository.getClass()).isInstanceOf(JpaRepository.class);
+    assertThat(personRepository).isInstanceOf(JpaCqlRepository.class);
+    assertThat(cityRepository).isInstanceOf(JpaRepository.class);
   }
 
   @Test
