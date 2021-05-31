@@ -33,7 +33,7 @@ public class JpaCqlRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> impl
     super(domainClass, em);
     this.domainClass = domainClass;
     this.em = em;
-    cql2JPACriteria = new Cql2JpaCriteria<>(domainClass, em);
+    this.cql2JPACriteria = new Cql2JpaCriteria<>(domainClass, em);
   }
 
   @Override

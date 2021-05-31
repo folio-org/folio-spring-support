@@ -10,9 +10,11 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.context.jdbc.Sql;
 
 import org.folio.spring.cql.domain.City;
+import org.folio.spring.cql.domain.CityRepository;
 import org.folio.spring.cql.domain.Person;
 import org.folio.spring.cql.domain.PersonRepository;
 import org.folio.spring.data.OffsetRequest;
@@ -26,12 +28,22 @@ class JpaCQLExecutorTest {
   @Autowired
   private PersonRepository personRepository;
 
+  @Autowired
+  private CityRepository cityRepository;
+
   @Configuration
   static class TestConfiguration {
+
   }
 
   @Test
-  public void testSelectAllRecordsWithSort() {
+  void testTypesOfRepositories() {
+    assertThat(personRepository.getClass()).isInstanceOf(JpaCqlRepository.class);
+    assertThat(cityRepository.getClass()).isInstanceOf(JpaRepository.class);
+  }
+
+  @Test
+  void testSelectAllRecordsWithSort() {
     var page = personRepository.findByCQL("(cql.allRecords=1)sortby age/sort.ascending", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(3)
@@ -41,7 +53,17 @@ class JpaCQLExecutorTest {
   }
 
   @Test
-  public void testSelectAllRecordsWithSortAndPagination() {
+  void testSelectAllRecordsWithAsterisks() {
+    var page = personRepository.findByCQL("name=* sortby age/sort.ascending", OffsetRequest.of(0, 10));
+    assertThat(page)
+      .hasSize(3)
+      .extracting(Person::getAge)
+      .startsWith(20)
+      .endsWith(40);
+  }
+
+  @Test
+  void testSelectAllRecordsWithSortAndPagination() {
     var page1 = personRepository.findByCQL("(cql.allRecords=1)sortby age/sort.descending", OffsetRequest.of(0, 1));
     var page2 = personRepository.findByCQL("(cql.allRecords=1)sortby age/sort.descending", OffsetRequest.of(1, 1));
     var page3 = personRepository.findByCQL("(cql.allRecords=1)sortby age/sort.descending", OffsetRequest.of(2, 1));
@@ -62,7 +84,7 @@ class JpaCQLExecutorTest {
   }
 
   @Test
-  public void testSelectAllRecordsByNameEquals() {
+  void testSelectAllRecordsByNameEquals() {
     var page = personRepository.findByCQL("name=Jane", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(1)
@@ -71,7 +93,7 @@ class JpaCQLExecutorTest {
   }
 
   @Test
-  public void testSelectAllRecordsByNameAndAge() {
+  void testSelectAllRecordsByNameAndAge() {
     var page = personRepository.findByCQL("name=John and age>20", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(2)
@@ -80,7 +102,7 @@ class JpaCQLExecutorTest {
   }
 
   @Test
-  public void testSelectAllRecordsByNameOrAge() {
+  void testSelectAllRecordsByNameOrAge() {
     var page = personRepository.findByCQL("name=John or age<21", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(3)
@@ -90,7 +112,7 @@ class JpaCQLExecutorTest {
   }
 
   @Test
-  public void testSelectAllRecordsByNameNot() {
+  void testSelectAllRecordsByNameNot() {
     var page = personRepository.findByCQL("cql.allRecords=1 NOT age>=22", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(1)
@@ -99,7 +121,7 @@ class JpaCQLExecutorTest {
   }
 
   @Test
-  public void testSelectAllRecordsByCityNameEquals() {
+  void testSelectAllRecordsByCityNameEquals() {
     var page = personRepository.findByCQL("city.name==Kyiv", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(1)
@@ -109,16 +131,18 @@ class JpaCQLExecutorTest {
   }
 
   @Test
-  public void testInvalidQuery() {
+  void testInvalidQuery() {
+    var offsetRequest = OffsetRequest.of(0, 10);
     Assertions.assertThrows(CqlQueryValidationException.class,
-      () -> personRepository.findByCQL("!!sortby name", OffsetRequest.of(0, 10))
+      () -> personRepository.findByCQL("!!sortby name", offsetRequest)
     );
   }
 
   @Test
-  public void testUnsupportedFeatureQuery() {
+  void testUnsupportedFeatureQuery() {
+    var offsetRequest = OffsetRequest.of(0, 10);
     Assertions.assertThrows(CqlQueryValidationException.class,
-      () -> personRepository.findByCQL("name prox Jon", OffsetRequest.of(0, 10))
+      () -> personRepository.findByCQL("name prox Jon", offsetRequest)
     );
   }
 }
