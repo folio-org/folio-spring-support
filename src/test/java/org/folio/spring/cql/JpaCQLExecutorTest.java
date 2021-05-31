@@ -3,6 +3,7 @@ package org.folio.spring.cql;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -31,12 +32,12 @@ class JpaCQLExecutorTest {
 
   @Test
   public void testSelectAllRecordsWithSort() {
-    var page = personRepository.findByCQL("(cql.allRecords=1)sortby age/sort.descending", OffsetRequest.of(0, 10));
+    var page = personRepository.findByCQL("(cql.allRecords=1)sortby age/sort.ascending", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(3)
       .extracting(Person::getAge)
-      .startsWith(40)
-      .endsWith(20);
+      .startsWith(20)
+      .endsWith(40);
   }
 
   @Test
@@ -86,5 +87,19 @@ class JpaCQLExecutorTest {
       .extracting(Person::getCity)
       .extracting(City::getName)
       .contains("Kyiv");
+  }
+
+  @Test
+  public void testInvalidQuery() {
+    Assertions.assertThrows(CqlQueryValidationException.class,
+      () -> personRepository.findByCQL("!!sortby name", OffsetRequest.of(0, 10))
+    );
+  }
+
+  @Test
+  public void testUnsupportedFeatureQuery() {
+    Assertions.assertThrows(CqlQueryValidationException.class,
+      () -> personRepository.findByCQL("name prox Jon", OffsetRequest.of(0, 10))
+    );
   }
 }

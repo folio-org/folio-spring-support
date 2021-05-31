@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 
-import org.folio.cql2pgjson.exception.QueryValidationException;
 import org.folio.spring.data.OffsetRequest;
 
 @Log4j2
@@ -39,29 +38,19 @@ public class JpaCqlRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> impl
 
   @Override
   public Page<T> findByCQL(String cql, OffsetRequest pageable) {
-    try {
-      var criteria = cql2JPACriteria.toCollectCriteria(cql);
-      List<T> resultList = em
-        .createQuery(criteria)
-        .setFirstResult((int) pageable.getOffset())
-        .setMaxResults(pageable.getPageSize())
-        .getResultList();
-      return PageableExecutionUtils.getPage(resultList, pageable, () -> count(cql));
-    } catch (QueryValidationException e) {
-      log.error("Can not invoke CQL query {} ", cql);
-      throw new IllegalArgumentException(e);
-    }
+    var criteria = cql2JPACriteria.toCollectCriteria(cql);
+    List<T> resultList = em
+      .createQuery(criteria)
+      .setFirstResult((int) pageable.getOffset())
+      .setMaxResults(pageable.getPageSize())
+      .getResultList();
+    return PageableExecutionUtils.getPage(resultList, pageable, () -> count(cql));
   }
 
   @Override
   public long count(String cql) {
-    try {
-      var criteria = cql2JPACriteria.toCountCriteria(cql);
-      return em.createQuery(criteria).getSingleResult();
-    } catch (QueryValidationException e) {
-      log.error("Can not invoke CQL query {}. Exception {}", cql, e.getMessage());
-      throw new IllegalArgumentException(e);
-    }
+    var criteria = cql2JPACriteria.toCountCriteria(cql);
+    return em.createQuery(criteria).getSingleResult();
   }
 
 }

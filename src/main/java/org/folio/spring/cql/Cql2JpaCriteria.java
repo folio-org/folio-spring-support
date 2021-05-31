@@ -21,6 +21,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.z3950.zing.cql.CQLAndNode;
 import org.z3950.zing.cql.CQLBooleanNode;
 import org.z3950.zing.cql.CQLNode;
@@ -47,10 +48,12 @@ public class Cql2JpaCriteria<E> {
 
   private final Class<E> domainClass;
   private final EntityManager em;
+  private final CQLParser cqlParser;
 
   public Cql2JpaCriteria(Class<E> domainClass, EntityManager entityManager) {
     this.domainClass = domainClass;
     this.em = entityManager;
+    this.cqlParser = new CQLParser();
   }
 
   /**
@@ -59,20 +62,19 @@ public class Cql2JpaCriteria<E> {
    * @param cql the query to convert
    * @return {@link CriteriaQuery} for selection
    */
-  public CriteriaQuery<E> toCollectCriteria(String cql) throws QueryValidationException {
+  public CriteriaQuery<E> toCollectCriteria(String cql) {
     try {
-      CQLParser parser = new CQLParser();
-      CQLNode node = parser.parse(cql);
+      var node = cqlParser.parse(cql);
 
-      CriteriaBuilder cb = em.getCriteriaBuilder();
-      CriteriaQuery<E> query = cb.createQuery(domainClass);
-      Root<E> root = query.from(domainClass);
+      var cb = em.getCriteriaBuilder();
+      var query = cb.createQuery(domainClass);
+      var root = query.from(domainClass);
       var predicate = createPredicate(node, root, cb, query);
 
       query.where(predicate);
       return query;
-    } catch (IOException | CQLParseException e) {
-      throw new QueryValidationException(e);
+    } catch (IOException | QueryValidationException | CQLParseException e) {
+      throw new CqlQueryValidationException(e);
     }
   }
 
@@ -82,22 +84,21 @@ public class Cql2JpaCriteria<E> {
    * @param cql the query to convert
    * @return {@link CriteriaQuery} for count
    */
-  public CriteriaQuery<Long> toCountCriteria(String cql) throws QueryValidationException {
+  public CriteriaQuery<Long> toCountCriteria(String cql) {
     try {
-      CQLParser parser = new CQLParser();
-      CQLNode node = parser.parse(cql);
+      var node = cqlParser.parse(cql);
 
-      CriteriaBuilder cb = em.getCriteriaBuilder();
-      CriteriaQuery<Long> query = cb.createQuery(Long.class);
-      Root<E> root = query.from(domainClass);
+      var cb = em.getCriteriaBuilder();
+      var query = cb.createQuery(Long.class);
+      var root = query.from(domainClass);
       query.select(cb.count(root));
       var predicate = createPredicate(node, root, cb, query);
 
       query.orderBy(Collections.emptyList());
       query.where(predicate);
       return query;
-    } catch (IOException | CQLParseException e) {
-      throw new QueryValidationException(e);
+    } catch (IOException | CQLParseException | QueryValidationException e) {
+      throw new CqlQueryValidationException(e);
     }
   }
 
@@ -119,7 +120,7 @@ public class Cql2JpaCriteria<E> {
     List<Order> orders = new ArrayList<>();
 
     for (ModifierSet sortIndex : node.getSortIndexes()) {
-      final CqlModifiers modifiers = new CqlModifiers(sortIndex);
+      var modifiers = new CqlModifiers(sortIndex);
       orders.add(
         CqlSort.DESCENDING.equals(modifiers.getCqlSort())
           ? cb.desc(root.get(sortIndex.getBase()))
@@ -136,10 +137,6 @@ public class Cql2JpaCriteria<E> {
       return processBoolean((CQLBooleanNode) node, cb, root);
     }
     throw createUnsupportedException(node);
-  }
-
-  private static CQLFeatureUnsupportedException createUnsupportedException(CQLNode node) {
-    return new CQLFeatureUnsupportedException("Not implemented yet: " + node.getClass().getName());
   }
 
   private Predicate processBoolean(CQLBooleanNode node, CriteriaBuilder cb, Root<E> root) throws QueryValidationException {
@@ -166,19 +163,23 @@ public class Cql2JpaCriteria<E> {
 
   private Predicate processTerm(CQLTermNode node, CriteriaBuilder cb, Root<E> root) throws QueryValidationException {
     String fieldName = node.getIndex();
-    if ("cql.allRecords".equalsIgnoreCase(fieldName)) {
-      return cb.and();
+    if (StringUtils.startsWithIgnoreCase(fieldName, "cql")) {
+      if ("cql.allRecords".equalsIgnoreCase(fieldName)) {
+        return cb.and();
+      } else {
+        throw createUnsupportedException(node);
+      }
     }
 
     var field = getPath(fieldName, root);
-    CqlModifiers cqlModifiers = new CqlModifiers(node);
+    var cqlModifiers = new CqlModifiers(node);
     return indexNode(field, node, cqlModifiers, cb);
   }
 
   private Path<?> getPath(String fieldName, Root<E> root) {
     if (fieldName.contains(".")) {
       final int dotIdx = fieldName.indexOf(".");
-      final String attributeName = fieldName.substring(0, dotIdx);
+      final var attributeName = fieldName.substring(0, dotIdx);
       Join<E, Object> children = root.join(attributeName, JoinType.LEFT);
       root.fetch(attributeName);
       return children.get(fieldName.substring(dotIdx + 1));
@@ -283,12 +284,16 @@ public class Cql2JpaCriteria<E> {
     } else if (Boolean.class.equals(javaType)) {
       val = Boolean.valueOf((String) val);
     } else if (Date.class.equals(javaType)) {
-      LocalDateTime dateTime = LocalDateTime.parse((String) val);
+      var dateTime = LocalDateTime.parse((String) val);
       val = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
     } else if (javaType.isEnum()) {
       field = field.as(String.class);
     }
 
     return toPredicate(field, val, comparator, cb);
+  }
+
+  private static CQLFeatureUnsupportedException createUnsupportedException(CQLNode node) {
+    return new CQLFeatureUnsupportedException("Not implemented yet: " + node.getClass().getName());
   }
 }
