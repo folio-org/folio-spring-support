@@ -38,7 +38,7 @@ public class OffsetRequest implements Pageable {
   }
 
   public static OffsetRequest of(int offset, int limit) {
-    return of(offset, limit, Sort.unsorted());
+    return of(offset, limit, DEFAULT_SORT);
   }
 
   public static OffsetRequest of(int offset, int limit, Sort sort) {
