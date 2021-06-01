@@ -1,5 +1,8 @@
 package org.folio.spring.cql.domain;
 
+import java.util.Date;
+import java.util.UUID;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,6 +21,9 @@ public class Person {
   private int id;
   private String name;
   private int age;
+  private UUID identifier;
+  private Boolean isAlive;
+  private Date dateBorn;
 
   @ManyToOne
   @JoinColumn(name = "city_id")

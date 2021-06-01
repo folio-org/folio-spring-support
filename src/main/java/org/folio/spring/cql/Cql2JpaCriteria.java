@@ -132,11 +132,11 @@ public class Cql2JpaCriteria<E> {
   private Predicate process(CQLNode node, CriteriaBuilder cb, Root<E> root) throws QueryValidationException {
     if (node instanceof CQLTermNode) {
       return processTerm((CQLTermNode) node, cb, root);
-    }
-    if (node instanceof CQLBooleanNode) {
+    } else if (node instanceof CQLBooleanNode) {
       return processBoolean((CQLBooleanNode) node, cb, root);
+    } else {
+      throw createUnsupportedException(node);
     }
-    throw createUnsupportedException(node);
   }
 
   private Predicate processBoolean(CQLBooleanNode node, CriteriaBuilder cb, Root<E> root) throws QueryValidationException {
@@ -189,8 +189,7 @@ public class Cql2JpaCriteria<E> {
   }
 
   private <G extends Comparable<? super G>> Predicate toPredicate(Expression<G> field, G value, String comparator,
-                                                                  CriteriaBuilder cb)
-    throws QueryValidationException {
+                                                                  CriteriaBuilder cb) throws QueryValidationException {
 
     switch (comparator) {
       case ">":
@@ -294,6 +293,7 @@ public class Cql2JpaCriteria<E> {
   }
 
   private static CQLFeatureUnsupportedException createUnsupportedException(CQLNode node) {
-    return new CQLFeatureUnsupportedException("Not implemented yet: " + node.getClass().getName());
+    return new CQLFeatureUnsupportedException(
+      String.format("Not implemented yet node type: %s, CQL: %s", node.getClass().getSimpleName(), node.toCQL()));
   }
 }

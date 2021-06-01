@@ -23,7 +23,7 @@ import org.folio.spring.data.OffsetRequest;
 @AutoConfigureEmbeddedDatabase(beanName = "dataSource")
 @EnableAutoConfiguration(exclude = FlywayAutoConfiguration.class)
 @Sql({"/schema.sql", "/insert-data.sql"})
-class JpaCQLExecutorTest {
+class JpaCqlRepositoryTest {
 
   @Autowired
   private PersonRepository personRepository;
