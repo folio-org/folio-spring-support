@@ -19,7 +19,6 @@ public class OffsetRequest implements Pageable {
   private final int limit;
   private final Sort sort;
 
-
   public OffsetRequest(long offset, int limit) {
     this(offset, limit, DEFAULT_SORT);
   }
@@ -36,6 +35,14 @@ public class OffsetRequest implements Pageable {
     this.limit = limit;
 
     this.sort = Objects.requireNonNull(sort, "Sorting cannot be null. Use Sort.unsorted() instead");
+  }
+
+  public static OffsetRequest of(int offset, int limit) {
+    return of(offset, limit, DEFAULT_SORT);
+  }
+
+  public static OffsetRequest of(int offset, int limit, Sort sort) {
+    return new OffsetRequest(offset, limit, sort);
   }
 
   @Override

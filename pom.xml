@@ -19,6 +19,7 @@
     <java.version>11</java.version>
     <spring-cloud-starter-openfeign.version>2.2.5.RELEASE</spring-cloud-starter-openfeign.version>
     <commons-lang3.version>3.5</commons-lang3.version>
+    <cql2pgjson.version>33.0.0</cql2pgjson.version>
     <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
     <openapi-generator.version>4.3.1</openapi-generator.version>
     <jackson-databind-nullable.version>0.1.0</jackson-databind-nullable.version>
@@ -93,6 +94,25 @@
       <artifactId>feign-okhttp</artifactId>
       <version>${feign-okhttp.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>cql2pgjson</artifactId>
+      <version>${cql2pgjson.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.folio</groupId>
+          <artifactId>util</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.folio.okapi</groupId>
+          <artifactId>okapi-common</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.folio</groupId>
+          <artifactId>testing</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
     <!-- OAS generation -->
     <dependency>
@@ -157,6 +177,16 @@
       <groupId>io.zonky.test</groupId>
       <artifactId>embedded-database-spring-test</artifactId>
       <version>1.6.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-testing</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
