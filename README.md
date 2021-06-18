@@ -13,6 +13,10 @@ This is a library (jar) that contains the basic functionality and main dependenc
 | -------- | ----------- | --------| --------|
 | `header.validation.x-okapi-tenant.exclude.base-paths` | Specifies base paths to exclude form `x-okapi-tenant` header validation.  See [TenantOkapiHeaderValidationFilter.java](src/main/java/org/folio/spring/filter/TenantOkapiHeaderValidationFilter.java) | `/admin` | `/admin,/swagger-ui` |
 | `folio.jpa.repository.base-packages` | Specifies base packages to scan for repositories  | `org.folio.*` | `org.folio.qm.dao` |
+| `folio.logging.request.enabled` | Turn on logging for incoming requests | `true` | `true or false` |
+| `folio.logging.request.level` | Specifies logging level for incoming requests | `full` | `none, basic, headers, full` |
+| `folio.logging.feign.enabled` | Turn on logging for outgoing requests in feign clients  | `true` | `true or false` |
+| `folio.logging.feign.level` | Specifies logging level for outgoing requests  | `basic` | `none, basic, headers, full` |
 
 ## CQL support
 To have ability to search entities in databases by CQL-queries:
@@ -34,3 +38,23 @@ public interface JpaCqlRepository<T, ID> extends JpaRepository<T, ID> {
   long count(String cql);
 }
 ```
+
+## Logging
+### Default logging format
+Library uses [log4j2](https://logging.apache.org/log4j/2.x/) for logging. There are two default log4j2 configurations:
+* `log4j2.properties` console/line based logger and it is the default
+* `log4j2-json.properties` JSON structured logging
+  
+To choose the JSON structured logging by using setting: `-Dlog4j.configurationFile=log4j2-json.properties`
+A module that wants to generate log4J2 logs in a different format can create a `log4j2.properties` file in the /resources directory.
+
+### Logging for incoming and outgoing requests
+By default, logging for incoming and outgoing request enabled. Module could disable it by setting: 
+* `folio.logging.request.enabled = false`
+* `folio.logging.feign.enabled = false`
+
+Also, it is possible to specify logging level:
+`none` - no logs
+`basic` - log request method and URI, response status and spent time
+`headers` - log all that `basic` and request headers
+`full` - log all that `headers` and request and response bodies

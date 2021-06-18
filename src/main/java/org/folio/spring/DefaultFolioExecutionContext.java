@@ -1,6 +1,7 @@
 package org.folio.spring;
 
 import static org.folio.spring.integration.XOkapiHeaders.OKAPI_HEADERS_PREFIX;
+import static org.folio.spring.integration.XOkapiHeaders.REQUEST_ID;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 import static org.folio.spring.integration.XOkapiHeaders.TOKEN;
 import static org.folio.spring.integration.XOkapiHeaders.URL;
@@ -24,6 +25,7 @@ public class DefaultFolioExecutionContext implements FolioExecutionContext {
   private final String okapiUrl;
   private final String token;
   private final UUID userId;
+  private final String requestId;
 
   public DefaultFolioExecutionContext(FolioModuleMetadata folioModuleMetadata, Map<String, Collection<String>> allHeaders) {
     this.folioModuleMetadata = folioModuleMetadata;
@@ -34,6 +36,7 @@ public class DefaultFolioExecutionContext implements FolioExecutionContext {
     this.tenantId = retrieveFirstSafe(okapiHeaders.get(TENANT));
     this.okapiUrl = retrieveFirstSafe(okapiHeaders.get(URL));
     this.token = retrieveFirstSafe(okapiHeaders.get(TOKEN));
+    this.requestId = retrieveFirstSafe(okapiHeaders.get(REQUEST_ID));
 
     var userIdString = retrieveFirstSafe(okapiHeaders.get(USER_ID));
     this.userId = userIdString.isEmpty() ? null : UUID.fromString(userIdString);
