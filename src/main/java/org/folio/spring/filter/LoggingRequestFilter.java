@@ -78,7 +78,7 @@ public class LoggingRequestFilter extends GenericFilterBean {
 
     if (level.ordinal() == Level.FULL.ordinal()) {
       var body = new String(request.getContentAsByteArray(), request.getCharacterEncoding());
-      log.info("[{}] {}", requestId, body);
+      log.info("[{}] Body: {}", requestId, body);
     }
 
     log.info("[{}] ---> END HTTP", requestId);
@@ -97,7 +97,7 @@ public class LoggingRequestFilter extends GenericFilterBean {
 
     if (level.ordinal() == Level.FULL.ordinal()) {
       var body = new String(response.getContentAsByteArray(), response.getCharacterEncoding());
-      log.info("[{}] {}", requestId, body);
+      log.info("[{}] Body: {}", requestId, body);
     }
 
     log.info("[{}] <--- END HTTP", requestId);

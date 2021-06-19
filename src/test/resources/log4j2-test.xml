@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" packages="org.folio.spring.filter.appender">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+        </Console>
+        <TestAppender name="TestAppender" >
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+        </TestAppender>
+    </Appenders>
+    <Loggers>
+        <Logger name="org.folio" level="All" />
+        <Root>
+            <AppenderRef ref="Console" level="All" />
+            <AppenderRef ref="TestAppender" level="All" />
+        </Root>
+    </Loggers>
+</Configuration>

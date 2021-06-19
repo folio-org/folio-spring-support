@@ -3,6 +3,7 @@ package org.folio.spring;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import static org.folio.spring.integration.XOkapiHeaders.REQUEST_ID;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 import static org.folio.spring.integration.XOkapiHeaders.TOKEN;
 import static org.folio.spring.integration.XOkapiHeaders.URL;
@@ -32,6 +33,7 @@ class DefaultFolioExecutionContextTest {
   @Test
   void testExtractionFromHeadersWhenAllNeededHeadersExists() {
     var userId = "ad162b38-1291-4437-8948-9d13eeced9f6";
+    var requestId = "heL9F";
     var token = "valid-token";
     var tenant = "tenant";
     var url = "http://okapi.com";
@@ -41,6 +43,7 @@ class DefaultFolioExecutionContextTest {
     headers.put(URL, singleton(url));
     headers.put(TOKEN, singleton(token));
     headers.put(USER_ID, singleton(userId));
+    headers.put(REQUEST_ID, singleton(requestId));
     headers.put("Accept", singleton("application/json"));
 
     var actual = new DefaultFolioExecutionContext(moduleMetadata, headers);
@@ -48,11 +51,12 @@ class DefaultFolioExecutionContextTest {
     Consumer<DefaultFolioExecutionContext> contextRequirements = context -> {
       assertThat(context.getFolioModuleMetadata()).isEqualTo(moduleMetadata);
       assertThat(context.getAllHeaders()).isEqualTo(headers);
-      assertThat(context.getOkapiHeaders()).containsOnlyKeys(TENANT, URL, TOKEN, USER_ID);
+      assertThat(context.getOkapiHeaders()).containsOnlyKeys(TENANT, URL, TOKEN, USER_ID, REQUEST_ID);
       assertThat(context.getOkapiUrl()).isEqualTo(url);
       assertThat(context.getToken()).isEqualTo(token);
       assertThat(context.getTenantId()).isEqualTo(tenant);
       assertThat(context.getUserId()).isEqualTo(UUID.fromString(userId));
+      assertThat(context.getRequestId()).isEqualTo(requestId);
     };
 
     assertThat(actual).satisfies(contextRequirements);
