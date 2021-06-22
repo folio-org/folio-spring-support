@@ -12,14 +12,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import org.folio.spring.integration.XOkapiHeaders;
+import org.folio.spring.utils.MultiReadHttpServletRequestWrapper;
 
 @Log4j2
 @Component
@@ -48,7 +49,7 @@ public class LoggingRequestFilter extends GenericFilterBean {
     }
   }
 
-  private void filterWrapped(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response,
+  private void filterWrapped(MultiReadHttpServletRequestWrapper request, ContentCachingResponseWrapper response,
                              FilterChain chain) throws ServletException, IOException {
     filterBefore(request);
     chain.doFilter(request, response);
@@ -56,7 +57,7 @@ public class LoggingRequestFilter extends GenericFilterBean {
     response.copyBodyToResponse();
   }
 
-  private void filterBefore(ContentCachingRequestWrapper request) throws UnsupportedEncodingException {
+  private void filterBefore(MultiReadHttpServletRequestWrapper request) throws IOException {
     request.setAttribute(START_TIME_ATTR, Instant.now().toEpochMilli());
 
     var requestId = getRequestId(request);
@@ -77,14 +78,14 @@ public class LoggingRequestFilter extends GenericFilterBean {
     }
 
     if (level.ordinal() == Level.FULL.ordinal()) {
-      var body = new String(request.getContentAsByteArray(), request.getCharacterEncoding());
+      var body = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
       log.info("[{}] Body: {}", requestId, body);
     }
 
     log.info("[{}] ---> END HTTP", requestId);
   }
 
-  private void filterAfter(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response)
+  private void filterAfter(MultiReadHttpServletRequestWrapper request, ContentCachingResponseWrapper response)
     throws UnsupportedEncodingException {
     var startTime = (long) request.getAttribute(START_TIME_ATTR);
     var requestId = getRequestId(request);
@@ -107,11 +108,11 @@ public class LoggingRequestFilter extends GenericFilterBean {
     return new ContentCachingResponseWrapper((HttpServletResponse) response);
   }
 
-  private ContentCachingRequestWrapper wrapRequest(ServletRequest request) {
-    return new ContentCachingRequestWrapper((HttpServletRequest) request);
+  private MultiReadHttpServletRequestWrapper wrapRequest(ServletRequest request) {
+    return new MultiReadHttpServletRequestWrapper((HttpServletRequest) request);
   }
 
-  private String getRequestId(ContentCachingRequestWrapper request) {
+  private String getRequestId(MultiReadHttpServletRequestWrapper request) {
     return request.getHeader(XOkapiHeaders.REQUEST_ID);
   }
 
