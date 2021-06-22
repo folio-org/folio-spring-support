@@ -152,7 +152,7 @@ class LoggingRequestFilterTest {
     filter.setOrder(0);
     var actualOrder = filter.getOrder();
 
-    assertThat(actualOrder).isEqualTo(0);
+    assertThat(actualOrder).isZero();
   }
 
   private Consumer<String> requestInfo() {

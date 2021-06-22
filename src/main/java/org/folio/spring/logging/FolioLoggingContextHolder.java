@@ -6,7 +6,10 @@ import org.apache.logging.log4j.LogManager;
 
 import org.folio.spring.FolioExecutionContext;
 
-public class FolioLoggingContextHolder {
+public final class FolioLoggingContextHolder {
+
+  private FolioLoggingContextHolder() {
+  }
 
   private static final String FOLIO_EXECUTION_CONTEXT_KEY = "FolioExecutionContext";
 

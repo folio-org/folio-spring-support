@@ -51,7 +51,8 @@ public class FeignClientConfiguration {
 
     @Override
     protected void log(String configKey, String format, Object... args) {
-      logger.info(String.format(methodTag(configKey) + format, args));
+      var message = String.format(methodTag(configKey) + format, args);
+      logger.info(message);
     }
   }
 }

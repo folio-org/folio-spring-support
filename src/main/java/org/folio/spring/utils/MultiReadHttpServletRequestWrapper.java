@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.NotImplementedException;
 
 public class MultiReadHttpServletRequestWrapper extends HttpServletRequestWrapper {
 
@@ -64,7 +65,7 @@ public class MultiReadHttpServletRequestWrapper extends HttpServletRequestWrappe
 
     @Override
     public void setReadListener(ReadListener listener) {
-      throw new RuntimeException("Not implemented");
+      throw new NotImplementedException("Not implemented");
     }
   }
 }
