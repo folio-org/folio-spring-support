@@ -5,6 +5,7 @@ import static org.assertj.core.data.Index.atIndex;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Collections;
@@ -27,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.mock.web.DelegatingServletInputStream;
 
 import org.folio.spring.filter.appender.TestAppender;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -41,6 +43,7 @@ class LoggingRequestFilterTest {
   private static final String TEST_REQUEST_ID = "10101";
   private static final int TEST_STATUS = 200;
   private static final String TEST_TOKEN = "test-token";
+  private static final String TEST_BODY = "test-body";
 
   @Mock
   private HttpServletRequest servletRequest;
@@ -52,7 +55,7 @@ class LoggingRequestFilterTest {
   private TestAppender testAppender;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws IOException {
     Map<String, String> testHeaders = new HashMap<>();
     testHeaders.put(XOkapiHeaders.REQUEST_ID, TEST_REQUEST_ID);
     testHeaders.put(XOkapiHeaders.TOKEN, TEST_TOKEN);
@@ -61,13 +64,14 @@ class LoggingRequestFilterTest {
     when(servletRequest.getMethod()).thenReturn(TEST_METHOD);
     when(servletRequest.getRequestURI()).thenReturn(TEST_URI);
     when(servletRequest.getQueryString()).thenReturn(TEST_QUERY);
-    when(servletRequest.getHeader(XOkapiHeaders.REQUEST_ID)).thenReturn(TEST_REQUEST_ID);
-    when(servletResponse.getStatus()).thenReturn(TEST_STATUS);
     when(servletRequest.getHeaderNames()).thenReturn(Collections.enumeration(testHeaders.keySet()));
-    when(servletRequest.getHeader(XOkapiHeaders.REQUEST_ID)).thenReturn(TEST_REQUEST_ID);
     when(servletRequest.getHeader(XOkapiHeaders.TOKEN)).thenReturn(TEST_TOKEN);
-    when(servletResponse.getCharacterEncoding()).thenReturn("UTF-8");
+    when(servletRequest.getHeader(XOkapiHeaders.REQUEST_ID)).thenReturn(TEST_REQUEST_ID);
+    when(servletRequest.getInputStream())
+      .thenReturn(new DelegatingServletInputStream(new ByteArrayInputStream(TEST_BODY.getBytes())));
     when(servletRequest.getCharacterEncoding()).thenReturn("UTF-8");
+    when(servletResponse.getCharacterEncoding()).thenReturn("UTF-8");
+    when(servletResponse.getStatus()).thenReturn(TEST_STATUS);
 
     final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     final Configuration config = ctx.getConfiguration();
@@ -116,7 +120,7 @@ class LoggingRequestFilterTest {
       .satisfies(requestInfo(), atIndex(0))
       .satisfies(requestHeader(XOkapiHeaders.TOKEN, TEST_TOKEN), atIndex(1))
       .satisfies(requestHeader(XOkapiHeaders.REQUEST_ID, TEST_REQUEST_ID), atIndex(2))
-      .satisfies(body(), atIndex(3))
+      .satisfies(body(TEST_BODY), atIndex(3))
       .satisfies(requestEndHttp(), atIndex(4))
       .satisfies(responseStatusWithTime(), atIndex(5))
       .satisfies(body(), atIndex(6))
@@ -124,26 +128,30 @@ class LoggingRequestFilterTest {
   }
 
   private Consumer<String> requestInfo() {
-    return s -> assertThat(s).isEqualTo("[" + TEST_REQUEST_ID + "] ---> " + TEST_METHOD + " " + TEST_URI + " " + TEST_QUERY);
+    return s -> assertThat(s).isEqualTo("---> " + TEST_METHOD + " " + TEST_URI + " " + TEST_QUERY);
   }
 
   private Consumer<String> requestHeader(String headerName, String headerValue) {
-    return s -> assertThat(s).isEqualTo("[" + TEST_REQUEST_ID + "] " + headerName + ": " + headerValue);
+    return s -> assertThat(s).isEqualTo(headerName + ": " + headerValue);
   }
 
   private Consumer<String> responseStatusWithTime() {
-    return s -> assertThat(s).matches("\\[" + TEST_REQUEST_ID + "] <--- " + TEST_STATUS + " in \\d+ms");
+    return s -> assertThat(s).matches("<--- " + TEST_STATUS + " in \\d+ms");
   }
 
   private Consumer<String> body() {
-    return s -> assertThat(s).isEqualTo("[" + TEST_REQUEST_ID + "] Body: ");
+    return body(null);
+  }
+
+  private Consumer<String> body(String testBody) {
+    return s -> assertThat(s).isEqualTo("Body: " + (testBody == null ? "" : testBody));
   }
 
   private Consumer<String> requestEndHttp() {
-    return s -> assertThat(s).isEqualTo("[" + TEST_REQUEST_ID + "] ---> END HTTP");
+    return s -> assertThat(s).isEqualTo("---> END HTTP");
   }
 
   private Consumer<String> responseEndHttp() {
-    return s -> assertThat(s).isEqualTo("[" + TEST_REQUEST_ID + "] <--- END HTTP");
+    return s -> assertThat(s).isEqualTo("<--- END HTTP");
   }
 }

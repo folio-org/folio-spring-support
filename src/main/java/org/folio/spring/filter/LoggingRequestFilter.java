@@ -15,11 +15,11 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.web.servlet.filter.OrderedFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
-import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.utils.MultiReadHttpServletRequestWrapper;
 
 @Log4j2
@@ -29,11 +29,11 @@ import org.folio.spring.utils.MultiReadHttpServletRequestWrapper;
   name = "enabled",
   havingValue = "true"
 )
-public class LoggingRequestFilter extends GenericFilterBean {
+public class LoggingRequestFilter extends GenericFilterBean implements OrderedFilter {
 
   private static final String START_TIME_ATTR = "startTime";
-
   private final Level level;
+  private int order = REQUEST_WRAPPER_FILTER_MAX_ORDER + 3;
 
   public LoggingRequestFilter(@Value("${folio.logging.request.level: FULL}") Level level) {
     this.level = level;
@@ -49,6 +49,14 @@ public class LoggingRequestFilter extends GenericFilterBean {
     }
   }
 
+  @Override public int getOrder() {
+    return order;
+  }
+
+  private void setOrder(int order) {
+    this.order = order;
+  }
+
   private void filterWrapped(MultiReadHttpServletRequestWrapper request, ContentCachingResponseWrapper response,
                              FilterChain chain) throws ServletException, IOException {
     filterBefore(request);
@@ -60,10 +68,7 @@ public class LoggingRequestFilter extends GenericFilterBean {
   private void filterBefore(MultiReadHttpServletRequestWrapper request) throws IOException {
     request.setAttribute(START_TIME_ATTR, Instant.now().toEpochMilli());
 
-    var requestId = getRequestId(request);
-
-    log.info("[{}] ---> {} {} {}",
-      requestId,
+    log.info("---> {} {} {}",
       request.getMethod(),
       request.getRequestURI(),
       request.getQueryString()
@@ -73,35 +78,33 @@ public class LoggingRequestFilter extends GenericFilterBean {
       var headerNames = request.getHeaderNames();
       while (headerNames.hasMoreElements()) {
         var headerName = headerNames.nextElement();
-        log.info("[{}] {}: {}", requestId, headerName, request.getHeader(headerName));
+        log.info("{}: {}", headerName, request.getHeader(headerName));
       }
     }
 
     if (level.ordinal() == Level.FULL.ordinal()) {
       var body = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
-      log.info("[{}] Body: {}", requestId, body);
+      log.info("Body: {}", body);
     }
 
-    log.info("[{}] ---> END HTTP", requestId);
+    log.info("---> END HTTP");
   }
 
   private void filterAfter(MultiReadHttpServletRequestWrapper request, ContentCachingResponseWrapper response)
     throws UnsupportedEncodingException {
     var startTime = (long) request.getAttribute(START_TIME_ATTR);
-    var requestId = getRequestId(request);
 
-    log.info("[{}] <--- {} in {}ms",
-      requestId,
+    log.info("<--- {} in {}ms",
       response.getStatus(),
       (Instant.now().toEpochMilli() - startTime)
     );
 
     if (level.ordinal() == Level.FULL.ordinal()) {
       var body = new String(response.getContentAsByteArray(), response.getCharacterEncoding());
-      log.info("[{}] Body: {}", requestId, body);
+      log.info("Body: {}", body);
     }
 
-    log.info("[{}] <--- END HTTP", requestId);
+    log.info("<--- END HTTP");
   }
 
   private ContentCachingResponseWrapper wrapResponse(ServletResponse response) {
@@ -110,10 +113,6 @@ public class LoggingRequestFilter extends GenericFilterBean {
 
   private MultiReadHttpServletRequestWrapper wrapRequest(ServletRequest request) {
     return new MultiReadHttpServletRequestWrapper((HttpServletRequest) request);
-  }
-
-  private String getRequestId(MultiReadHttpServletRequestWrapper request) {
-    return request.getHeader(XOkapiHeaders.REQUEST_ID);
   }
 
   enum Level {
