@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.springframework.boot.web.servlet.filter.OrderedFilter.REQUEST_WRAPPER_FILTER_MAX_ORDER;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -73,10 +75,19 @@ class LoggingRequestFilterTest {
     when(servletResponse.getCharacterEncoding()).thenReturn("UTF-8");
     when(servletResponse.getStatus()).thenReturn(TEST_STATUS);
 
-    final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-    final Configuration config = ctx.getConfiguration();
+    var ctx = (LoggerContext) LogManager.getContext(false);
+    var config = ctx.getConfiguration();
     testAppender = (TestAppender) config.getAppenders().get("TestAppender");
     testAppender.clearMessages();
+    setLoggerLevel(ctx, Level.INFO);
+  }
+
+  @Test
+  void loggingTestWithNotInfoLevel() throws ServletException, IOException {
+    setLoggerLevel((LoggerContext) LogManager.getContext(false), Level.FATAL);
+    var filter = new LoggingRequestFilter(LoggingRequestFilter.Level.BASIC);
+    filter.doFilter(servletRequest, servletResponse, filterChain);
+    assertThat(testAppender.getMessages()).isEmpty();
   }
 
   @Test
@@ -127,6 +138,23 @@ class LoggingRequestFilterTest {
       .satisfies(responseEndHttp(), atIndex(7));
   }
 
+  @Test
+  void getOrderTest() {
+    var filter = new LoggingRequestFilter(LoggingRequestFilter.Level.FULL);
+    var actualOrder = filter.getOrder();
+
+    assertThat(actualOrder).isEqualTo(REQUEST_WRAPPER_FILTER_MAX_ORDER + 3);
+  }
+
+  @Test
+  void setOrderTest() {
+    var filter = new LoggingRequestFilter(LoggingRequestFilter.Level.FULL);
+    filter.setOrder(0);
+    var actualOrder = filter.getOrder();
+
+    assertThat(actualOrder).isEqualTo(0);
+  }
+
   private Consumer<String> requestInfo() {
     return s -> assertThat(s).isEqualTo("---> " + TEST_METHOD + " " + TEST_URI + " " + TEST_QUERY);
   }
@@ -153,5 +181,9 @@ class LoggingRequestFilterTest {
 
   private Consumer<String> responseEndHttp() {
     return s -> assertThat(s).isEqualTo("<--- END HTTP");
+  }
+
+  private void setLoggerLevel(LoggerContext ctx, Level info) {
+    ctx.getLogger(LoggingRequestFilter.class.getName()).setLevel(info);
   }
 }

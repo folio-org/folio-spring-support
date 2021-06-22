@@ -49,12 +49,12 @@ public class FolioLoggingContextLookup implements StrLookup {
    */
   @Override
   public String lookup(LogEvent event, String key) {
+    if (key == null) {
+      throw new IllegalArgumentException("Key cannot be null");
+    }
     var folioExecutionContext = FolioLoggingContextHolder.getFolioExecutionContext();
     if (folioExecutionContext.isEmpty()) {
       return EMPTY;
-    }
-    if (key == null) {
-      throw new IllegalArgumentException("Key cannot be null");
     }
     return map.getOrDefault(key, c -> EMPTY).apply(folioExecutionContext.get());
   }

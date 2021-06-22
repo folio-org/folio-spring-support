@@ -49,11 +49,12 @@ public class LoggingRequestFilter extends GenericFilterBean implements OrderedFi
     }
   }
 
-  @Override public int getOrder() {
+  @Override
+  public int getOrder() {
     return order;
   }
 
-  private void setOrder(int order) {
+  public void setOrder(int order) {
     this.order = order;
   }
 

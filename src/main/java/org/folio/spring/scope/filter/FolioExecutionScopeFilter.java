@@ -49,7 +49,7 @@ public class FolioExecutionScopeFilter extends GenericFilterBean implements Orde
     return order;
   }
 
-  private void setOrder(int order) {
+  public void setOrder(int order) {
     this.order = order;
   }
 }
