@@ -32,10 +32,12 @@ import org.folio.spring.utils.MultiReadHttpServletRequestWrapper;
 public class LoggingRequestFilter extends GenericFilterBean implements OrderedFilter {
 
   private static final String START_TIME_ATTR = "startTime";
+
   private final Level level;
+
   private int order = REQUEST_WRAPPER_FILTER_MAX_ORDER + 3;
 
-  public LoggingRequestFilter(@Value("${folio.logging.request.level: FULL}") Level level) {
+  public LoggingRequestFilter(@Value("${folio.logging.request.level: BASIC}") Level level) {
     this.level = level;
   }
 
@@ -88,7 +90,9 @@ public class LoggingRequestFilter extends GenericFilterBean implements OrderedFi
       log.info("Body: {}", body);
     }
 
-    log.info("---> END HTTP");
+    if (level.ordinal() > Level.BASIC.ordinal()) {
+      log.info("---> END HTTP");
+    }
   }
 
   private void filterAfter(MultiReadHttpServletRequestWrapper request, ContentCachingResponseWrapper response)
@@ -103,9 +107,8 @@ public class LoggingRequestFilter extends GenericFilterBean implements OrderedFi
     if (level.ordinal() == Level.FULL.ordinal()) {
       var body = new String(response.getContentAsByteArray(), response.getCharacterEncoding());
       log.info("Body: {}", body);
+      log.info("<--- END HTTP");
     }
-
-    log.info("<--- END HTTP");
   }
 
   private ContentCachingResponseWrapper wrapResponse(ServletResponse response) {

@@ -14,7 +14,7 @@ This is a library (jar) that contains the basic functionality and main dependenc
 | `header.validation.x-okapi-tenant.exclude.base-paths` | Specifies base paths to exclude form `x-okapi-tenant` header validation.  See [TenantOkapiHeaderValidationFilter.java](src/main/java/org/folio/spring/filter/TenantOkapiHeaderValidationFilter.java) | `/admin` | `/admin,/swagger-ui` |
 | `folio.jpa.repository.base-packages` | Specifies base packages to scan for repositories  | `org.folio.*` | `org.folio.qm.dao` |
 | `folio.logging.request.enabled` | Turn on logging for incoming requests | `true` | `true or false` |
-| `folio.logging.request.level` | Specifies logging level for incoming requests | `full` | `none, basic, headers, full` |
+| `folio.logging.request.level` | Specifies logging level for incoming requests | `basic` | `none, basic, headers, full` |
 | `folio.logging.feign.enabled` | Turn on logging for outgoing requests in feign clients  | `true` | `true or false` |
 | `folio.logging.feign.level` | Specifies logging level for outgoing requests  | `basic` | `none, basic, headers, full` |
 
@@ -62,34 +62,31 @@ Also, it is possible to specify logging level:
 #### Log examples:
 * basic:
 ```text
-18:41:18 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter ---> PUT /records-editor/records/c9db5d7a-e1d4-11e8-9f32-f2801f1b9fd1 null
-18:41:18 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter ---> END HTTP
-18:41:19 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter <--- 202 in 753ms
-18:41:19 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter <--- END HTTP
+18:41:18 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter ---> PUT /records-editor/records/c9db5d7a-e1d4-11e8-9f32-f2801f1b9fd1 null
+18:41:19 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter <--- 202 in 753ms
 ```
 * headers:
 ```text
-18:44:23 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter ---> PUT /records-editor/records/c9db5d7a-e1d4-11e8-9f32-f2801f1b9fd1 null
-18:44:23 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter x-okapi-url: http://localhost:50017
-18:44:23 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter x-okapi-tenant: test
-18:44:23 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter x-okapi-request-id: 90911
-18:44:23 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter x-okapi-user-id: 4999cea7-55f8-4f18-b2bc-81155bce8636
-18:44:23 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter content-type: application/json; charset=UTF-8
-18:44:23 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter ---> END HTTP
-18:44:24 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter <--- 202 in 786ms
-18:44:24 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter <--- END HTTP
+18:44:23 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter ---> PUT /records-editor/records/c9db5d7a-e1d4-11e8-9f32-f2801f1b9fd1 null
+18:44:23 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter x-okapi-url: http://localhost:50017
+18:44:23 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter x-okapi-tenant: <tenandId>
+18:44:23 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter x-okapi-request-id: <requestId>
+18:44:23 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter x-okapi-user-id: <userId>
+18:44:23 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter content-type: application/json; charset=UTF-8
+18:44:23 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter ---> END HTTP
+18:44:24 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter <--- 202 in 786ms
 ```
 * full:
 ```text
-18:46:17 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter ---> PUT /records-editor/records/c9db5d7a-e1d4-11e8-9f32-f2801f1b9fd1 null
-18:46:17 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter x-okapi-url: http://localhost:53146
-18:46:17 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter x-okapi-tenant: test
-18:46:17 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter x-okapi-request-id: 90911
-18:46:17 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter x-okapi-user-id: 4999cea7-55f8-4f18-b2bc-81155bce8636
-18:46:17 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter content-type: application/json; charset=UTF-8
-18:46:17 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter Body: {"parsedRecordId":"c9db5d7a-e1d4-11e8-9f32-f2801f1b9fd1","parsedRecordDtoId":"c56b70ce-4ef6-47ef-8bc3-c470bafa0b8c","suppressDiscovery":false}
-18:46:17 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter ---> END HTTP
-18:46:18 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter <--- 202 in 714ms
-18:46:18 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter Body: 
-18:46:18 [90911] [test] [4999cea7-55f8-4f18-b2bc-81155bce8636] [mod-quick-marc] INFO  LoggingRequestFilter <--- END HTTP
+18:46:17 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter ---> PUT /records-editor/records/c9db5d7a-e1d4-11e8-9f32-f2801f1b9fd1 null
+18:46:17 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter x-okapi-url: http://localhost:53146
+18:46:17 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter x-okapi-tenant: <tenandId>
+18:46:17 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter x-okapi-request-id: <requestId>
+18:46:17 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter x-okapi-user-id: <userId>
+18:46:17 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter content-type: application/json; charset=UTF-8
+18:46:17 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter Body: {"parsedRecordId":"c9db5d7a-e1d4-11e8-9f32-f2801f1b9fd1","parsedRecordDtoId":"c56b70ce-4ef6-47ef-8bc3-c470bafa0b8c","suppressDiscovery":false}
+18:46:17 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter ---> END HTTP
+18:46:18 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter <--- 202 in 714ms
+18:46:18 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter Body: 
+18:46:18 [<requestId>] [<tenandId>] [<userId>] [<moduleId>] INFO  LoggingRequestFilter <--- END HTTP
 ```

@@ -95,12 +95,10 @@ class LoggingRequestFilterTest {
     filter.doFilter(servletRequest, servletResponse, filterChain);
 
     assertThat(testAppender.getMessages())
-      .hasSize(4)
+      .hasSize(2)
       .extracting(logEvent -> logEvent.getMessage().getFormattedMessage())
       .satisfies(requestInfo(), atIndex(0))
-      .satisfies(requestEndHttp(), atIndex(1))
-      .satisfies(responseStatusWithTime(), atIndex(2))
-      .satisfies(responseEndHttp(), atIndex(3));
+      .satisfies(responseStatusWithTime(), atIndex(1));
   }
 
   @Test
@@ -109,14 +107,13 @@ class LoggingRequestFilterTest {
     filter.doFilter(servletRequest, servletResponse, filterChain);
 
     assertThat(testAppender.getMessages())
-      .hasSize(6)
+      .hasSize(5)
       .extracting(logEvent -> logEvent.getMessage().getFormattedMessage())
       .satisfies(requestInfo(), atIndex(0))
       .satisfies(requestHeader(XOkapiHeaders.TOKEN, TEST_TOKEN), atIndex(1))
       .satisfies(requestHeader(XOkapiHeaders.REQUEST_ID, TEST_REQUEST_ID), atIndex(2))
       .satisfies(requestEndHttp(), atIndex(3))
-      .satisfies(responseStatusWithTime(), atIndex(4))
-      .satisfies(responseEndHttp(), atIndex(5));
+      .satisfies(responseStatusWithTime(), atIndex(4));
   }
 
   @Test
