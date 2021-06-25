@@ -16,6 +16,7 @@ class FolioExecutionContextTest {
       assertNull(ctx.getOkapiUrl());
       assertNull(ctx.getToken());
       assertNull(ctx.getUserId());
+      assertNull(ctx.getRequestId());
       assertNull(ctx.getAllHeaders());
       assertNull(ctx.getOkapiHeaders());
       assertNull(ctx.getFolioModuleMetadata());

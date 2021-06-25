@@ -22,6 +22,10 @@ public interface FolioExecutionContext {
     return null;
   }
 
+  default String getRequestId() {
+    return null;
+  }
+
   default Map<String, Collection<String>> getAllHeaders() {
     return null;
   }

@@ -3,6 +3,9 @@ package org.folio.spring.scope;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.logging.FolioLoggingContextHolder;
+
+import org.apache.logging.log4j.LogManager;
 import org.springframework.core.NamedInheritableThreadLocal;
 
 import java.util.Map;
@@ -29,11 +32,13 @@ public class FolioExecutionScopeExecutionContextManager {
     scopeMap.put(CONVERSATION_ID_KEY, UUID.randomUUID().toString());
     folioExecutionScopeHolder.set(scopeMap);
     folioExecutionContextHolder.set(folioExecutionContext);
+    FolioLoggingContextHolder.putFolioExecutionContext(folioExecutionContext);
   }
 
   public static void endFolioExecutionContext() {
     folioExecutionContextHolder.remove();
     folioExecutionScopeHolder.remove();
+    FolioLoggingContextHolder.removeFolioExecutionContext();
   }
 
   static FolioExecutionContext getFolioExecutionContext() {
