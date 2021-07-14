@@ -5,7 +5,6 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.logging.FolioLoggingContextHolder;
 
-import org.apache.logging.log4j.LogManager;
 import org.springframework.core.NamedInheritableThreadLocal;
 
 import java.util.Map;
