@@ -4,7 +4,7 @@ import liquibase.database.core.PostgresDatabase;
 import liquibase.exception.DatabaseException;
 
 /**
- * Override default behaviour that override search_path that sets in {@link org.folio.spring.config.DataSourceFolioWrapper}
+ * Override default behaviour that change search_path was set in {@link org.folio.spring.config.DataSourceFolioWrapper}
  */
 public class FolioPostgresDatabase extends PostgresDatabase {
 

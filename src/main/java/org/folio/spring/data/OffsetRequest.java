@@ -91,7 +91,7 @@ public class OffsetRequest implements Pageable {
   @Override
   @NonNull
   public Pageable withPage(int pageNumber) {
-    return new OffsetRequest(pageNumber, getPageSize(), getSort());
+    return new OffsetRequest((long) pageNumber * getPageSize(), getPageSize(), getSort());
   }
 
   @Override
