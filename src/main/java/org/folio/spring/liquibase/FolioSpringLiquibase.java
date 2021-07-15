@@ -1,15 +1,17 @@
 package org.folio.spring.liquibase;
 
+import java.sql.SQLException;
+import java.util.regex.Pattern;
+
+import liquibase.database.DatabaseFactory;
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 
-import java.sql.SQLException;
-import java.util.regex.Pattern;
-
 @Log4j2
 public class FolioSpringLiquibase extends SpringLiquibase {
+
   private static final Pattern NON_WORD_CHARACTERS = Pattern.compile("[^a-zA-Z0-9_]");
 
   @Override
@@ -18,6 +20,7 @@ public class FolioSpringLiquibase extends SpringLiquibase {
   }
 
   public void performLiquibaseUpdate() throws LiquibaseException {
+    DatabaseFactory.getInstance().register(new FolioPostgresDatabase());
     var defaultSchema = getDefaultSchema();
     if (StringUtils.isNotBlank(defaultSchema)) {
       //DB schema name check to prevent SQL injection.

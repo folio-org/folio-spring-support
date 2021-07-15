@@ -123,6 +123,18 @@ class OffsetRequestTest {
     }
 
     @Test
+    void shouldReturnSpecifiedPage() {
+      var pageNumber = 10;
+      Pageable first = req.withPage(pageNumber);
+
+      assertEquals(new OffsetRequest(
+          (long) pageNumber * req.getPageSize(),
+          req.getPageSize(),
+          req.getSort()),
+        first);
+    }
+
+    @Test
     void shouldHavePreviousPage() {
       assertTrue(req.hasPrevious());
     }

@@ -89,6 +89,12 @@ public class OffsetRequest implements Pageable {
   }
 
   @Override
+  @NonNull
+  public Pageable withPage(int pageNumber) {
+    return new OffsetRequest((long) pageNumber * getPageSize(), getPageSize(), getSort());
+  }
+
+  @Override
   public boolean hasPrevious() {
     return offset > limit;
   }
