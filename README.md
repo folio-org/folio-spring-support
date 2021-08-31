@@ -59,6 +59,7 @@ Also, it is possible to specify logging level:
 `headers` - log all that `basic` and request headers
 `full` - log all that `headers` and request and response bodies
 
+***Note:*** *In case of you have async requests in your module (DeferredResult, CompletableFuture, etc.) then you should disable default logging for requests.* 
 #### Log examples:
 * basic:
 ```text
