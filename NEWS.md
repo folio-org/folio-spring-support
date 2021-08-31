@@ -1,3 +1,9 @@
+## 2.0.0 2021-09-01
+ * FOLSPRINGB-19 Setup default logging
+ * FOLSPRINGB-21 Add CQL support
+ * FOLSPRINGB-23 Remove deprecated method getUserName() from FolioExecutionContext
+ * FOLSPRINGB-25 Upgrade Spring Boot to v2.5.2
+
 ## 1.0.5 2021-03-25
  * FOLSPRINGB-15 Use x-okapi-user-id header to populate userId
 
