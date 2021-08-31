@@ -36,5 +36,5 @@ public interface UsersClient {
   }
 }
 ```
- 4. Default for Folio log4j2 configurations introduced: `log4j2.properties` for plain and `log4j2-json.properties` for json format. So, you could remove log4j2 configurations from your module. See details in [README](../README.md#default-logging-format).
- 5. Default logging for incoming and outgoing requests introduced. You should decide if you will use this mechanism. See details in [README](../README.md#logging-for-incoming-and-outgoing-requests).
+ 4. The default configurations for Folio log4j2 are introduced: `log4j2.properties` for plain and `log4j2-json.properties` for json format. So, you could remove log4j2 configurations from your module. See details in [README](../README.md#default-logging-format).
+ 5. Default logging for incoming and outgoing requests introduced. You should decide whether to use this mechanism or not. See details in [README](../README.md#logging-for-incoming-and-outgoing-requests).
