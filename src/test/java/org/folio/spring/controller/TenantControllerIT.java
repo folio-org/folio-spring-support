@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 
+import java.util.List;
+
 import javax.sql.DataSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +30,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import org.folio.spring.filter.TenantOkapiHeaderValidationFilter;
+import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 
 @SpringBootTest(properties = {
@@ -75,7 +78,11 @@ class TenantControllerIT {
     mockMvc.perform(post("/_/tenant")
         .contentType(APPLICATION_JSON)
         .header(TENANT, "can_upgrade_tenant")
-        .content(toJsonString(new TenantAttributes().moduleTo("mod-example-1.0.0").moduleFrom("mod-example-0.0.1"))))
+        .content(toJsonString(new TenantAttributes()
+          .moduleTo("mod-example-1.0.0")
+          .moduleFrom("mod-example-0.0.1")
+          .parameters(List.of(new Parameter().key("loadReference").value("true"),
+            new Parameter().key("loadSample").value("true"))))))
       .andExpect(status().isNoContent());
   }
 
