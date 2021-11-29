@@ -1,5 +1,7 @@
 package org.folio.spring.controller;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -29,6 +31,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.folio.spring.exception.TenantUpgradeException;
 import org.folio.spring.filter.TenantOkapiHeaderValidationFilter;
 import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
@@ -71,6 +74,16 @@ class TenantControllerIT {
         .header(TENANT, "can_enable_tenant")
         .content(toJsonString(new TenantAttributes().moduleTo("mod-example-1.0.0"))))
       .andExpect(status().isNoContent());
+  }
+
+  @Test
+  void canNotEnableTenantWithInvalidTenantName() throws Exception {
+    mockMvc.perform(post("/_/tenant")
+        .contentType(APPLICATION_JSON)
+        .header(TENANT, "123_tenant")
+        .content(toJsonString(new TenantAttributes().moduleTo("mod-example-1.0.0"))))
+      .andExpect(status().isBadRequest())
+      .andExpect(result -> assertThat(result.getResolvedException(), instanceOf(TenantUpgradeException.class)));
   }
 
   @Test

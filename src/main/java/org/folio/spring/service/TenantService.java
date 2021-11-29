@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.exception.NotFoundException;
-import org.folio.spring.exception.TenantUpdateException;
+import org.folio.spring.exception.TenantUpgradeException;
 import org.folio.spring.liquibase.FolioSpringLiquibase;
 
 @Log4j2
@@ -37,7 +37,7 @@ public class TenantService {
       try {
         folioSpringLiquibase.performLiquibaseUpdate();
       } catch (LiquibaseException e) {
-        throw new TenantUpdateException(e);
+        throw new TenantUpgradeException(e);
       }
 
       log.info("Liquibase update for tenant [{}] executed successfully", context.getTenantId());

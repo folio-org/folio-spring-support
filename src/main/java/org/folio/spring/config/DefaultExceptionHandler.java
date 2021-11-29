@@ -1,7 +1,7 @@
 package org.folio.spring.config;
 
 import org.folio.spring.exception.NotFoundException;
-import org.folio.spring.exception.TenantUpdateException;
+import org.folio.spring.exception.TenantUpgradeException;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -41,8 +41,8 @@ public class DefaultExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
   }
 
-  @ExceptionHandler(TenantUpdateException.class)
-  public ResponseEntity<String> handleTenantUpdateException(NotFoundException ex) {
+  @ExceptionHandler(TenantUpgradeException.class)
+  public ResponseEntity<String> handleTenantUpdateException(TenantUpgradeException ex) {
     return ResponseEntity.badRequest().body("Liquibase error: " + ex.getMessage());
   }
 }
