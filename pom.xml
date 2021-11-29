@@ -17,13 +17,13 @@
 
   <properties>
     <java.version>11</java.version>
-    <spring-cloud-starter-openfeign.version>3.0.3</spring-cloud-starter-openfeign.version>
+    <spring-cloud-starter-openfeign.version>3.0.5</spring-cloud-starter-openfeign.version>
     <commons-lang3.version>3.12.0</commons-lang3.version>
     <cql2pgjson.version>33.0.2</cql2pgjson.version>
     <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
-    <openapi-generator.version>5.2.0</openapi-generator.version>
+    <openapi-generator.version>5.3.0</openapi-generator.version>
     <jackson-databind-nullable.version>0.2.1</jackson-databind-nullable.version>
-    <feign-okhttp.version>11.2</feign-okhttp.version>
+    <feign-okhttp.version>11.7</feign-okhttp.version>
     <tenant.yaml.file>${project.basedir}/src/main/resources/swagger.api/tenant.yaml</tenant.yaml.file>
     <lombok.version>1.18.16</lombok.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
@@ -290,6 +290,7 @@
                 <java8>true</java8>
                 <dateLibrary>java8</dateLibrary>
                 <interfaceOnly>true</interfaceOnly>
+                <useTags>true</useTags>
               </configOptions>
             </configuration>
           </execution>
