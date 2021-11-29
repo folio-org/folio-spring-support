@@ -77,7 +77,13 @@ class TenantControllerIT {
   void canUpgradeTenant() throws Exception {
     mockMvc.perform(post("/_/tenant")
         .contentType(APPLICATION_JSON)
-        .header(TENANT, "can_upgrade_tenant")
+        .header(TENANT, "tenant")
+        .content(toJsonString(new TenantAttributes().moduleTo("mod-example-1.0.0"))))
+      .andExpect(status().isNoContent());
+
+    mockMvc.perform(post("/_/tenant")
+        .contentType(APPLICATION_JSON)
+        .header(TENANT, "tenant")
         .content(toJsonString(new TenantAttributes()
           .moduleTo("mod-example-1.0.0")
           .moduleFrom("mod-example-0.0.1")
