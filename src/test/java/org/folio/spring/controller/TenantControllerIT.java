@@ -97,6 +97,15 @@ class TenantControllerIT {
     mockMvc.perform(post("/_/tenant")
         .contentType(APPLICATION_JSON)
         .header(TENANT, "tenant")
+        .content(toJsonString(new TenantAttributes().moduleFrom("mod-example-1.0.0").purge(true))))
+      .andExpect(status().isNoContent());
+  }
+
+  @Test
+  void canDisableTenantThatExist() throws Exception {
+    mockMvc.perform(post("/_/tenant")
+        .contentType(APPLICATION_JSON)
+        .header(TENANT, "tenant")
         .content(toJsonString(new TenantAttributes().moduleTo("mod-example-1.0.0"))))
       .andExpect(status().isNoContent());
 
