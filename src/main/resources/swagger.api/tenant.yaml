@@ -2,49 +2,30 @@ openapi: 3.0.0
 info:
   title: Tenant API
   version: v1
+
 paths:
-  /tenant:
+  /_/tenant:
     post:
-      description: Provision a new / update an existing tenant
+      description: Create tenant job (create, upgrade, delete)
       operationId: postTenant
+      tags:
+        - tenant
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/tenantAttributes"
-            example:
-              $ref: "examples/moduleInfo.sample"
+              $ref: '#/components/schemas/tenantAttributes'
+            examples:
+              tenantAttributesForUpgrade:
+                $ref: '#/components/examples/tenantAttributesForUpgrade'
+              tenantAttributesForEnable:
+                $ref: '#/components/examples/tenantAttributesForEnable'
+              tenantAttributesForDisable:
+                $ref: '#/components/examples/tenantAttributesForDisable'
         required: true
       responses:
-        "200":
-          description: tenant id upgraded successfully, returns a list of commands that
-            have failed while initializing the tenant
-          content:
-            application/json:
-              schema:
-                type: string
-            text/plain:
-              schema:
-                type: string
-        "201":
-          description: tenant id added successfully, returns a list of commands that have
-            failed while initializing the tenant
-          content:
-            application/json:
-              schema:
-                type: string
-            text/plain:
-              schema:
-                type: string
         "204":
-          description: tenant id exists, nothing will be added
-          content:
-            application/json:
-              schema:
-                type: string
-            text/plain:
-              schema:
-                type: string
+          description: Job completed
         "400":
           description: Bad request
           content:
@@ -55,7 +36,7 @@ paths:
               schema:
                 type: string
         "422":
-          $ref: "#/components/responses/trait_validate_422"
+          $ref: '#/components/responses/trait_validate_422'
         "500":
           description: Internal server error
           content:
@@ -67,9 +48,19 @@ paths:
               schema:
                 type: string
                 example: Internal server error, contact administrator
+  /_/tenant/{operationId}:
+    parameters:
+      - name: operationId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Operation ID
     get:
       description: Does tenant id already exist
       operationId: getTenant
+      tags:
+        - tenant
       responses:
         "200":
           description: true or false indicator
@@ -88,6 +79,8 @@ paths:
     delete:
       description: drop tenant id
       operationId: deleteTenant
+      tags:
+        - tenant
       responses:
         "204":
           description: Delete succeeded
@@ -100,8 +93,7 @@ paths:
               schema:
                 type: string
                 example: Internal server error, contact administrator
-servers:
-  - url: /_/
+
 components:
   responses:
     trait_validate_422:
@@ -109,14 +101,108 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/errors"
+            $ref: '#/components/schemas/errors'
           examples:
             response:
-              value: examples/errors.sample
+              value:
+                errors:
+                  - message: may not be null
+                    type: 1
+                    code: -1
+                    parameters:
+                      - key: moduleTo
+                        value: null
   schemas:
+    parameter:
+      type: object
+      description: Key/value parameter
+      properties:
+        key:
+          type: string
+          description: The key for this parameter
+        value:
+          type: string
+          description: The value of this parameter
+      required:
+        - key
+
+    parameters:
+      type: object
+      description: List of key/value parameters
+      items:
+        $ref: '#/components/schemas/parameter'
+
     tenantAttributes:
-      $ref: schemas/moduleInfo.json
+      type: object
+      title: Tenant job attributes
+      description: Configuration how to install, upgrade or delete a module for a tenant
+      properties:
+        module_from:
+          type: string
+          description: Existing module ID. If omitted, the module is not enabled already
+        module_to:
+          type: string
+          description: Target module ID. If omitted, the existing module is disabled
+        purge:
+          type: boolean
+          description: On disable should data also be purged
+          default: true
+        parameters:
+          $ref: '#/components/schemas/parameters'
+          description: Parameters that controls what tenant init (eg reference data)
+
+    error:
+      type: object
+      description: An error message
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          $ref: '#/components/schemas/parameters'
+          description: Error message parameters
+      required:
+        - message
+
     errors:
-      $ref: schemas/errors.json
-    metadata:
-      $ref: schemas/metadata.json
+      type: object
+      description: A set of error messages
+      properties:
+        errors:
+          type: array
+          description: List of error messages
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          type: integer
+          description: Total number of errors
+
+  examples:
+    tenantAttributesForUpgrade:
+      summary: Upgrading module for tenant
+      value:
+        module_to: mod-sample-1.3.1
+        module_from: mod-sample-1.0.2
+        parameters:
+          - key: loadReference
+            value: true
+          - key: loadSample
+            value: true
+    tenantAttributesForEnable:
+      summary: Enabling module for tenant
+      value:
+        module_to: mod-sample-1.3.1
+        parameters:
+          - key: loadReference
+            value: true
+    tenantAttributesForDisable:
+      summary: Disabling module for tenant
+      value:
+        module_from: mod-sample-1.0.2
+        purge: false
