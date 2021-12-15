@@ -1,3 +1,6 @@
+## 2.0.1 2021-12-15
+* FOLSPRINGB-29 Kiwi R3 2021 - Log4j vulnerability verification and correction
+
 ## 2.0.0 2021-09-01
  * FOLSPRINGB-19 Setup default logging
  * FOLSPRINGB-21 Add CQL support
