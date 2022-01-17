@@ -28,10 +28,10 @@ public class FolioSpringConfiguration {
       }
 
       /**
-       * Schema name MUST in in lowercase
+       * Schema name MUST be in lowercase
        *
-       * @param tenantId
-       * @return
+       * @param tenantId - tenant name
+       * @return schema name
        */
       @Override
       public String getDBSchemaName(String tenantId) {
