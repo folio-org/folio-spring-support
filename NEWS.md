@@ -1,3 +1,7 @@
+## 3.0.0 2022-01-18
+* FOLSPRINGB-17 Migrate to Tenant API v2.0
+* FOLSPRINGB-32 Upgrade to Spring Boot v2.6.2
+
 ## 2.0.0 2021-09-01
  * FOLSPRINGB-19 Setup default logging
  * FOLSPRINGB-21 Add CQL support

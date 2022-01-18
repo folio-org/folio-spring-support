@@ -28,7 +28,6 @@
     <mapstruct.version>1.4.2.Final</mapstruct.version>
     <mockito.version>3.8.0</mockito.version>
     <easy-random.version>5.0.0</easy-random.version>
-    <log4j2.version>2.16.0</log4j2.version> <!-- if less then vulnerable to CVE-2021-44228 and CVE-2021-45046-->
   </properties>
 
   <repositories>
