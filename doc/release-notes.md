@@ -37,6 +37,9 @@ Modules that use spring-base library have to do some actions when upgrading to t
       ]
     }
 ```
+4. If overridden `folioTenantController` exist in the module then changes in it is required:
+   - replace `@RequestMapping(value = "/_/")` to `@RequestMapping`
+   - override and extend methods `upgradeTenant`, `disableTenant`, `loadReferenceData`, `loadSampleData` if needed
 
 ### Version 2.0.0
 Modules that use spring-base library have to do some actions when upgrading to the 2.0.0 version.
