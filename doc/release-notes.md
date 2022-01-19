@@ -1,5 +1,43 @@
 ## Spring-base release notes
 
+### Version 3.0.0
+Modules that use spring-base library have to do some actions when upgrading to the 2.0.0 version.
+1. Update `spring-boot-starter-parent` version in pom.xml
+```xml
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.6.2</version>
+    <relativePath /> <!-- lookup parent from repository -->
+  </parent>
+```
+2. Update `folio-spring-base` version in pom.xml
+```xml
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>folio-spring-base</artifactId>
+      <version>3.0.0</version>
+    </dependency>
+```
+3. Module now supports Tenant API v2.0. Module descriptors updating is required:
+```json
+    {
+      "id": "_tenant",
+      "version": "2.0",
+      "interfaceType": "system",
+      "handlers": [
+        {
+          "methods": [ "POST" ],
+          "pathPattern": "/_/tenant"
+        },
+        {
+          "methods": [ "GET", "DELETE" ],
+          "pathPattern": "/_/tenant/{id}"
+        }
+      ]
+    }
+```
+
 ### Version 2.0.0
 Modules that use spring-base library have to do some actions when upgrading to the 2.0.0 version.
 
