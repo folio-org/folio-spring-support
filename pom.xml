@@ -22,7 +22,7 @@
     <cql2pgjson.version>33.2.4</cql2pgjson.version>
     <openapi-generator.version>5.3.1</openapi-generator.version>
     <jackson-databind-nullable.version>0.2.2</jackson-databind-nullable.version>
-    <feign-okhttp.version>11.8</feign-okhttp.version>
+    <feign-okhttp.version>11.7</feign-okhttp.version>
     <tenant.yaml.file>${project.basedir}/src/main/resources/swagger.api/tenant.yaml</tenant.yaml.file>
     <lombok.version>1.18.16</lombok.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
