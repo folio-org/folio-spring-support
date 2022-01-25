@@ -33,9 +33,9 @@ public class TenantService {
 
   public void createTenantIfNotExist() {
     String moduleName = context.getFolioModuleMetadata().getModuleName();
-    if (tenantProvider.notExist(moduleName)) {
+    if (!tenantProvider.isExist(moduleName)) {
       createTenant();
-      tenantProvider.add(moduleName, context.getTenantId());
+      tenantProvider.getTenants().put(moduleName, context.getTenantId());
     }
   }
 
@@ -58,10 +58,10 @@ public class TenantService {
    * @throws NotFoundException when tenant not found.
    */
   public void deleteTenant() {
-    boolean isRemove = tenantProvider.remove(context.getFolioModuleMetadata().getModuleName(), context.getTenantId());
-    if (isRemove && tenantExists()) {
+    if (tenantExists()) {
       log.info("Removing [{}] tenant...", context.getTenantId());
       jdbcTemplate.execute(String.format(DESTROY_SQL, getSchemaName()));
+      tenantProvider.getTenants().remove(context.getFolioModuleMetadata().getModuleName(), context.getTenantId());
     }
   }
 

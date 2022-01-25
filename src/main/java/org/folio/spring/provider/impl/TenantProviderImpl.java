@@ -12,19 +12,12 @@ public class TenantProviderImpl implements TenantProvider {
   private final Map<String, String> tenants = new ConcurrentSkipListMap<>();
 
   @Override
-  public void add(String module, String tenant) {
-    if (notExist(module)) {
-      tenants.put(module, tenant);
-    }
+  public boolean isExist(String module) {
+    return tenants.containsKey(module);
   }
 
   @Override
-  public boolean remove(String module, String tenant) {
-    return tenants.remove(module, tenant);
-  }
-
-  @Override
-  public boolean notExist(String module) {
-    return !tenants.containsKey(module);
+  public Map<String, String> getTenants() {
+    return tenants;
   }
 }
