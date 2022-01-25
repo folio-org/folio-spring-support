@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import liquibase.exception.LiquibaseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.folio.spring.provider.TenantProvider;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -28,8 +29,17 @@ public class TenantService {
   private final JdbcTemplate jdbcTemplate;
   private final FolioExecutionContext context;
   private final FolioSpringLiquibase folioSpringLiquibase;
+  private final TenantProvider tenantProvider;
 
-  public void createTenant() {
+  public void createTenantIfNotExist() {
+    String moduleName = context.getFolioModuleMetadata().getModuleName();
+    if (tenantProvider.notExist(moduleName)) {
+      createTenant();
+      tenantProvider.add(moduleName, context.getTenantId());
+    }
+  }
+
+  private void createTenant() {
     if (folioSpringLiquibase != null) {
       folioSpringLiquibase.setDefaultSchema(getSchemaName());
       log.info("About to start liquibase update for tenant [{}]", context.getTenantId());
@@ -48,7 +58,8 @@ public class TenantService {
    * @throws NotFoundException when tenant not found.
    */
   public void deleteTenant() {
-    if (tenantExists()) {
+    boolean isRemove = tenantProvider.remove(context.getFolioModuleMetadata().getModuleName(), context.getTenantId());
+    if (isRemove && tenantExists()) {
       log.info("Removing [{}] tenant...", context.getTenantId());
       jdbcTemplate.execute(String.format(DESTROY_SQL, getSchemaName()));
     }

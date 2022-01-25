@@ -53,7 +53,7 @@ public class TenantController implements TenantApi {
   }
 
   protected void upgradeTenant() {
-    tenantService.createTenant();
+    tenantService.createTenantIfNotExist();
   }
 
   protected void disableTenant() {
