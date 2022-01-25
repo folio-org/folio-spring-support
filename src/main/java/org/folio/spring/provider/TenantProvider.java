@@ -1,9 +1,9 @@
 package org.folio.spring.provider;
 
-import java.util.Map;
+import java.util.Set;
 
 public interface TenantProvider {
-  boolean isExist(String module);
-  Map<String, String> getTenants();
+  boolean isExist(String tenant);
+  Set<String> getTenants();
 
 }

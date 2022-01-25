@@ -3,21 +3,21 @@ package org.folio.spring.provider.impl;
 import org.folio.spring.provider.TenantProvider;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 @Component
 public class TenantProviderImpl implements TenantProvider {
 
-  private final Map<String, String> tenants = new ConcurrentSkipListMap<>();
+  private final Set<String> tenants = new ConcurrentSkipListSet<>();
 
   @Override
-  public boolean isExist(String module) {
-    return tenants.containsKey(module);
+  public boolean isExist(String tenant) {
+    return tenants.contains(tenant);
   }
 
   @Override
-  public Map<String, String> getTenants() {
+  public Set<String> getTenants() {
     return tenants;
   }
 }

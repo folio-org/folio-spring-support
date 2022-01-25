@@ -32,10 +32,9 @@ public class TenantService {
   private final TenantProvider tenantProvider;
 
   public void createTenantIfNotExist() {
-    String moduleName = context.getFolioModuleMetadata().getModuleName();
-    if (!tenantProvider.isExist(moduleName)) {
+    if (!tenantProvider.isExist(context.getTenantId())) {
       createTenant();
-      tenantProvider.getTenants().put(moduleName, context.getTenantId());
+      tenantProvider.getTenants().add(context.getTenantId());
     }
   }
 
@@ -61,7 +60,7 @@ public class TenantService {
     if (tenantExists()) {
       log.info("Removing [{}] tenant...", context.getTenantId());
       jdbcTemplate.execute(String.format(DESTROY_SQL, getSchemaName()));
-      tenantProvider.getTenants().remove(context.getFolioModuleMetadata().getModuleName(), context.getTenantId());
+      tenantProvider.getTenants().remove(context.getTenantId());
     }
   }
 
