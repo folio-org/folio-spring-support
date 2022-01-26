@@ -31,14 +31,7 @@ public class TenantService {
   private final FolioSpringLiquibase folioSpringLiquibase;
   private final TenantProvider tenantProvider;
 
-  public void createTenantIfNotExist() {
-    if (!tenantProvider.isExist(context.getTenantId())) {
-      createTenant();
-      tenantProvider.getTenants().add(context.getTenantId());
-    }
-  }
-
-  private void createTenant() {
+  public void createTenant() {
     if (folioSpringLiquibase != null) {
       folioSpringLiquibase.setDefaultSchema(getSchemaName());
       log.info("About to start liquibase update for tenant [{}]", context.getTenantId());
@@ -51,6 +44,7 @@ public class TenantService {
 
       log.info("Liquibase update for tenant [{}] executed successfully", context.getTenantId());
     }
+    tenantProvider.getTenants().add(context.getTenantId());
   }
 
   /**
