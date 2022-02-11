@@ -207,15 +207,15 @@ of how to override these in your very own `@Service`:
 ```java
 package org.folio.yourmodule.service;
 
-import javax.annotation.Priority;
 import org.folio.spring.service.TenantService;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.folio.yourmodule.SuperCoolDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service;
 
 @Service
-@Priority(-10) // required to ensure CustomTenantService will be loaded instead of TenantService
+@Primary // required to ensure CustomTenantService will be loaded instead of TenantService
 public class CustomTenantService extends TenantService {
 
   protected final SuperCoolDataRepository repository;
