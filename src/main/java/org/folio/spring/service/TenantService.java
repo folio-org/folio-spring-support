@@ -3,19 +3,18 @@ package org.folio.spring.service;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 import java.sql.ResultSet;
-
 import liquibase.exception.LiquibaseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
-
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.exception.NotFoundException;
 import org.folio.spring.exception.TenantUpgradeException;
 import org.folio.spring.liquibase.FolioSpringLiquibase;
+import org.folio.spring.provider.TenantProvider;
 import org.folio.tenant.domain.dto.TenantAttributes;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -23,12 +22,15 @@ import org.folio.tenant.domain.dto.TenantAttributes;
 @Lazy
 public class TenantService {
 
-  protected static final String DESTROY_SQL = "DROP SCHEMA IF EXISTS %1$s CASCADE; DROP ROLE IF EXISTS %1$s";
-  protected static final String EXIST_SQL = "SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname=?)";
+  protected static final String DESTROY_SQL =
+    "DROP SCHEMA IF EXISTS %1$s CASCADE; DROP ROLE IF EXISTS %1$s";
+  protected static final String EXIST_SQL =
+    "SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname=?)";
 
   protected final JdbcTemplate jdbcTemplate;
   protected final FolioExecutionContext context;
   protected final FolioSpringLiquibase folioSpringLiquibase;
+  protected final TenantProvider tenantProvider;
 
   public void createOrUpdateTenant(TenantAttributes tenantAttributes) {
     beforeTenantUpdate(tenantAttributes);
@@ -37,7 +39,10 @@ public class TenantService {
       beforeLiquibaseUpdate(tenantAttributes);
 
       folioSpringLiquibase.setDefaultSchema(getSchemaName());
-      log.info("About to start liquibase update for tenant [{}]", context.getTenantId());
+      log.info(
+        "About to start liquibase update for tenant [{}]",
+        context.getTenantId()
+      );
 
       try {
         folioSpringLiquibase.performLiquibaseUpdate();
@@ -45,10 +50,15 @@ public class TenantService {
         throw new TenantUpgradeException(e);
       }
 
-      log.info("Liquibase update for tenant [{}] executed successfully", context.getTenantId());
+      log.info(
+        "Liquibase update for tenant [{}] executed successfully",
+        context.getTenantId()
+      );
 
       afterLiquibaseUpdate(tenantAttributes);
     }
+
+    tenantProvider.getTenants().add(context.getTenantId());
 
     afterTenantUpdate(tenantAttributes);
   }
@@ -63,6 +73,8 @@ public class TenantService {
       log.info("Removing [{}] tenant...", context.getTenantId());
       jdbcTemplate.execute(String.format(DESTROY_SQL, getSchemaName()));
 
+      tenantProvider.getTenants().remove(context.getTenantId());
+
       afterTenantDeletion(tenantAttributes);
     }
   }
@@ -72,9 +84,13 @@ public class TenantService {
    * @return if the tenant's database schema exists
    */
   protected boolean tenantExists() {
-    return isTrue(jdbcTemplate.query(EXIST_SQL,
-      (ResultSet resultSet) -> resultSet.next() && resultSet.getBoolean(1),
-      getSchemaName()));
+    return isTrue(
+      jdbcTemplate.query(
+        EXIST_SQL,
+        (ResultSet resultSet) -> resultSet.next() && resultSet.getBoolean(1),
+        getSchemaName()
+      )
+    );
   }
 
   /**
@@ -83,14 +99,18 @@ public class TenantService {
    * @return the schema's name
    */
   protected String getSchemaName() {
-    return context.getFolioModuleMetadata().getDBSchemaName(context.getTenantId());
+    return context
+      .getFolioModuleMetadata()
+      .getDBSchemaName(context.getTenantId());
   }
 
   /**
    * Load any applicable reference data
    */
   public void loadReferenceData() {
-    log.warn("A tenant was created with loadReference=true, however, no reference data was created");
+    log.warn(
+      "A tenant was created with loadReference=true, however, no reference data was created"
+    );
     log.warn("Please extend TenantService and implement loadReferenceData");
   }
 
@@ -98,7 +118,9 @@ public class TenantService {
    * Load any applicable sample data
    */
   public void loadSampleData() {
-    log.warn("A tenant was created with loadSample=true, however, no reference data was created");
+    log.warn(
+      "A tenant was created with loadSample=true, however, no reference data was created"
+    );
     log.warn("Please extend TenantService and implement loadSampleData");
   }
 
