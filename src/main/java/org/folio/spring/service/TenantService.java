@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import liquibase.exception.LiquibaseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.folio.spring.provider.TenantProvider;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,6 @@ public class TenantService {
   private final JdbcTemplate jdbcTemplate;
   private final FolioExecutionContext context;
   private final FolioSpringLiquibase folioSpringLiquibase;
-  private final TenantProvider tenantProvider;
 
   public void createTenant() {
     if (folioSpringLiquibase != null) {
@@ -44,7 +42,6 @@ public class TenantService {
 
       log.info("Liquibase update for tenant [{}] executed successfully", context.getTenantId());
     }
-    tenantProvider.getTenants().add(context.getTenantId());
   }
 
   /**
@@ -54,7 +51,6 @@ public class TenantService {
     if (tenantExists()) {
       log.info("Removing [{}] tenant...", context.getTenantId());
       jdbcTemplate.execute(String.format(DESTROY_SQL, getSchemaName()));
-      tenantProvider.getTenants().remove(context.getTenantId());
     }
   }
 
