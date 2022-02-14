@@ -3,18 +3,19 @@ package org.folio.spring.service;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 import java.sql.ResultSet;
-import liquibase.exception.LiquibaseException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.exception.NotFoundException;
 import org.folio.spring.exception.TenantUpgradeException;
 import org.folio.spring.liquibase.FolioSpringLiquibase;
-import org.folio.spring.provider.TenantProvider;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+
+import liquibase.exception.LiquibaseException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -30,7 +31,6 @@ public class TenantService {
   protected final JdbcTemplate jdbcTemplate;
   protected final FolioExecutionContext context;
   protected final FolioSpringLiquibase folioSpringLiquibase;
-  protected final TenantProvider tenantProvider;
 
   public void createOrUpdateTenant(TenantAttributes tenantAttributes) {
     beforeTenantUpdate(tenantAttributes);
@@ -58,8 +58,6 @@ public class TenantService {
       afterLiquibaseUpdate(tenantAttributes);
     }
 
-    tenantProvider.getTenants().add(context.getTenantId());
-
     afterTenantUpdate(tenantAttributes);
   }
 
@@ -72,8 +70,6 @@ public class TenantService {
 
       log.info("Removing [{}] tenant...", context.getTenantId());
       jdbcTemplate.execute(String.format(DESTROY_SQL, getSchemaName()));
-
-      tenantProvider.getTenants().remove(context.getTenantId());
 
       afterTenantDeletion(tenantAttributes);
     }
