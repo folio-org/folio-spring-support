@@ -4,12 +4,12 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.6.3</version>
+    <version>2.6.2</version>
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
   <groupId>org.folio</groupId>
   <artifactId>folio-spring-base</artifactId>
-  <version>3.1.0-SNAPSHOT</version>
+  <version>4.0.0-SNAPSHOT</version>
   <name>folio-spring-base</name>
   <description>This is a library (jar) that contains the basic functionality and main dependencies required for development FOLIO modules using
     Spring framework.
@@ -24,6 +24,7 @@
     <jackson-databind-nullable.version>0.2.2</jackson-databind-nullable.version>
     <feign-okhttp.version>11.7</feign-okhttp.version>
     <tenant.yaml.file>${project.basedir}/src/main/resources/swagger.api/tenant.yaml</tenant.yaml.file>
+    <lombok.version>1.18.16</lombok.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
     <mockito.version>3.8.0</mockito.version>
     <easy-random.version>5.0.0</easy-random.version>

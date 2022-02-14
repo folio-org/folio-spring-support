@@ -34,38 +34,22 @@ public class TenantController implements TenantApi {
   public ResponseEntity<Void> postTenant(@Valid TenantAttributes tenantAttributes) {
     if (isDisableJob(tenantAttributes)) {
       log.info("Disabling tenant...");
-      disableTenant();
+      tenantService.deleteTenant(tenantAttributes);
     } else {
       log.info("Upgrading tenant...");
-      upgradeTenant();
+      tenantService.createOrUpdateTenant(tenantAttributes);
       var parameters = tenantAttributes.getParameters();
       var loadReferenceParam = getParameterValue(LOAD_REFERENCE_PARAM, parameters);
       if (loadReferenceParam.isPresent() && loadReferenceParam.get().equals("true")) {
-        loadReferenceData();
+        tenantService.loadReferenceData();
       }
 
       var loadSampleParam = getParameterValue(LOAD_SAMPLE_PARAM, parameters);
       if (loadSampleParam.isPresent() && loadSampleParam.get().equals("true")) {
-        loadSampleData();
+        tenantService.loadSampleData();
       }
     }
     return noContent().build();
-  }
-
-  protected void upgradeTenant() {
-    tenantService.createTenant();
-  }
-
-  protected void disableTenant() {
-    tenantService.deleteTenant();
-  }
-
-  protected void loadReferenceData() {
-
-  }
-
-  protected void loadSampleData() {
-
   }
 
   private Optional<String> getParameterValue(String paramName, List<Parameter> parameters) {
