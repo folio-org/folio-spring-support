@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan({"org.folio.spring.controller", "org.folio.spring.config",
-  "org.folio.spring.filter", "org.folio.spring.service", "org.folio.spring.provider"})
+  "org.folio.spring.filter", "org.folio.spring.service"})
 public class FolioSpringConfiguration {
 
   @Bean
