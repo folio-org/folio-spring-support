@@ -1,3 +1,6 @@
+## 3.0.1 2022-01-20
+* FOLSPRINGB-40 Revert feign-okhttp version to 11.7
+
 ## 3.0.0 2022-01-18
 * FOLSPRINGB-17 Migrate to Tenant API v2.0
 * FOLSPRINGB-32 Upgrade to Spring Boot v2.6.2
