@@ -1,5 +1,5 @@
-## IN PROGRESS
-
+## 4.0.0 2022-02-15
+ * [FOLSPRINGB-42](https://issues.folio.org/projects/FOLSPRINGB/issues/FOLSPRINGB-42) Spring Boot 2.6.3, log4j-core 2.17.1 (CVE-2021-44832) 
  * [FOLSPRINGB-41](https://issues.folio.org/projects/FOLSPRINGB/issues/FOLSPRINGB-41) Added event methods to allow custom module logic on `/_/tenant`
 
 ## 3.0.0 2022-01-18
