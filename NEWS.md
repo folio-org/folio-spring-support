@@ -1,3 +1,6 @@
+## 3.0.2 2022-04-06
+* FOLSPRINGB-48 Upgrade to Spring Boot v2.6.6
+
 ## 3.0.1 2022-01-20
 * FOLSPRINGB-40 Revert feign-okhttp version to 11.7
 
