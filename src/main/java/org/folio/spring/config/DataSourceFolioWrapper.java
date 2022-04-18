@@ -28,7 +28,7 @@ public class DataSourceFolioWrapper extends DelegatingDataSource {
         if (NON_WORD_CHARACTERS.matcher(tenantId).find()) {
           throw new IllegalArgumentException("Invalid tenant name: " + tenantId);
         }
-        schemaName = folioExecutionContext.getFolioModuleMetadata().getDBSchemaName(tenantId) + ", public";
+        schemaName = folioExecutionContext.getFolioModuleMetadata().getDBSchemaName(tenantId);
       }
       try (var statement = connection.prepareStatement(String.format("SET search_path = %s;", schemaName))) {
         statement.execute();

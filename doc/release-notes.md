@@ -1,5 +1,18 @@
 ## Spring-base release notes
 
+### Version 5.0.0
+1. Database search_path was changed to only tenant-related schema, no public schema now. If it's needed to query from public schema, then it's required now to specify public schema in SQL-query.
+It's also related to Liquibase scripts.
+For example, if `pgcrypto` (should be installed to public schema) is used to generate UUIDs, then scripts should be changed:
+```xml
+    <changeSet id="id123" runOnChange="true">
+        <addDefaultValue tableName="tags" columnName="id" defaultValueComputed="public.gen_random_uuid()"/>
+    </changeSet>
+```
+
+### Version 4.0.0
+1. Approach of specifying custom `/_/tenant` logic was changed. Details provided in [README](../README.md#custom-_tenant-logic)
+
 ### Version 3.0.0
 Modules that use spring-base library have to do some actions when upgrading to the 2.0.0 version.
 1. Update `spring-boot-starter-parent` version in pom.xml
