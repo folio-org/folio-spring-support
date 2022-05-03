@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.6.7</version>
+    <version>2.7.0-RC1</version>
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
   <groupId>org.folio</groupId>
@@ -17,7 +17,7 @@
 
   <properties>
     <java.version>11</java.version>
-    <spring-cloud-starter-openfeign.version>3.1.0</spring-cloud-starter-openfeign.version>
+    <spring-cloud-starter-openfeign.version>3.1.2</spring-cloud-starter-openfeign.version>
     <commons-lang3.version>3.12.0</commons-lang3.version>
     <cql2pgjson.version>33.2.4</cql2pgjson.version>
     <openapi-generator.version>5.3.1</openapi-generator.version>
@@ -26,7 +26,6 @@
     <tenant.yaml.file>${project.basedir}/src/main/resources/swagger.api/tenant.yaml</tenant.yaml.file>
     <lombok.version>1.18.16</lombok.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
-    <mockito.version>3.8.0</mockito.version>
     <easy-random.version>5.0.0</easy-random.version>
   </properties>
 
@@ -35,6 +34,11 @@
       <id>folio-nexus</id>
       <name>FOLIO Maven Repository</name>
       <url>https://repository.folio.org/repository/maven-folio</url>
+    </repository>
+    <repository>
+      <id>jfrog-nexus</id>
+      <name>Spring Milestone Maven Repository</name>
+      <url>https://repo.spring.io/milestone</url>
     </repository>
   </repositories>
 
