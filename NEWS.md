@@ -1,3 +1,7 @@
+## 3.0.3 2022-05-04
+* [FOLSPRINGB-36](https://issues.folio.org/browse/FOLSPRINGB-36): Add postgres runtime dependency to pom.xml
+* [FOLSPRINGB-51](https://issues.folio.org/browse/FOLSPRINGB-51): Spring Boot 2.6.7 (CVE-2022-22968), Liquibase 4.9.1 (CVE-2022-0839)
+
 ## 3.0.2 2022-04-06
 * FOLSPRINGB-48 Upgrade to Spring Boot v2.6.6
 
