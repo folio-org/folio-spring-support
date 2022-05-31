@@ -27,6 +27,19 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 This is a library (jar) that contains the basic functionality and main dependencies required for development of FOLIO modules using Spring framework (also known as "Spring Way").
 
+## Execution Context
+
+[FolioExecutionContext](src/main/java/org/folio/spring/FolioExecutionContext.java) is used to store
+essential request headers <i>(in thread local)</i>. Folio Spring Base populates this data
+using [FolioExecutionScopeFilter](src/main/java/org/folio/spring/scope/filter/FolioExecutionScopeFilter.java).
+It is used by [EnrichUrlAndHeadersClient](src/main/java/org/folio/spring/client/EnrichUrlAndHeadersClient.java), to provide right tenant id and other headers for outgoing REST requests.
+It is also used in [DataSourceSchemaAdvisorBeanPostProcessor](src/main/java/org/folio/spring/config/DataSourceSchemaAdvisorBeanPostProcessor.java) for selection of the appropriate schema for sql queries.
+
+FolioExecutionContext is immutable. In order to start new execution context `FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(new DefaultFolioExecutionContext(...))` should be used.
+
+***CAUTION: FolioExecutionContext should not be used in asynchronous code executions (as it is stored in thread local), unless
+the appropriate data is manually set by `beginFolioExecutionContext(...)`***
+
 ## Properties
 
 | Property                                              | Description                                                                                                                                                                                         | Default       | Example                      |
