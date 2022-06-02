@@ -18,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * If current thread that uses FolioExecutionContext creates a new thread,
  * the context should be set in the new thread by calling {@link org.folio.spring.scope.FolioExecutionScopeExecutionContextManager#beginFolioExecutionContext
  * beginFolioExecutionContext(folioExecutionContext)})
- * from the new thread.
+ * from the new thread. When the execution is finished {@link FolioExecutionScopeExecutionContextManager#endFolioExecutionContext()
+ * endFolioExecutionContext} should be called.
  * </pre>
  *
  */

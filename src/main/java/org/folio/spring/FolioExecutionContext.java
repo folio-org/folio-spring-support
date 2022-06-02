@@ -20,6 +20,7 @@ import java.util.UUID;
  * <strong>It should not be used to in asynchronous code executions (as it is stored in thread local),</string>
  * unless the appropriate data is manually set by
  * {@link org.folio.spring.scope.FolioExecutionScopeExecutionContextManager#beginFolioExecutionContext FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(folioExecutionContext)}
+ * The `FolioExecutionScopeExecutionContextManager.endFolioExecutionContext()` should be called when the execution is finished.
  * </pre>
  *
  */
