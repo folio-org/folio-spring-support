@@ -11,6 +11,18 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * FolioExecutionScopeExecutionContextManager is used to store {@link FolioExecutionContext} in thread local.
+ *<br><br>
+ * <p><pre>CAUTION:
+ * If current thread that uses FolioExecutionContext creates a new thread,
+ * the context should be set in the new thread by calling {@link org.folio.spring.scope.FolioExecutionScopeExecutionContextManager#beginFolioExecutionContext
+ * beginFolioExecutionContext(folioExecutionContext)})
+ * from the new thread. When the execution is finished {@link FolioExecutionScopeExecutionContextManager#endFolioExecutionContext()
+ * endFolioExecutionContext} should be called.
+ * </pre>
+ *
+ */
 @UtilityClass
 @Log4j2
 public class FolioExecutionScopeExecutionContextManager {
