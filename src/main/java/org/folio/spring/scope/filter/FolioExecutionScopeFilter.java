@@ -1,7 +1,5 @@
 package org.folio.spring.scope.filter;
 
-import static org.folio.spring.utils.RequestUtils.getHttpHeadersFromRequest;
-
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
@@ -14,9 +12,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.web.servlet.filter.OrderedFilter;
 import org.springframework.web.filter.GenericFilterBean;
 
-import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
-import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
+import org.folio.spring.scope.FolioExecutionContextSetter;
 
 @Log4j2
 public class FolioExecutionScopeFilter extends GenericFilterBean implements OrderedFilter {
@@ -33,13 +30,8 @@ public class FolioExecutionScopeFilter extends GenericFilterBean implements Orde
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
     throws IOException, ServletException {
     if (request instanceof HttpServletRequest) {
-      var httpHeaders = getHttpHeadersFromRequest((HttpServletRequest) request);
-      var defaultFolioExecutionContext = new DefaultFolioExecutionContext(folioModuleMetadata, httpHeaders);
-      FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(defaultFolioExecutionContext);
-      try {
+      try (var x = new FolioExecutionContextSetter(folioModuleMetadata, (HttpServletRequest) request)) {
         chain.doFilter(request, response);
-      } finally {
-        FolioExecutionScopeExecutionContextManager.endFolioExecutionContext();
       }
     }
   }

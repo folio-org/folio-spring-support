@@ -13,15 +13,22 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * FolioExecutionScopeExecutionContextManager is used to store {@link FolioExecutionContext} in thread local.
- *<br><br>
- * <p><pre>CAUTION:
- * If current thread that uses FolioExecutionContext creates a new thread,
- * the context should be set in the new thread by calling {@link org.folio.spring.scope.FolioExecutionScopeExecutionContextManager#beginFolioExecutionContext
- * beginFolioExecutionContext(folioExecutionContext)})
- * from the new thread. When the execution is finished {@link FolioExecutionScopeExecutionContextManager#endFolioExecutionContext()
- * endFolioExecutionContext} should be called.
- * </pre>
  *
+ * <p>CAUTION:
+ *
+ * <p>If current thread that uses FolioExecutionContext creates a new thread,
+ * the context should be set in the new thread by calling {@code new FolioExecutionContextSetter(...)}
+ * from the new thread.
+ *
+ * <p>When the execution is finished {@link FolioExecutionContextSetter#close()} should be called.
+ *
+ * <p>Best practice is try-with-resources that automatically calls {@code close()} in all cases, even on exception:
+ *
+ * <p><pre>
+ * try (var x = FolioExecutionContextSetter(currentFolioExecutionContext) {
+ *   //some stuff
+ * }
+ * </pre>
  */
 @UtilityClass
 @Log4j2
@@ -38,7 +45,12 @@ public class FolioExecutionScopeExecutionContextManager {
   private static final InheritableThreadLocal<Map<String, Object>> folioExecutionScopeHolder =
     new NamedInheritableThreadLocal<>("FolioExecutionScope");
 
-  public static void beginFolioExecutionContext(FolioExecutionContext folioExecutionContext) {
+  /**
+   * Store folioExecutionContext as {@link ThreadLocal} variable.
+   *
+   * <p>The visibility of this method is package-private to enforce using {@link FolioExecutionContextSetter}.
+   */
+  static void beginFolioExecutionContext(FolioExecutionContext folioExecutionContext) {
     var scopeMap = new ConcurrentHashMap<String, Object>();
     scopeMap.put(CONVERSATION_ID_KEY, UUID.randomUUID().toString());
     folioExecutionScopeHolder.set(scopeMap);
@@ -46,12 +58,20 @@ public class FolioExecutionScopeExecutionContextManager {
     FolioLoggingContextHolder.putFolioExecutionContext(folioExecutionContext);
   }
 
-  public static void endFolioExecutionContext() {
+  /**
+   * Remove FolioExecutionContext from the {@link ThreadLocal} variable.
+   *
+   * <p>The visibility of this method is package-private to enforce using {@link FolioExecutionContextSetter}.
+   */
+  static void endFolioExecutionContext() {
     folioExecutionContextHolder.remove();
     folioExecutionScopeHolder.remove();
     FolioLoggingContextHolder.removeFolioExecutionContext();
   }
 
+  /**
+   * Retrieve FolioExecutionContext from {@link ThreadLocal} variable.
+   */
   static FolioExecutionContext getFolioExecutionContext() {
     return folioExecutionContextHolder.get();
   }
