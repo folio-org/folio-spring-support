@@ -1,3 +1,6 @@
+## 4.1.1 2022-08-30
+* [FOLSPRINGB-68](https://issues.folio.org/browse/FOLSPRINGB-68) Upgrade spring-security-rsa, bcprov-jdk15on, postgresql fixing vulns
+
 ## 4.1.0 2022-05-30
 * [FOLSPRINGB-52](https://issues.folio.org/projects/FOLSPRINGB/issues/FOLSPRINGB-52) Spring Boot 2.7.x for Morning Glory R2 2022
 * [FOLSPRINGB-53](https://issues.folio.org/projects/FOLSPRINGB/issues/FOLSPRINGB-53) Upgrade rhino and plexus-utils (CVE-2017-1000487)
