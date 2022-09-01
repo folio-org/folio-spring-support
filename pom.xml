@@ -9,7 +9,7 @@
   </parent>
   <groupId>org.folio</groupId>
   <artifactId>folio-spring-base</artifactId>
-  <version>4.1.1-SNAPSHOT</version>
+  <version>4.1.2-SNAPSHOT</version>
   <name>folio-spring-base</name>
   <description>This is a library (jar) that contains the basic functionality and main dependencies required for development FOLIO modules using
     Spring framework.
@@ -74,6 +74,18 @@
       <version>${spring-cloud-starter-openfeign.version}</version>
     </dependency>
     <dependency>
+      <!-- Remove this spring-security-rsa dependency as soon as spring-cloud-starter-openfeign
+           comes with spring-security-rsa >= 1.0.11.RELEASE
+           Fixing https://security.snyk.io/vuln/SNYK-JAVA-ORGBOUNCYCASTLE-2841508
+           in org.bouncycastle:bcprov-jdk15on
+           No upstream release yet:
+           https://github.com/spring-cloud/spring-cloud-commons/commit/0525fb686b24d94c560f9f2cced9dc8a090ffa2a
+      -->
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-rsa</artifactId>
+      <version>1.0.11.RELEASE</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>${commons-lang3.version}</version>
@@ -86,6 +98,13 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
+      <!-- spring-boot-starter-parent provides the org.postgresql:postgresql version, but it may be vulnerable:
+           postgresql doesn't back-port security fixes
+           https://github.com/pgjdbc/pgjdbc/issues/2599
+           and spring-boot-starter-parent doesn't bump the postgresql minor version
+           https://github.com/spring-projects/spring-boot/issues/32126
+      -->
+      <version>42.5.0</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
