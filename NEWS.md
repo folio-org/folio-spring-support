@@ -1,4 +1,4 @@
-## 4.1.1 2022-08-30
+## 4.1.1 2022-09-01
 * [FOLSPRINGB-68](https://issues.folio.org/browse/FOLSPRINGB-68) Upgrade spring-security-rsa, bcprov-jdk15on, postgresql fixing vulns
 
 ## 4.1.0 2022-05-30
