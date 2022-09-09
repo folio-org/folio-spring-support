@@ -1,5 +1,5 @@
 ## 4.1.2 2022-09-09
-* [FOLSPRINGB-71](https://issues.folio.org/browse/FOLSPRINGB-70) Upgrades: Snakeyaml security fix, Lombok, Spring Boot, Spring Cloud Starter Openfeign
+* [FOLSPRINGB-70](https://issues.folio.org/browse/FOLSPRINGB-70) Upgrades: Snakeyaml security fix, Lombok, Spring Boot, Spring Cloud Starter Openfeign
 
 ## 4.1.1 2022-09-01
 * [FOLSPRINGB-68](https://issues.folio.org/browse/FOLSPRINGB-68) Upgrade spring-security-rsa, bcprov-jdk15on, postgresql fixing vulns
