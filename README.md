@@ -49,7 +49,14 @@ FolioExecutionContext is immutable. In order to start new execution context the 
 
 should be used (pick any of the available constructors).
 
-If not using try-with-resource ensure to call `folioExecutionContextSetter.close()` when the execution is finished.
+Using try-with-resources is best practice. Not using try-with-resources is error-prone, may result in a wrong tenant and should be avoided. If not using try-with-resources ensure to call `folioExecutionContextSetter.close()` when the execution is finished. Example:
+
+```
+  // Not using try-with-resources is discouraged!
+  var x = new FolioExecutionContextSetter(currentFolioExecutionContext);
+  // do some stuff
+  x.close();
+```
 
 ***CAUTION: FolioExecutionContext should not be used in asynchronous code executions (as it is stored in thread local), unless
 the appropriate data is manually set by using `FolioExecutionContextSetter`.***

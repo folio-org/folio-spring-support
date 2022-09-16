@@ -41,6 +41,16 @@ class FolioExecutionContextSetterTest {
     assertThat(getTenantId(), is(nullValue()));
   }
 
+  @Test
+  void withoutTryWithResources() {
+    var folioExecutionContext = mock(FolioExecutionContext.class);
+    when(folioExecutionContext.getTenantId()).thenReturn("kiev");
+    var x = new FolioExecutionContextSetter(folioExecutionContext);
+    assertThat(getTenantId(), is("kiev"));
+    x.close();
+    assertThat(getTenantId(), is(nullValue()));
+  }
+
   private static Enumeration<String> enumeration(String s) {
     return Collections.enumeration(List.of(s));
   }
