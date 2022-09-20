@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -19,9 +18,14 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
+import org.folio.cql2pgjson.exception.QueryValidationException;
+import org.folio.cql2pgjson.model.CqlModifiers;
+import org.folio.cql2pgjson.model.CqlSort;
+import org.folio.cql2pgjson.model.CqlTermFormat;
+import org.folio.cql2pgjson.util.Cql2SqlUtil;
 import org.z3950.zing.cql.CQLAndNode;
 import org.z3950.zing.cql.CQLBooleanNode;
 import org.z3950.zing.cql.CQLNode;
@@ -32,13 +36,6 @@ import org.z3950.zing.cql.CQLParser;
 import org.z3950.zing.cql.CQLSortNode;
 import org.z3950.zing.cql.CQLTermNode;
 import org.z3950.zing.cql.ModifierSet;
-
-import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
-import org.folio.cql2pgjson.exception.QueryValidationException;
-import org.folio.cql2pgjson.model.CqlModifiers;
-import org.folio.cql2pgjson.model.CqlSort;
-import org.folio.cql2pgjson.model.CqlTermFormat;
-import org.folio.cql2pgjson.util.Cql2SqlUtil;
 
 @Log4j2
 public class Cql2JpaCriteria<E> {
@@ -93,8 +90,8 @@ public class Cql2JpaCriteria<E> {
       var root = query.from(domainClass);
       query.select(cb.count(root));
       var predicate = createPredicate(node, root, cb, query);
-
       query.orderBy(Collections.emptyList());
+      root.getFetches().clear();
       query.where(predicate);
       return query;
     } catch (IOException | CQLParseException | QueryValidationException e) {
