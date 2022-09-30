@@ -1,9 +1,15 @@
 package org.folio.spring.cql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
-import org.junit.jupiter.api.Assertions;
+import org.folio.spring.cql.domain.City;
+import org.folio.spring.cql.domain.CityRepository;
+import org.folio.spring.cql.domain.Person;
+import org.folio.spring.cql.domain.PersonRepository;
+import org.folio.spring.data.OffsetRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -12,12 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.context.jdbc.Sql;
-
-import org.folio.spring.cql.domain.City;
-import org.folio.spring.cql.domain.CityRepository;
-import org.folio.spring.cql.domain.Person;
-import org.folio.spring.cql.domain.PersonRepository;
-import org.folio.spring.data.OffsetRequest;
 
 @SpringBootTest
 @AutoConfigureEmbeddedDatabase(beanName = "dataSource")
@@ -121,6 +121,46 @@ class JpaCqlRepositoryTest {
   }
 
   @Test
+  void testSelectAllRecordsByCityIdWithLimit() {
+    var page = personRepository.findByCQL("city.id==2", OffsetRequest.of(0, 1));
+    assertThat(page)
+      .hasSize(1)
+      .extracting(Person::getCity)
+      .extracting(City::getId)
+      .contains(2);
+  }
+
+  @Test
+  void testSelectAllRecordsByCityIdLessThanOrEquals() {
+    var page = personRepository.findByCQL("(city.id<=2)sortby city/sort.descending", OffsetRequest.of(0, 2));
+    assertThat(page)
+      .hasSize(2)
+      .extracting(Person::getCity)
+      .extracting(City::getId)
+      .startsWith(2)
+      .endsWith(1);
+  }
+
+  @Test
+  void testSelectAllRecordsByCityIdNotEquals() {
+    var page = personRepository.findByCQL("city.id<>2", OffsetRequest.of(0, 10));
+    assertThat(page)
+      .hasSize(2)
+      .extracting(Person::getCity)
+      .extracting(City::getId)
+      .containsOnly(1);
+  }
+
+  @Test
+  void testSelectRecordsByNameAndAsterisk() {
+    var page = personRepository.findByCQL("name=Jo*", OffsetRequest.of(0, 1));
+    assertThat(page)
+      .hasSize(1)
+      .extracting(Person::getName)
+      .contains("John");
+  }
+
+  @Test
   void testSelectAllRecordsByCityNameEquals() {
     var page = personRepository.findByCQL("city.name==Kyiv", OffsetRequest.of(0, 10));
     assertThat(page)
@@ -133,15 +173,25 @@ class JpaCqlRepositoryTest {
   @Test
   void testInvalidQuery() {
     var offsetRequest = OffsetRequest.of(0, 10);
-    Assertions.assertThrows(CqlQueryValidationException.class,
+    assertThrows(CqlQueryValidationException.class,
       () -> personRepository.findByCQL("!!sortby name", offsetRequest)
     );
   }
 
   @Test
   void testUnsupportedFeatureQuery() {
-    Assertions.assertThrows(CqlQueryValidationException.class,
+    assertThrows(CqlQueryValidationException.class,
       () -> personRepository.count("name prox Jon")
     );
+  }
+
+  @Test
+  void testWithUnsupportedQueryOperator() {
+    var offsetRequest = OffsetRequest.of(0, 10);
+    var thrown = assertThrows(CqlQueryValidationException.class,
+      () -> personRepository.findByCQL("city.name%Kyiv", offsetRequest)
+    );
+
+    assertTrue(thrown.getMessage().contains("Not implemented yet"));
   }
 }
