@@ -1,3 +1,8 @@
+## 5.0.0 IN PROGRESS
+ * [FOLSPRINGB-58](https://issues.folio.org/browse/FOLSPRINGB-58) Async FolioExecutionContext helper
+
+Breaking change: Replace calls to `FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext` and  `FolioExecutionScopeExecutionContextManager.endFolioExecutionContext` with `FolioExecutionContextSetter` usage.
+
 ## 4.1.0 2022-05-30
 * [FOLSPRINGB-52](https://issues.folio.org/projects/FOLSPRINGB/issues/FOLSPRINGB-52) Spring Boot 2.7.x for Morning Glory R2 2022
 * [FOLSPRINGB-53](https://issues.folio.org/projects/FOLSPRINGB/issues/FOLSPRINGB-53) Upgrade rhino and plexus-utils (CVE-2017-1000487)
