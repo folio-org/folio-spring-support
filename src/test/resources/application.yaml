@@ -1,6 +1,7 @@
 spring:
   application:
     name: folio-spring-base
+  cloud.compatibility-verifier.enabled: false
   liquibase:
     enabled: true
     change-log: classpath:changelog-master.xml

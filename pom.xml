@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.7.3</version>
+    <version>2.7.4</version>
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
   <groupId>org.folio</groupId>
@@ -17,7 +17,7 @@
 
   <properties>
     <java.version>11</java.version>
-    <spring-cloud-starter-openfeign.version>3.1.4</spring-cloud-starter-openfeign.version>
+    <spring-cloud-starter-openfeign.version>4.0.0-M4</spring-cloud-starter-openfeign.version>
     <commons-lang3.version>3.12.0</commons-lang3.version>
     <cql2pgjson.version>33.2.4</cql2pgjson.version>
     <openapi-generator.version>5.3.1</openapi-generator.version>
@@ -34,6 +34,14 @@
       <id>folio-nexus</id>
       <name>FOLIO Maven Repository</name>
       <url>https://repository.folio.org/repository/maven-folio</url>
+    </repository>
+    <repository>
+      <id>spring-milestones</id>
+      <name>Spring Milestones</name>
+      <url>https://repo.spring.io/milestone</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </repository>
   </repositories>
 
