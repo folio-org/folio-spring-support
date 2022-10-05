@@ -2,7 +2,7 @@ package org.folio.spring.cql;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;

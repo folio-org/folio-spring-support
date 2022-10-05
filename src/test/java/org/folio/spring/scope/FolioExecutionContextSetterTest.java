@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.junit.jupiter.api.Test;

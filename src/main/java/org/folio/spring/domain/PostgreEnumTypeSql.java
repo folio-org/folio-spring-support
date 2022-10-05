@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-
+import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.EnhancedUserType;
 
@@ -15,23 +15,18 @@ import org.hibernate.usertype.EnhancedUserType;
 public class PostgreEnumTypeSql implements EnhancedUserType {
 
   @Override
-  public String objectToSQLString(Object value) {
+  public String toString(Object value) throws HibernateException {
     return value != null ? value.toString() : null;
   }
 
   @Override
-  public String toXMLString(Object value) {
-    return objectToSQLString(value);
+  public Object fromStringValue(CharSequence sequence) throws HibernateException {
+    return toString(sequence);
   }
 
   @Override
-  public Object fromXMLString(String xmlValue) {
-    return xmlValue;
-  }
-
-  @Override
-  public int[] sqlTypes() {
-    return new int[]{Types.OTHER};
+  public int getSqlType() {
+    return Types.OTHER;
   }
 
   @Override
@@ -50,9 +45,9 @@ public class PostgreEnumTypeSql implements EnhancedUserType {
   }
 
   @Override
-  public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner)
+  public Object nullSafeGet(ResultSet rs, int position, SharedSessionContractImplementor session, Object owner)
       throws SQLException {
-    return rs.getString(names[0]);
+    return rs.getString(position);
   }
 
   @Override
@@ -88,6 +83,11 @@ public class PostgreEnumTypeSql implements EnhancedUserType {
   @Override
   public Object replace(Object original, Object target, Object owner) {
     return original;
+  }
+
+  @Override
+  public String toSqlLiteral(Object value) {
+    return value.toString();
   }
 
 }

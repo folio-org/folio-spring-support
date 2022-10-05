@@ -3,12 +3,12 @@ package org.folio.spring.cql.domain;
 import java.util.Date;
 import java.util.UUID;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 import lombok.Data;
 
@@ -24,6 +24,8 @@ public class Person {
   private UUID identifier;
   private Boolean isAlive;
   private Date dateBorn;
+  private int count;
+  private String cql;
 
   @ManyToOne
   @JoinColumn(name = "city_id")

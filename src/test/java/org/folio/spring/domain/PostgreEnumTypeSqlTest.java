@@ -1,6 +1,5 @@
 package org.folio.spring.domain;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -34,27 +33,17 @@ class PostgreEnumTypeSqlTest {
 
   @Test
   void shouldReturnStringAsSQLRepresentationOfObject(@Random Object obj) {
-    assertEquals(obj.toString(), type.objectToSQLString(obj));
+    assertEquals(obj.toString(), type.toString(obj));
   }
 
   @Test
   void shouldReturnNullAsSQLRepresentationOfNull() {
-    assertNull(type.objectToSQLString(null));
-  }
-
-  @Test
-  void shouldReturnSqlStringAsXMLString(@Random Object obj) {
-    assertEquals(type.objectToSQLString(obj), type.toXMLString(obj));
-  }
-
-  @Test
-  void shouldReturnSameStringAsXMLString(@Random String xmlValue) {
-    assertEquals(xmlValue, type.fromXMLString(xmlValue));
+    assertNull(type.toString(null));
   }
 
   @Test
   void shouldReturnOtherAsSqlType() {
-    assertArrayEquals(new int[]{Types.OTHER}, type.sqlTypes());
+    assertEquals(Types.OTHER, type.getSqlType());
   }
 
   @Test
@@ -88,12 +77,12 @@ class PostgreEnumTypeSqlTest {
   }
 
   @Test
-  void shouldReturnStringFromResultSet(@Mock ResultSet rs, @Random String[] names,
+  void shouldReturnStringFromResultSet(@Mock ResultSet rs,
       @Mock SharedSessionContractImplementor session, @Random Object owner) throws SQLException {
     String result = "RESULT";
-    when(rs.getString(names[0])).thenReturn(result);
+    when(rs.getString(0)).thenReturn(result);
 
-    assertEquals(result, type.nullSafeGet(rs, names, session, owner));
+    assertEquals(result, type.nullSafeGet(rs, 0, session, owner));
   }
 
   @Test
