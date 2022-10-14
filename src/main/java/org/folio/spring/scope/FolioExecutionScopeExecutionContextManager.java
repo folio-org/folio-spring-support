@@ -4,7 +4,6 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.logging.FolioLoggingContextHolder;
-
 import org.springframework.core.NamedInheritableThreadLocal;
 
 import java.util.Map;
@@ -50,7 +49,7 @@ public class FolioExecutionScopeExecutionContextManager {
    *
    * <p>The visibility of this method is package-private to enforce using {@link FolioExecutionContextSetter}.
    */
-  static void beginFolioExecutionContext(FolioExecutionContext folioExecutionContext) {
+  public static void beginFolioExecutionContext(FolioExecutionContext folioExecutionContext) {
     var scopeMap = new ConcurrentHashMap<String, Object>();
     scopeMap.put(CONVERSATION_ID_KEY, UUID.randomUUID().toString());
     folioExecutionScopeHolder.set(scopeMap);
@@ -63,7 +62,7 @@ public class FolioExecutionScopeExecutionContextManager {
    *
    * <p>The visibility of this method is package-private to enforce using {@link FolioExecutionContextSetter}.
    */
-  static void endFolioExecutionContext() {
+  public static void endFolioExecutionContext() {
     folioExecutionContextHolder.remove();
     folioExecutionScopeHolder.remove();
     FolioLoggingContextHolder.removeFolioExecutionContext();
