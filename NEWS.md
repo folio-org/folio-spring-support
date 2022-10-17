@@ -1,3 +1,6 @@
+## 5.0.1 2022-10-17
+* Reverting changes to provide backward compatibility, not to force teams to review all folio-spring-base based modules addressing this breaking change.
+
 ## 5.0.0 2022-10-04
  * [FOLSPRINGB-58](https://issues.folio.org/browse/FOLSPRINGB-58) Async FolioExecutionContext helper
  * [FOLSPRINGB-72](https://issues.folio.org/browse/FOLSPRINGB-72) Fixed fails if limit <= number of results on CQL-search
