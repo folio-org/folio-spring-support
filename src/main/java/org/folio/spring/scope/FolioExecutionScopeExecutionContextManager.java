@@ -82,7 +82,7 @@ public class FolioExecutionScopeExecutionContextManager {
   static Map<String, Object> getFolioExecutionScope() {
     Map<String, Object> folioExecutionScope = folioExecutionScopeHolder.get();
     if (folioExecutionScope == null) {
-      log.warn("FolioExecutionScope is not set up. Fallback to default FolioExecutionScope.");
+      log.debug("FolioExecutionScope is not set up. Fallback to default FolioExecutionScope.");
       return fallBackfolioExecutionScope;
     }
     return folioExecutionScope;

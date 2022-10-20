@@ -44,7 +44,7 @@ public class LoggingRequestFilter extends GenericFilterBean implements OrderedFi
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
     throws IOException, ServletException {
-    if (log.isInfoEnabled()) {
+    if (log.isDebugEnabled()) {
       filterWrapped(wrapRequest(request), wrapResponse(response), chain);
     } else {
       chain.doFilter(request, response);
@@ -71,7 +71,7 @@ public class LoggingRequestFilter extends GenericFilterBean implements OrderedFi
   private void filterBefore(MultiReadHttpServletRequestWrapper request) throws IOException {
     request.setAttribute(START_TIME_ATTR, Instant.now().toEpochMilli());
 
-    log.info("---> {} {} {}",
+    log.debug("---> {} {} {}",
       request.getMethod(),
       request.getRequestURI(),
       request.getQueryString()
@@ -81,17 +81,17 @@ public class LoggingRequestFilter extends GenericFilterBean implements OrderedFi
       var headerNames = request.getHeaderNames();
       while (headerNames.hasMoreElements()) {
         var headerName = headerNames.nextElement();
-        log.info("{}: {}", headerName, request.getHeader(headerName));
+        log.debug("{}: {}", headerName, request.getHeader(headerName));
       }
     }
 
     if (level.ordinal() == Level.FULL.ordinal()) {
       var body = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
-      log.info("Body: {}", body);
+      log.debug("Body: {}", body);
     }
 
     if (level.ordinal() > Level.BASIC.ordinal()) {
-      log.info("---> END HTTP");
+      log.debug("---> END HTTP");
     }
   }
 
@@ -99,15 +99,15 @@ public class LoggingRequestFilter extends GenericFilterBean implements OrderedFi
     throws UnsupportedEncodingException {
     var startTime = (long) request.getAttribute(START_TIME_ATTR);
 
-    log.info("<--- {} in {}ms",
+    log.debug("<--- {} in {}ms",
       response.getStatus(),
       (Instant.now().toEpochMilli() - startTime)
     );
 
     if (level.ordinal() == Level.FULL.ordinal()) {
       var body = new String(response.getContentAsByteArray(), response.getCharacterEncoding());
-      log.info("Body: {}", body);
-      log.info("<--- END HTTP");
+      log.debug("Body: {}", body);
+      log.debug("<--- END HTTP");
     }
   }
 
