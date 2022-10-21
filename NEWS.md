@@ -1,3 +1,6 @@
+## 5.0.2 2022-10-21
+* [FOLSPRINGB-78](https://issues.folio.org/browse/FOLSPRINGB-78) RMB 35.0.1, commons-text 1.10.0 fixing vulns
+
 ## 5.0.1 2022-10-17
 * Reverting changes to provide backward compatibility, not to force teams to review all folio-spring-base based modules addressing this breaking change.
 
