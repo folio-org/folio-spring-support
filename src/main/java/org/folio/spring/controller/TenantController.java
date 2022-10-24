@@ -41,11 +41,13 @@ public class TenantController implements TenantApi {
       var parameters = tenantAttributes.getParameters();
       var loadReferenceParam = getParameterValue(LOAD_REFERENCE_PARAM, parameters);
       if (loadReferenceParam.isPresent() && loadReferenceParam.get().equals("true")) {
+        log.info("Loading reference data...");
         tenantService.loadReferenceData();
       }
 
       var loadSampleParam = getParameterValue(LOAD_SAMPLE_PARAM, parameters);
       if (loadSampleParam.isPresent() && loadSampleParam.get().equals("true")) {
+        log.info("Loading sample data...");
         tenantService.loadSampleData();
       }
     }

@@ -19,7 +19,7 @@ class FeignInfoLoggerTest {
     var logger = new FeignClientConfiguration.FeignInfoLogger(mockLogger);
     logger.log("test(Key)", "Test %s message", "log");
 
-    verify(mockLogger).info("[test] Test log message");
+    verify(mockLogger).debug("[test] Test log message");
   }
 
 }

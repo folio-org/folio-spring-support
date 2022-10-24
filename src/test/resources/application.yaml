@@ -4,6 +4,13 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:changelog-master.xml
+folio:
+  logging:
+    request:
+      enabled: true
+    feign:
+      enabled: true
+      level: basic
 logging:
   level:
     io.zonky.test.db.postgres: FATAL

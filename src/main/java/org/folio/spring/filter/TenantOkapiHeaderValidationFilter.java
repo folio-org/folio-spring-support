@@ -40,6 +40,7 @@ public class TenantOkapiHeaderValidationFilter extends GenericFilterBean impleme
       .anyMatch(req.getRequestURI()::startsWith)) {
       chain.doFilter(request, response);
     } else {
+      logger.warn(ERROR_MSG);
       var res = ((HttpServletResponse) response);
       res.setContentType("text/plain");
       res.setStatus(HttpServletResponse.SC_BAD_REQUEST);

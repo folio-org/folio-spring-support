@@ -29,6 +29,7 @@ public class FolioSpringLiquibase extends SpringLiquibase {
       }
       try (var connection = getDataSource().getConnection()) {
         try (var statement = connection.createStatement()) {
+          log.debug("creating [{}] schema", defaultSchema);
           statement.execute("create schema if not exists " + defaultSchema + ";");
         }
       } catch (SQLException e) {

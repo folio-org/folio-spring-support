@@ -1,5 +1,6 @@
 package org.folio.spring.config;
 
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.datasource.DelegatingDataSource;
@@ -9,6 +10,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.regex.Pattern;
 
+@Log4j2
 public class DataSourceFolioWrapper extends DelegatingDataSource {
   private static final Pattern NON_WORD_CHARACTERS = Pattern.compile("[^a-zA-Z0-9_]");
 
@@ -31,6 +33,7 @@ public class DataSourceFolioWrapper extends DelegatingDataSource {
         schemaName = folioExecutionContext.getFolioModuleMetadata().getDBSchemaName(tenantId) + ", public";
       }
       try (var statement = connection.prepareStatement(String.format("SET search_path = %s;", schemaName))) {
+        log.trace("Changing search_path to {}", schemaName);
         statement.execute();
       }
 

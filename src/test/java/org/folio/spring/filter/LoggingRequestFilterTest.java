@@ -78,7 +78,7 @@ class LoggingRequestFilterTest {
     var config = ctx.getConfiguration();
     testAppender = (TestAppender) config.getAppenders().get("TestAppender");
     testAppender.clearMessages();
-    setLoggerLevel(ctx, Level.INFO);
+    setLoggerLevel(ctx, Level.DEBUG);
   }
 
   @Test
