@@ -1,18 +1,18 @@
 package org.folio.spring;
 
-import static org.folio.spring.integration.XOkapiHeaders.OKAPI_HEADERS_PREFIX;
-import static org.folio.spring.integration.XOkapiHeaders.REQUEST_ID;
-import static org.folio.spring.integration.XOkapiHeaders.TENANT;
-import static org.folio.spring.integration.XOkapiHeaders.TOKEN;
-import static org.folio.spring.integration.XOkapiHeaders.URL;
-import static org.folio.spring.integration.XOkapiHeaders.USER_ID;
+import lombok.Getter;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import lombok.Getter;
+import static org.folio.spring.integration.XOkapiHeaders.OKAPI_HEADERS_PREFIX;
+import static org.folio.spring.integration.XOkapiHeaders.REQUEST_ID;
+import static org.folio.spring.integration.XOkapiHeaders.TENANT;
+import static org.folio.spring.integration.XOkapiHeaders.TOKEN;
+import static org.folio.spring.integration.XOkapiHeaders.URL;
+import static org.folio.spring.integration.XOkapiHeaders.USER_ID;
 
 @Getter
 public class DefaultFolioExecutionContext implements FolioExecutionContext {
@@ -44,6 +44,14 @@ public class DefaultFolioExecutionContext implements FolioExecutionContext {
 
   private String retrieveFirstSafe(Collection<String> strings) {
     return strings != null && !strings.isEmpty() ? strings.iterator().next() : "";
+  }
+
+  /**
+   * A useful method to get an actual instance of the FolioExecutionContext when the one is injected through a wrapper
+   * @return
+   */
+  public FolioExecutionContext getInstance() {
+    return this;
   }
 
 }
