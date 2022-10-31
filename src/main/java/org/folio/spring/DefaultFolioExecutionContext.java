@@ -46,12 +46,4 @@ public class DefaultFolioExecutionContext implements FolioExecutionContext {
     return strings != null && !strings.isEmpty() ? strings.iterator().next() : "";
   }
 
-  /**
-   * A useful method to get an actual instance of the FolioExecutionContext when the one is injected through a wrapper
-   * @return
-   */
-  public FolioExecutionContext getInstance() {
-    return this;
-  }
-
 }

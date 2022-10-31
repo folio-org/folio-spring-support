@@ -57,4 +57,12 @@ public interface FolioExecutionContext {
   default FolioModuleMetadata getFolioModuleMetadata() {
     return null;
   }
+
+  /**
+   * A useful method to get an actual instance of the FolioExecutionContext when the one is injected through a wrapper
+   * Pay attention, that the result type must be Object, otherwise a proxy will return itselfb
+   */
+  default Object getInstance() {
+    return this;
+  }
 }

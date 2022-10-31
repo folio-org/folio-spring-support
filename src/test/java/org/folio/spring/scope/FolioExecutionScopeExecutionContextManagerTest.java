@@ -55,6 +55,8 @@ class FolioExecutionScopeExecutionContextManagerTest {
         var tenantId = folioExecutionContext.getTenantId();
         var localTenantId = localFolioExecutionContext.getTenantId();
         assertEquals(tenantId, localTenantId);
+        var instance = folioExecutionContext.getInstance();
+        assertEquals(localFolioExecutionContext, instance);
       });
     } finally {
       FolioExecutionScopeExecutionContextManager.endFolioExecutionContext();

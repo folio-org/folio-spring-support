@@ -2,7 +2,6 @@ package org.folio.spring.scope;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
-import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.logging.FolioLoggingContextHolder;
 import org.springframework.core.NamedInheritableThreadLocal;
@@ -74,8 +73,7 @@ public class FolioExecutionScopeExecutionContextManager {
    * and reset it once the task is completed.
    */
   public static Runnable getRunnableWithFolioContext(FolioExecutionContext executionContext, Runnable task) {
-    final FolioExecutionContext localInstance =
-      (executionContext instanceof DefaultFolioExecutionContext) ? ((DefaultFolioExecutionContext) executionContext).getInstance() : executionContext;
+    final FolioExecutionContext localInstance = (FolioExecutionContext) executionContext.getInstance();
     return () -> {
       beginFolioExecutionContext(localInstance);
       try {
