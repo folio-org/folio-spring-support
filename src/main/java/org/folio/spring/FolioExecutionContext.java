@@ -59,8 +59,8 @@ public interface FolioExecutionContext {
   }
 
   /**
-   * A useful method to get an actual instance of the FolioExecutionContext when the one is injected through a wrapper
-   * Pay attention, that the result type must be Object, otherwise a proxy will return itselfb
+   * A useful method to get an actual instance of the FolioExecutionContext when the one is injected through a wrapper/proxy
+   * Pay attention, that the result type must be Object, otherwise a proxy will return itself
    */
   default Object getInstance() {
     return this;
