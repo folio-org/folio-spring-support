@@ -69,6 +69,30 @@ public class FolioExecutionScopeExecutionContextManager {
   }
 
   /**
+   * This method wraps a Runnable task to provide the capability to set up the Folio Execution Context for the task
+   * and reset it once the task is completed.
+   */
+  public static Runnable getRunnableWithFolioContext(FolioExecutionContext executionContext, Runnable task) {
+    final FolioExecutionContext localInstance = (FolioExecutionContext) executionContext.getInstance();
+    return () -> {
+      beginFolioExecutionContext(localInstance);
+      try {
+        task.run();
+      } finally {
+        endFolioExecutionContext();
+      }
+    };
+  }
+
+  /**
+   * This method wraps a Runnable task to provide the capability to set up the current Folio Execution Context for the task
+   * and reset it once the task is completed.
+   */
+  public static Runnable getRunnableWithCurrentFolioContext(Runnable task) {
+    return getRunnableWithFolioContext(getFolioExecutionContext(), task);
+  }
+
+  /**
    * Retrieve FolioExecutionContext from {@link ThreadLocal} variable.
    */
   static FolioExecutionContext getFolioExecutionContext() {
