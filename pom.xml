@@ -92,7 +92,7 @@
            and spring-boot-starter-parent doesn't bump the postgresql minor version
            https://github.com/spring-projects/spring-boot/issues/32126
       -->
-      <version>42.5.0</version>
+      <version>42.5.1</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
