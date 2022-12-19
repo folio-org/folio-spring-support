@@ -1,3 +1,6 @@
+## 5.0.3 2022-12-19
+* [FOLSPRINGB-83](https://issues.folio.org/browse/FOLSPRINGB-83) Upgrade postgresql from 42.5.0 to 42.5.1 fixing CVE-2022-41946
+
 ## 5.0.2 2022-10-21
 * [FOLSPRINGB-78](https://issues.folio.org/browse/FOLSPRINGB-78) RMB 35.0.1, commons-text 1.10.0 fixing vulns
 
