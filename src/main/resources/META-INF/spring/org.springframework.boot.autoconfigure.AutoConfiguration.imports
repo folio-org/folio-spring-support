@@ -1,0 +1,4 @@
+org.folio.spring.config.FolioSpringConfiguration
+org.folio.spring.liquibase.FolioLiquibaseConfiguration
+org.folio.spring.scope.FolioExecutionScopeConfig
+org.folio.spring.cql.JpaCqlConfiguration

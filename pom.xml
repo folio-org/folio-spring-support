@@ -1,33 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.7.6</version>
-    <relativePath /> <!-- lookup parent from repository -->
+    <version>3.0.0</version>
+    <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>org.folio</groupId>
   <artifactId>folio-spring-base</artifactId>
-  <version>5.1.0-SNAPSHOT</version>
+  <version>6.0.0-SNAPSHOT</version>
   <name>folio-spring-base</name>
-  <description>This is a library (jar) that contains the basic functionality and main dependencies required for development FOLIO modules using
+  <description>This is a library (jar) that contains the basic functionality and main dependencies required for
+    development FOLIO modules using
     Spring framework.
   </description>
 
   <properties>
     <java.version>17</java.version>
-    <spring-cloud-starter-openfeign.version>3.1.5</spring-cloud-starter-openfeign.version>
+    <spring-cloud-starter-openfeign.version>4.0.0</spring-cloud-starter-openfeign.version>
     <commons-lang3.version>3.12.0</commons-lang3.version>
     <raml-module-builder.version>35.0.4</raml-module-builder.version>
     <openapi-generator.version>6.2.1</openapi-generator.version>
     <jackson-bom.version>2.14.1</jackson-bom.version>
-    <jackson-databind-nullable.version>0.2.2</jackson-databind-nullable.version>
-    <feign-okhttp.version>11.10</feign-okhttp.version>
+    <jackson-databind-nullable.version>0.2.4</jackson-databind-nullable.version>
+    <feign-okhttp.version>12.1</feign-okhttp.version>
     <tenant.yaml.file>${project.basedir}/src/main/resources/swagger.api/tenant.yaml</tenant.yaml.file>
     <lombok.version>1.18.24</lombok.version>
-    <mapstruct.version>1.4.2.Final</mapstruct.version>
+    <mapstruct.version>1.5.3.Final</mapstruct.version>
     <easy-random.version>5.0.0</easy-random.version>
+    <postgresql.version>42.5.1</postgresql.version>
+    <liquibase-core.version>4.18.0</liquibase-core.version>
+    <rhino.version>1.7.14</rhino.version>
+    <embedded-database-spring-test.version>2.2.0</embedded-database-spring-test.version>
+    <embedded-postgres.version>2.0.2</embedded-postgres.version>
+    <!-- -->
+    <versions-maven-plugin.version>2.13.0</versions-maven-plugin.version>
+    <maven-enforcer-plugin.version>3.1.0</maven-enforcer-plugin.version>
+    <build-helper-maven-plugin.version>3.3.0</build-helper-maven-plugin.version>
+    <maven-release-plugin.version>3.0.0-M7</maven-release-plugin.version>
+    <maven-failsafe-plugin.version>3.0.0-M7</maven-failsafe-plugin.version>
+    <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+    <maven-javadoc-plugin.version>3.4.1</maven-javadoc-plugin.version>
+    <maven-deploy-plugin.version>3.0.0</maven-deploy-plugin.version>
   </properties>
 
   <repositories>
@@ -36,6 +52,11 @@
       <name>FOLIO Maven Repository</name>
       <url>https://repository.folio.org/repository/maven-folio</url>
     </repository>
+<!--    <repository>-->
+<!--      <id>spring-milestone-nexus</id>-->
+<!--      <name>Spring milestone Repository</name>-->
+<!--      <url>https://repo.spring.io/milestone</url>-->
+<!--    </repository>-->
   </repositories>
 
   <dependencyManagement>
@@ -51,6 +72,11 @@
   </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-properties-migrator</artifactId>
+      <scope>runtime</scope>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -97,13 +123,13 @@
            and spring-boot-starter-parent doesn't bump the postgresql minor version
            https://github.com/spring-projects/spring-boot/issues/32126
       -->
-      <version>42.5.1</version>
+      <version>${postgresql.version}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
-      <version>4.9.1</version>
+      <version>${liquibase-core.version}</version>
     </dependency>
     <dependency>
       <groupId>io.github.openfeign</groupId>
@@ -143,18 +169,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <!-- openapi-generator has commons-text 1.9 dependency,
-           commons-text 1.9 has Arbitrary Code Execution vulnerability:
-           https://nvd.nist.gov/vuln/detail/CVE-2022-42889
-           commons-text >= 1.10.0 has a fix.
-           Remove this commons-text dependency when openapi-generator comes
-           with a fixed commons-text dependency.
-      -->
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-text</artifactId>
-      <version>1.10.0</version>
-    </dependency>
-    <dependency>
       <groupId>org.openapitools</groupId>
       <artifactId>openapi-generator-maven-plugin</artifactId>
       <version>${openapi-generator.version}</version>
@@ -175,32 +189,7 @@
       -->
       <groupId>org.mozilla</groupId>
       <artifactId>rhino</artifactId>
-      <version>1.7.14</version>
-    </dependency>
-    <dependency>
-      <!-- Fix plexus-utils issues:
-           Shell Command Injection https://nvd.nist.gov/vuln/detail/CVE-2017-1000487
-           XML External Entity (XXE) Injection: https://app.snyk.io/vuln/SNYK-JAVA-ORGCODEHAUSPLEXUS-461102
-           Directory Traversal https://app.snyk.io/vuln/SNYK-JAVA-ORGCODEHAUSPLEXUS-31521
-           Remove this <dependecy> entry after upgrading org.openapitools:openapi-generator to >= 6.0.0.
-      -->
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-compat</artifactId>
-      <version>3.8.5</version>
-    </dependency>
-    <dependency>
-      <!-- Fix Denial of Service (DoS) issue in snakeyaml:
-           https://nvd.nist.gov/vuln/detail/CVE-2022-25857
-           Fix Stack-based Buffer Overflow issue in snakeyaml:
-           https://nvd.nist.gov/vuln/detail/CVE-2022-38752
-           Spring Boot doesn't fix it before version 3.0.0:
-           https://github.com/spring-projects/spring-boot/issues/32221
-           openapi-generator doesn't have a release with fixed snakeyaml yet.
-           Remove this <dependency> entry when org.openapitools:openapi-generator ships with a fixed version.
-      -->
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
-      <version>1.33</version>
+      <version>${rhino.version}</version>
     </dependency>
 
     <!-- Test dependencies -->
@@ -222,13 +211,31 @@
     <dependency>
       <groupId>io.zonky.test</groupId>
       <artifactId>embedded-database-spring-test</artifactId>
-      <version>1.6.2</version>
+      <version>${embedded-database-spring-test.version}</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>io.zonky.test</groupId>
+      <artifactId>embedded-postgres</artifactId>
+      <version>${embedded-postgres.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-testing</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.annotation</groupId>
+          <artifactId>javax.annotation-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
@@ -249,7 +256,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
-        <version>2.8.1</version>
+        <version>${versions-maven-plugin.version}</version>
         <configuration>
           <generateBackupPoms>false</generateBackupPoms>
         </configuration>
@@ -258,7 +265,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.0.0-M3</version>
+        <version>${maven-enforcer-plugin.version}</version>
         <executions>
           <execution>
             <id>enforce-maven</id>
@@ -279,7 +286,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>${build-helper-maven-plugin.version}</version>
         <executions>
           <execution>
             <phase>generate-sources</phase>
@@ -318,10 +325,13 @@
               <modelsToGenerate>error,errors,parameter,metadata,tenantAttributes</modelsToGenerate>
               <generateModelTests>false</generateModelTests>
               <generateModelDocumentation>true</generateModelDocumentation>
+              <generateSupportingFiles>true</generateSupportingFiles>
+              <supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
               <configOptions>
                 <java8>true</java8>
-                <dateLibrary>java8</dateLibrary>
+                <dateLibrary>java</dateLibrary>
                 <interfaceOnly>true</interfaceOnly>
+                <useSpringBoot3>true</useSpringBoot3>
                 <useTags>true</useTags>
               </configOptions>
             </configuration>
@@ -332,7 +342,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
-        <version>3.0.0-M4</version>
+        <version>${maven-release-plugin.version}</version>
         <configuration>
           <preparationGoals>clean verify</preparationGoals>
           <tagNameFormat>v@{project.version}</tagNameFormat>
@@ -344,12 +354,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>3.0.0-M5</version>
+        <version>${maven-failsafe-plugin.version}</version>
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>${maven-source-plugin.version}</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -362,8 +373,9 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>${maven-javadoc-plugin.version}</version>
         <executions>
           <execution>
             <id>attach-javadocs</id>
@@ -376,8 +388,9 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
-        <version>3.0.0-M2</version>
+        <version>${maven-deploy-plugin.version}</version>
         <executions>
           <execution>
             <id>deploy</id>

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
 @EnableJpaRepositories(
-  basePackages = "${folio.jpa.repository.base-packages:org.folio.*}",
+  basePackages = "${folio.jpa.repository.base-packages:org.folio}",
   repositoryFactoryBeanClass = JpaCqlRepositoryFactoryBean.class
 )
 public class JpaCqlConfiguration {
