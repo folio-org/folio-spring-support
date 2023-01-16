@@ -14,7 +14,7 @@ public class RequestUtils {
 
   public static HttpServletRequest getHttpServletRequest() {
     var requestAttributes = RequestContextHolder.getRequestAttributes();
-    return (requestAttributes instanceof ServletRequestAttributes) ? ((ServletRequestAttributes) requestAttributes).getRequest() : null;
+    return (requestAttributes instanceof ServletRequestAttributes servletRequestAttributes) ? servletRequestAttributes.getRequest() : null;
   }
 
   public static Map<String, Collection<String>> getHttpHeadersFromRequest() {

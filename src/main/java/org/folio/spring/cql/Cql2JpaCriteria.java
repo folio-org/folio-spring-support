@@ -126,10 +126,10 @@ public class Cql2JpaCriteria<E> {
   }
 
   private Predicate process(CQLNode node, CriteriaBuilder cb, Root<E> root) throws QueryValidationException {
-    if (node instanceof CQLTermNode) {
-      return processTerm((CQLTermNode) node, cb, root);
-    } else if (node instanceof CQLBooleanNode) {
-      return processBoolean((CQLBooleanNode) node, cb, root);
+    if (node instanceof CQLTermNode cqlTermNode) {
+      return processTerm(cqlTermNode, cb, root);
+    } else if (node instanceof CQLBooleanNode cqlBooleanNode) {
+      return processBoolean(cqlBooleanNode, cb, root);
     } else {
       throw createUnsupportedException(node);
     }
@@ -214,17 +214,11 @@ public class Cql2JpaCriteria<E> {
         if (CqlTermFormat.NUMBER.equals(modifiers.getCqlTermFormat())) {
           return queryBySql(field, node, comparator, cb);
         }
-      case "adj":
-      case "all":
-      case "any":
+      case "adj", "all", "any":
         return buildQuery(field, node, isString, comparator, cb);
-      case "==":
-      case NOT_EQUALS_OPERATOR:
+      case "==", NOT_EQUALS_OPERATOR:
         return buildQuery(field, node, isString, comparator, cb);
-      case "<":
-      case ">":
-      case "<=":
-      case ">=":
+      case "<", ">", "<=", ">=":
         return queryBySql(field, node, comparator, cb);
       default:
         throw new CQLFeatureUnsupportedException("Relation " + comparator + " not implemented yet: " + node);

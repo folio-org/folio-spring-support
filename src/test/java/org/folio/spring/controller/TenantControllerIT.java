@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -69,6 +70,14 @@ class TenantControllerIT {
         .contentType(APPLICATION_JSON)
         .header(TENANT, "can_enable_tenant")
         .content(toJsonString(new TenantAttributes().moduleTo("mod-example-1.0.0"))))
+      .andExpect(status().isNoContent());
+  }
+
+  @Test
+  void canDeleteTenant() throws Exception {
+    mockMvc.perform(delete("/_/tenant/{operationId}", "NO_OP")
+        .contentType(APPLICATION_JSON)
+        .header(TENANT, "can_delete_tenant"))
       .andExpect(status().isNoContent());
   }
 

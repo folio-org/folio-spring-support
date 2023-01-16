@@ -26,8 +26,8 @@ public class FolioExecutionScopeFilter extends GenericFilterBean implements Orde
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
     throws IOException, ServletException {
-    if (request instanceof HttpServletRequest) {
-      try (var x = new FolioExecutionContextSetter(folioModuleMetadata, (HttpServletRequest) request)) {
+    if (request instanceof HttpServletRequest httpServletRequest) {
+      try (var x = new FolioExecutionContextSetter(folioModuleMetadata, httpServletRequest)) {
         chain.doFilter(request, response);
       }
     }
