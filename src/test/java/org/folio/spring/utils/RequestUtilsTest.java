@@ -8,15 +8,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.jeasy.random.randomizers.collection.ListRandomizer;
 import org.jeasy.random.randomizers.collection.MapRandomizer;
 import org.jeasy.random.randomizers.text.StringRandomizer;

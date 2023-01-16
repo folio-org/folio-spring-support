@@ -1,17 +1,14 @@
 package org.folio.spring.cql;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
-
-import javax.persistence.EntityManager;
-
 import lombok.extern.log4j.Log4j2;
+import org.folio.spring.data.OffsetRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.support.PageableExecutionUtils;
-
-import org.folio.spring.data.OffsetRequest;
 
 @Log4j2
 @NoRepositoryBean

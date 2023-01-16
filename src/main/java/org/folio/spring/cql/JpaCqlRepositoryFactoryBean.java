@@ -1,9 +1,7 @@
 package org.folio.spring.cql;
 
+import jakarta.persistence.EntityManager;
 import java.io.Serializable;
-
-import javax.persistence.EntityManager;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;

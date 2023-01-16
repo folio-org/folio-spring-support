@@ -1,5 +1,7 @@
 package org.folio.spring.cql;
 
+import static io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseProvider.ZONKY;
+import static io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseType.POSTGRES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,7 +22,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest
-@AutoConfigureEmbeddedDatabase(beanName = "dataSource")
+@AutoConfigureEmbeddedDatabase(beanName = "dataSource", type = POSTGRES, provider = ZONKY)
 @EnableAutoConfiguration(exclude = FlywayAutoConfiguration.class)
 @Sql({"/schema.sql", "/insert-data.sql"})
 class JpaCqlRepositoryTest {
@@ -33,7 +35,6 @@ class JpaCqlRepositoryTest {
 
   @Configuration
   static class TestConfiguration {
-
   }
 
   @Test

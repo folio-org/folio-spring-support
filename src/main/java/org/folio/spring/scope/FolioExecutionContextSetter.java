@@ -1,8 +1,8 @@
 package org.folio.spring.scope;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;

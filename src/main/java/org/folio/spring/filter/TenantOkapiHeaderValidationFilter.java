@@ -1,24 +1,21 @@
 package org.folio.spring.filter;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.filter.OrderedFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
-
-import org.folio.spring.integration.XOkapiHeaders;
 
 @Component("defaultTenantOkapiHeaderValidationFilter")
 @ConditionalOnMissingBean(name = "tenantOkapiHeaderValidationFilter")

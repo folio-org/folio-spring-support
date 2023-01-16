@@ -1,5 +1,15 @@
 package org.folio.spring.cql;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -8,16 +18,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
@@ -102,8 +102,7 @@ public class Cql2JpaCriteria<E> {
   private <T> Predicate createPredicate(CQLNode node, Root<E> root, CriteriaBuilder cb, CriteriaQuery<T> query)
     throws QueryValidationException {
     Predicate predicates;
-    if (node instanceof CQLSortNode) {
-      CQLSortNode sortNode = (CQLSortNode) node;
+    if (node instanceof CQLSortNode sortNode) {
       var orders = toOrders(sortNode, root, cb);
       query.orderBy(orders);
       predicates = process(sortNode.getSubtree(), cb, root);
@@ -127,10 +126,10 @@ public class Cql2JpaCriteria<E> {
   }
 
   private Predicate process(CQLNode node, CriteriaBuilder cb, Root<E> root) throws QueryValidationException {
-    if (node instanceof CQLTermNode) {
-      return processTerm((CQLTermNode) node, cb, root);
-    } else if (node instanceof CQLBooleanNode) {
-      return processBoolean((CQLBooleanNode) node, cb, root);
+    if (node instanceof CQLTermNode cqlTermNode) {
+      return processTerm(cqlTermNode, cb, root);
+    } else if (node instanceof CQLBooleanNode cqlBooleanNode) {
+      return processBoolean(cqlBooleanNode, cb, root);
     } else {
       throw createUnsupportedException(node);
     }
@@ -178,7 +177,6 @@ public class Cql2JpaCriteria<E> {
       final int dotIdx = fieldName.indexOf(".");
       final var attributeName = fieldName.substring(0, dotIdx);
       Join<E, Object> children = root.join(attributeName, JoinType.LEFT);
-      root.fetch(attributeName);
       return children.get(fieldName.substring(dotIdx + 1));
     } else {
       return root.get(fieldName);
@@ -188,27 +186,19 @@ public class Cql2JpaCriteria<E> {
   private <G extends Comparable<? super G>> Predicate toPredicate(Expression<G> field, G value, String comparator,
                                                                   CriteriaBuilder cb) throws QueryValidationException {
 
-    switch (comparator) {
-      case ">":
-        return cb.greaterThan(field, value);
-      case "<":
-        return cb.lessThan(field, value);
-      case ">=":
-        return cb.greaterThanOrEqualTo(field, value);
-      case "<=":
-        return cb.lessThanOrEqualTo(field, value);
-      case "==":
-      case "=":
-        return cb.equal(field, value);
-      case NOT_EQUALS_OPERATOR:
-        return cb.notEqual(field, value);
-      default:
-        throw new QueryValidationException(
-          "CQL: Unsupported operator '"
-            + comparator
-            + "', "
-            + " only supports '=', '==', and '<>' (possibly with right truncation)");
-    }
+    return switch (comparator) {
+      case ">" -> cb.greaterThan(field, value);
+      case "<" -> cb.lessThan(field, value);
+      case ">=" -> cb.greaterThanOrEqualTo(field, value);
+      case "<=" -> cb.lessThanOrEqualTo(field, value);
+      case "==", "=" -> cb.equal(field, value);
+      case NOT_EQUALS_OPERATOR -> cb.notEqual(field, value);
+      default -> throw new QueryValidationException(
+        "CQL: Unsupported operator '"
+          + comparator
+          + "', "
+          + " only supports '=', '==', and '<>' (possibly with right truncation)");
+    };
   }
 
   private Predicate indexNode(Path<?> field, CQLTermNode node, CqlModifiers modifiers,
@@ -224,17 +214,11 @@ public class Cql2JpaCriteria<E> {
         if (CqlTermFormat.NUMBER.equals(modifiers.getCqlTermFormat())) {
           return queryBySql(field, node, comparator, cb);
         }
-      case "adj":
-      case "all":
-      case "any":
+      case "adj", "all", "any":
         return buildQuery(field, node, isString, comparator, cb);
-      case "==":
-      case NOT_EQUALS_OPERATOR:
+      case "==", NOT_EQUALS_OPERATOR:
         return buildQuery(field, node, isString, comparator, cb);
-      case "<":
-      case ">":
-      case "<=":
-      case ">=":
+      case "<", ">", "<=", ">=":
         return queryBySql(field, node, comparator, cb);
       default:
         throw new CQLFeatureUnsupportedException("Relation " + comparator + " not implemented yet: " + node);
