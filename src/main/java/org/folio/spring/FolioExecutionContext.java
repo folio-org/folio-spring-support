@@ -17,7 +17,7 @@ import java.util.UUID;
  * DataSourceSchemaAdvisorBeanPostProcessor} for selection of the appropriate schema for sql queries.
  *<br><br>
  * <p><pre>CAUTION:
- * <strong>It should not be used to in asynchronous code executions (as it is stored in thread local),</string>
+ * <strong>It should not be used to in asynchronous code executions (as it is stored in thread local),</strong>
  * unless the appropriate data is manually set by
  * {@link org.folio.spring.scope.FolioExecutionScopeExecutionContextManager#beginFolioExecutionContext FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(folioExecutionContext)}
  * The `FolioExecutionScopeExecutionContextManager.endFolioExecutionContext()` should be called when the execution is finished.
