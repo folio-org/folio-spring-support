@@ -3,7 +3,9 @@ package org.folio.spring.service;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 import java.sql.ResultSet;
-
+import liquibase.exception.LiquibaseException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.exception.NotFoundException;
 import org.folio.spring.exception.TenantUpgradeException;
@@ -12,10 +14,6 @@ import org.folio.tenant.domain.dto.TenantAttributes;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-
-import liquibase.exception.LiquibaseException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -32,7 +30,11 @@ public class TenantService {
   protected final FolioExecutionContext context;
   protected final FolioSpringLiquibase folioSpringLiquibase;
 
-  public void createOrUpdateTenant(TenantAttributes tenantAttributes) {
+  /*
+   * Because of the liquibase.Scope implementation for the SpringLiquibase it is not possible to run several SpringLiquibase executions simultaneously.
+   * That is why this method must be synchronized.
+   */
+  public synchronized void createOrUpdateTenant(TenantAttributes tenantAttributes) {
     beforeTenantUpdate(tenantAttributes);
 
     if (folioSpringLiquibase != null) {
