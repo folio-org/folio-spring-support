@@ -1,3 +1,6 @@
+## 5.0.4 2023-02-06
+* [FOLSPRINGB-86](https://issues.folio.org/browse/FOLSPRINGB-86) Fix liquibase tenant upgrade
+
 ## 5.0.3 2022-12-19
 * [FOLSPRINGB-83](https://issues.folio.org/browse/FOLSPRINGB-83) Upgrade postgresql from 42.5.0 to 42.5.1 fixing CVE-2022-41946
 
