@@ -1,3 +1,9 @@
+## 6.0.0 2023-02-06
+* [FOLSPRINGB-45](https://issues.folio.org/browse/FOLSPRINGB-45) Improve logging
+* [FOLSPRINGB-81](https://issues.folio.org/browse/FOLSPRINGB-81) Migration to Spring Boot v3.0.2
+* Support for async execution using correct instance of FolioExecutionContext
+* Update to Java 17
+
 ## 5.0.0 2022-10-04
  * [FOLSPRINGB-58](https://issues.folio.org/browse/FOLSPRINGB-58) Async FolioExecutionContext helper
  * [FOLSPRINGB-72](https://issues.folio.org/browse/FOLSPRINGB-72) Fixed fails if limit <= number of results on CQL-search
