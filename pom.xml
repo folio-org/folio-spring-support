@@ -29,7 +29,7 @@
     <lombok.version>1.18.24</lombok.version>
     <mapstruct.version>1.5.3.Final</mapstruct.version>
     <easy-random.version>5.0.0</easy-random.version>
-    <postgresql.version>42.5.1</postgresql.version>
+    <postgresql.version>42.5.3</postgresql.version>
     <liquibase-core.version>4.18.0</liquibase-core.version>
     <rhino.version>1.7.14</rhino.version>
     <embedded-database-spring-test.version>2.2.0</embedded-database-spring-test.version>
@@ -111,11 +111,9 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <!-- spring-boot-starter-parent provides the org.postgresql:postgresql version, but it may be vulnerable:
-           postgresql doesn't back-port security fixes
-           https://github.com/pgjdbc/pgjdbc/issues/2599
-           and spring-boot-starter-parent doesn't bump the postgresql minor version
-           https://github.com/spring-projects/spring-boot/issues/32126
+      <!-- spring-boot-starter-parent provides an old org.postgresql:postgresql version,
+           we need the fix that closes the socket and the fix for hanging ssl connections:
+           https://jdbc.postgresql.org/changelogs/2023-01-31-42.5.2-release/#fixed
       -->
       <version>${postgresql.version}</version>
       <scope>runtime</scope>
