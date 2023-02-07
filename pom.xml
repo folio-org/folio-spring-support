@@ -91,8 +91,10 @@
            https://github.com/pgjdbc/pgjdbc/issues/2599
            and spring-boot-starter-parent doesn't bump the postgresql minor version
            https://github.com/spring-projects/spring-boot/issues/32126
+           we need the fix that closes the socket and the fix for hanging ssl connections:
+           https://jdbc.postgresql.org/changelogs/2023-01-31-42.5.2-release/#fixed
       -->
-      <version>42.5.1</version>
+      <version>42.5.3</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
