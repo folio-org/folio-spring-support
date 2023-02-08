@@ -1,3 +1,6 @@
+## 6.0.1 2023-02-08
+* [FOLSPRINGB-89](https://issues.folio.org/browse/FOLSPRINGB-89) Upgrade to postgresql 42.5.3 fixing "SocketException: Too many open files"
+
 ## 6.0.0 2023-02-06
 * [FOLSPRINGB-45](https://issues.folio.org/browse/FOLSPRINGB-45) Improve logging
 * [FOLSPRINGB-81](https://issues.folio.org/browse/FOLSPRINGB-81) Migration to Spring Boot v3.0.2
