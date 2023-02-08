@@ -9,7 +9,7 @@
   </parent>
   <groupId>org.folio</groupId>
   <artifactId>folio-spring-base</artifactId>
-  <version>6.0.1</version>
+  <version>6.0.2-SNAPSHOT</version>
   <name>folio-spring-base</name>
   <description>This is a library (jar) that contains the basic functionality and main dependencies required for
     development FOLIO modules using
@@ -251,7 +251,7 @@
     <url>https://github.com/folio-org/folio-spring-base</url>
     <connection>scm:git:git@github.com:folio-org/folio-spring-base.git</connection>
     <developerConnection>scm:git:git@github.com:folio-org/folio-spring-base.git</developerConnection>
-    <tag>v6.0.1</tag>
+    <tag>v6.0.0</tag>
   </scm>
 
   <build>
