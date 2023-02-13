@@ -1,3 +1,6 @@
+## 5.0.5 2023-02-09
+* [FOLSPRINGB-89](https://issues.folio.org/browse/FOLSPRINGB-89) Upgrade to postgresql 42.5.3 fixing "SocketException: Too many open files"
+
 ## 5.0.4 2023-02-06
 * [FOLSPRINGB-86](https://issues.folio.org/browse/FOLSPRINGB-86) Fix liquibase tenant upgrade
 
