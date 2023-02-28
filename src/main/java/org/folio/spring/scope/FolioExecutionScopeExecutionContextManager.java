@@ -1,14 +1,13 @@
 package org.folio.spring.scope;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.logging.FolioLoggingContextHolder;
 import org.springframework.core.NamedInheritableThreadLocal;
-
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * FolioExecutionScopeExecutionContextManager is used to store {@link FolioExecutionContext} in thread local.
@@ -55,6 +54,7 @@ public class FolioExecutionScopeExecutionContextManager {
     folioExecutionScopeHolder.set(scopeMap);
     folioExecutionContextHolder.set(folioExecutionContext);
     FolioLoggingContextHolder.putFolioExecutionContext(folioExecutionContext);
+    log.debug("FolioExecutionContext created: {};\nCurrent thread: {}", folioExecutionContext, Thread.currentThread().getName());
   }
 
   /**
@@ -66,6 +66,7 @@ public class FolioExecutionScopeExecutionContextManager {
     folioExecutionContextHolder.remove();
     folioExecutionScopeHolder.remove();
     FolioLoggingContextHolder.removeFolioExecutionContext();
+    log.debug("FolioExecutionContext removed;\nCurrent thread: {}", Thread.currentThread().getName());
   }
 
   /**
