@@ -5,14 +5,22 @@ import static io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseType.POSTGR
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
+import java.util.List;
+import java.util.stream.Stream;
 import org.folio.spring.cql.domain.City;
 import org.folio.spring.cql.domain.CityRepository;
 import org.folio.spring.cql.domain.Person;
 import org.folio.spring.cql.domain.PersonRepository;
+import org.folio.spring.cql.domain.Str;
+import org.folio.spring.cql.domain.StrRepository;
 import org.folio.spring.data.OffsetRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
@@ -32,6 +40,9 @@ class JpaCqlRepositoryTest {
 
   @Autowired
   private CityRepository cityRepository;
+
+  @Autowired
+  private StrRepository strRepository;
 
   @Configuration
   static class TestConfiguration {
@@ -194,5 +205,46 @@ class JpaCqlRepositoryTest {
     );
 
     assertTrue(thrown.getMessage().contains("Not implemented yet"));
+  }
+
+  static Stream<Arguments> testLikeMasking() {
+    return Stream.of(
+        arguments("a", List.of("a")),
+        arguments("a?", List.of("ab")),
+        arguments("a*", List.of("a", "ab", "abc")),
+        arguments("\\*", List.of("*")),
+        arguments("\\?", List.of("?")),
+        arguments("%", List.of("%")),
+        arguments("_", List.of("_")),
+        arguments("\\\\", List.of("\\")),
+        arguments("'", List.of("'")),
+        arguments("\\\"", List.of("\""))
+        );
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void testLikeMasking(String cql, List<String> expected) {
+    var page = strRepository.findByCQL("str==\"" + cql + "\" sortBy str", OffsetRequest.of(0, 100));
+    assertThat(page)
+      .extracting(Str::getStr)
+      .containsExactlyElementsOf(expected);
+  }
+
+  static Stream<Arguments> testNotLikeMasking() {
+    return Stream.of(
+        arguments("?", List.of("ab", "abc")),
+        arguments("_", List.of("a", "ab", "abc", "*", "?", "%", "\"", "'", "\\")),
+        arguments("'", List.of("a", "ab", "abc", "*", "?", "%", "_", "\"", "\\"))
+        );
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void testNotLikeMasking(String cql, List<String> expected) {
+    var page = strRepository.findByCQL("str<>\"" + cql + "\"", OffsetRequest.of(0, 100));
+    assertThat(page)
+      .extracting(Str::getStr)
+      .containsExactlyInAnyOrderElementsOf(expected);
   }
 }
