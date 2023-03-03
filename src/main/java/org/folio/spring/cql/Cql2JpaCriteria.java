@@ -45,12 +45,10 @@ public class Cql2JpaCriteria<E> {
 
   private final Class<E> domainClass;
   private final EntityManager em;
-  private final CQLParser cqlParser;
 
   public Cql2JpaCriteria(Class<E> domainClass, EntityManager entityManager) {
     this.domainClass = domainClass;
     this.em = entityManager;
-    this.cqlParser = new CQLParser();
   }
 
   /**
@@ -61,7 +59,7 @@ public class Cql2JpaCriteria<E> {
    */
   public CriteriaQuery<E> toCollectCriteria(String cql) {
     try {
-      var node = cqlParser.parse(cql);
+      var node = new CQLParser().parse(cql);
 
       var cb = em.getCriteriaBuilder();
       var query = cb.createQuery(domainClass);
@@ -83,7 +81,7 @@ public class Cql2JpaCriteria<E> {
    */
   public CriteriaQuery<Long> toCountCriteria(String cql) {
     try {
-      var node = cqlParser.parse(cql);
+      var node = new CQLParser().parse(cql);
 
       var cb = em.getCriteriaBuilder();
       var query = cb.createQuery(Long.class);
