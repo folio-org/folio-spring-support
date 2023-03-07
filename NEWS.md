@@ -1,3 +1,7 @@
+## 6.0.2 2023-03-08
+* [FOLSPRINGB-94](https://issues.folio.org/browse/FOLSPRINGB-94) Broken queryByLike masking, SQL injection
+* [#bb353da](https://github.com/folio-org/folio-spring-base/commit/bb353dafbd0d6ca66f827d4933f66b24b4c8a09c) Fix issue with the race condition with CqlParser shared object
+
 ## 6.0.1 2023-02-08
 * [FOLSPRINGB-89](https://issues.folio.org/browse/FOLSPRINGB-89) postgresql 42.5.3 (SocketException: Too many open files)
 
