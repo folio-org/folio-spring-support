@@ -45,12 +45,10 @@ public class Cql2JpaCriteria<E> {
 
   private final Class<E> domainClass;
   private final EntityManager em;
-  private final CQLParser cqlParser;
 
   public Cql2JpaCriteria(Class<E> domainClass, EntityManager entityManager) {
     this.domainClass = domainClass;
     this.em = entityManager;
-    this.cqlParser = new CQLParser();
   }
 
   /**
@@ -61,7 +59,7 @@ public class Cql2JpaCriteria<E> {
    */
   public CriteriaQuery<E> toCollectCriteria(String cql) {
     try {
-      var node = cqlParser.parse(cql);
+      var node = new CQLParser().parse(cql);
 
       var cb = em.getCriteriaBuilder();
       var query = cb.createQuery(domainClass);
@@ -83,7 +81,7 @@ public class Cql2JpaCriteria<E> {
    */
   public CriteriaQuery<Long> toCountCriteria(String cql) {
     try {
-      var node = cqlParser.parse(cql);
+      var node = new CQLParser().parse(cql);
 
       var cb = em.getCriteriaBuilder();
       var query = cb.createQuery(Long.class);
@@ -183,7 +181,7 @@ public class Cql2JpaCriteria<E> {
     }
   }
 
-  private <G extends Comparable<? super G>> Predicate toPredicate(Expression<G> field, G value, String comparator,
+  private static <G extends Comparable<? super G>> Predicate toPredicate(Expression<G> field, G value, String comparator,
                                                                   CriteriaBuilder cb) throws QueryValidationException {
 
     return switch (comparator) {
@@ -239,20 +237,27 @@ public class Cql2JpaCriteria<E> {
   /**
    * Create an SQL expression using LIKE query syntax.
    */
-  private Predicate queryByLike(Path<String> field, CQLTermNode node, String comparator,
+  private static Predicate queryByLike(Path<String> field, CQLTermNode node, String comparator,
                                 CriteriaBuilder cb) {
     if (NOT_EQUALS_OPERATOR.equals(comparator)) {
-      return cb.notLike(field, Cql2SqlUtil.cql2like(node.getTerm()));
+      return cb.notLike(field, cql2like(node.getTerm()), '\\');
     } else {
-      return cb.like(field, Cql2SqlUtil.cql2like(node.getTerm()));
+      return cb.like(field, cql2like(node.getTerm()), '\\');
     }
+  }
+
+  /**
+   * Convert an CQL string into an SQL LIKE string.
+   */
+  private static String cql2like(String cqlString) {
+    return Cql2SqlUtil.cql2like(cqlString).replace("''", "'");
   }
 
   /**
    * Create an SQL expression using SQL as is syntax.
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
-  private Predicate queryBySql(Expression field, CQLTermNode node, String comparator,
+  private static Predicate queryBySql(Expression field, CQLTermNode node, String comparator,
                                CriteriaBuilder cb) throws QueryValidationException {
     Comparable val = node.getTerm();
 
