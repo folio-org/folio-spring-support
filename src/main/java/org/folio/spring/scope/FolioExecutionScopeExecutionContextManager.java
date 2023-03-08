@@ -49,7 +49,7 @@ public class FolioExecutionScopeExecutionContextManager {
    *
    * <p>The visibility of this method is package-private to enforce using {@link FolioExecutionContextSetter}.
    */
-  public static void beginFolioExecutionContext(FolioExecutionContext folioExecutionContext) {
+  static void beginFolioExecutionContext(FolioExecutionContext folioExecutionContext) {
     var scopeMap = new ConcurrentHashMap<String, Object>();
     scopeMap.put(CONVERSATION_ID_KEY, UUID.randomUUID().toString());
     folioExecutionScopeHolder.set(scopeMap);
@@ -62,7 +62,7 @@ public class FolioExecutionScopeExecutionContextManager {
    *
    * <p>The visibility of this method is package-private to enforce using {@link FolioExecutionContextSetter}.
    */
-  public static void endFolioExecutionContext() {
+  static void endFolioExecutionContext() {
     folioExecutionContextHolder.remove();
     folioExecutionScopeHolder.remove();
     FolioLoggingContextHolder.removeFolioExecutionContext();
