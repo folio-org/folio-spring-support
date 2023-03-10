@@ -2,6 +2,7 @@ package org.folio.spring.scope;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.logging.FolioLoggingContextHolder;
 import org.springframework.core.NamedInheritableThreadLocal;
@@ -106,7 +107,8 @@ public class FolioExecutionScopeExecutionContextManager {
   static Map<String, Object> getFolioExecutionScope() {
     Map<String, Object> folioExecutionScope = folioExecutionScopeHolder.get();
     if (folioExecutionScope == null) {
-      log.warn("FolioExecutionScope is not set up. Fallback to default FolioExecutionScope.");
+      var stackTrace = ExceptionUtils.getStackTrace(new Exception());
+      log.warn("FolioExecutionScope is not set up. Fallback to default FolioExecutionScope. {}", stackTrace);
       return fallBackfolioExecutionScope;
     }
     return folioExecutionScope;
