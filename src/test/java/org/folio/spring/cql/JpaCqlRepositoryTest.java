@@ -8,6 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
+
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Stream;
 import org.folio.spring.cql.domain.City;
@@ -206,6 +210,17 @@ class JpaCqlRepositoryTest {
 
     assertTrue(thrown.getMessage().contains("Not implemented yet"));
   }
+
+  @Test
+  void testFilterByDates() {
+    var page = personRepository.findByCQL("dateBorn=2001-01-01:2001-01-02", OffsetRequest.of(0, 10));
+    assertThat(page)
+      .hasSize(2)
+      .extracting(Person::getDateBorn)
+      .contains(Timestamp.from(LocalDate.parse("2001-01-01").atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()),
+        Timestamp.from(LocalDate.parse("2001-01-02").atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+  }
+
 
   static Stream<Arguments> testLikeMasking() {
     return Stream.of(

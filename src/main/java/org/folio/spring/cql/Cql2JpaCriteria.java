@@ -11,13 +11,17 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
+
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
@@ -42,6 +46,7 @@ public class Cql2JpaCriteria<E> {
 
   private static final String NOT_EQUALS_OPERATOR = "<>";
   private static final String ASTERISKS_SIGN = "*";
+  private static final Pattern DATES_RANGE_PATTERN = Pattern.compile("\\d{4}(-\\d{2}){2}:\\d{4}(-\\d{2}){2}");
 
   private final Class<E> domainClass;
   private final EntityManager em;
@@ -269,8 +274,13 @@ public class Cql2JpaCriteria<E> {
     } else if (Boolean.class.equals(javaType)) {
       val = Boolean.valueOf((String) val);
     } else if (Date.class.equals(javaType)) {
-      var dateTime = LocalDateTime.parse((String) val);
-      val = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+      var value = (String) val;
+      if (isDatesRange(value)) {
+        return toFilterByDatesPredicate(field, value, cb);
+      } else {
+        var dateTime = LocalDateTime.parse(value);
+        val = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+      }
     } else if (javaType.isEnum()) {
       field = field.as(String.class);
     }
@@ -281,5 +291,18 @@ public class Cql2JpaCriteria<E> {
   private static CQLFeatureUnsupportedException createUnsupportedException(CQLNode node) {
     return new CQLFeatureUnsupportedException(
       String.format("Not implemented yet node type: %s, CQL: %s", node.getClass().getSimpleName(), node.toCQL()));
+  }
+
+  private static boolean isDatesRange(String value) {
+    return DATES_RANGE_PATTERN.matcher(value).matches();
+  }
+
+  private static Predicate toFilterByDatesPredicate(Expression<Date> field, String value, CriteriaBuilder cb) {
+    var dates = value.split(":");
+    var dateTimeFrom = LocalDate.parse(dates[0]).atStartOfDay();
+    var dateFrom = Date.from(dateTimeFrom.atZone(ZoneId.systemDefault()).toInstant());
+    var dateTimeTo = LocalDate.parse(dates[1]).atTime(LocalTime.MAX);
+    var dateTo = Date.from(dateTimeTo.atZone(ZoneId.systemDefault()).toInstant());
+    return cb.and(cb.greaterThanOrEqualTo(field, dateFrom), cb.lessThanOrEqualTo(field, dateTo));
   }
 }
