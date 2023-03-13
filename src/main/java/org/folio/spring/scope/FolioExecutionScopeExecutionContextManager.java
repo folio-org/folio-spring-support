@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.logging.FolioLoggingContextHolder;
 import org.springframework.core.NamedInheritableThreadLocal;
@@ -48,7 +49,7 @@ public class FolioExecutionScopeExecutionContextManager {
    *
    * <p>The visibility of this method is package-private to enforce using {@link FolioExecutionContextSetter}.
    */
-  public static void beginFolioExecutionContext(FolioExecutionContext folioExecutionContext) {
+  static void beginFolioExecutionContext(FolioExecutionContext folioExecutionContext) {
     var scopeMap = new ConcurrentHashMap<String, Object>();
     scopeMap.put(CONVERSATION_ID_KEY, UUID.randomUUID().toString());
     folioExecutionScopeHolder.set(scopeMap);
@@ -62,7 +63,7 @@ public class FolioExecutionScopeExecutionContextManager {
    *
    * <p>The visibility of this method is package-private to enforce using {@link FolioExecutionContextSetter}.
    */
-  public static void endFolioExecutionContext() {
+  static void endFolioExecutionContext() {
     folioExecutionContextHolder.remove();
     folioExecutionScopeHolder.remove();
     FolioLoggingContextHolder.removeFolioExecutionContext();
@@ -107,7 +108,8 @@ public class FolioExecutionScopeExecutionContextManager {
   static Map<String, Object> getFolioExecutionScope() {
     Map<String, Object> folioExecutionScope = folioExecutionScopeHolder.get();
     if (folioExecutionScope == null) {
-      log.warn("FolioExecutionScope is not set up. Fallback to default FolioExecutionScope.");
+      var stackTrace = ExceptionUtils.getStackTrace(new Exception());
+      log.warn("FolioExecutionScope is not set up. Fallback to default FolioExecutionScope. {}", stackTrace);
       return fallBackfolioExecutionScope;
     }
     return folioExecutionScope;
