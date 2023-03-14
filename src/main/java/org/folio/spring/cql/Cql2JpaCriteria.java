@@ -13,7 +13,6 @@ import jakarta.persistence.criteria.Root;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -281,6 +280,13 @@ public class Cql2JpaCriteria<E> {
         var dateTime = LocalDateTime.parse(value);
         val = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
       }
+    } else if (LocalDateTime.class.equals(javaType)) {
+      var value = (String) val;
+      if (isDatesRange(value)) {
+        return toFilterByLocalDatesPredicate(field, value, cb);
+      } else {
+        val = LocalDateTime.parse(value);
+      }
     } else if (javaType.isEnum()) {
       field = field.as(String.class);
     }
@@ -301,8 +307,15 @@ public class Cql2JpaCriteria<E> {
     var dates = value.split(":");
     var dateTimeFrom = LocalDate.parse(dates[0]).atStartOfDay();
     var dateFrom = Date.from(dateTimeFrom.atZone(ZoneId.systemDefault()).toInstant());
-    var dateTimeTo = LocalDate.parse(dates[1]).atTime(LocalTime.MAX);
+    var dateTimeTo = LocalDate.parse(dates[1]).atStartOfDay();
     var dateTo = Date.from(dateTimeTo.atZone(ZoneId.systemDefault()).toInstant());
-    return cb.and(cb.greaterThanOrEqualTo(field, dateFrom), cb.lessThanOrEqualTo(field, dateTo));
+    return cb.and(cb.greaterThanOrEqualTo(field, dateFrom), cb.lessThan(field, dateTo));
+  }
+
+  private static Predicate toFilterByLocalDatesPredicate(Expression<LocalDateTime> field, String value, CriteriaBuilder cb) {
+    var dates = value.split(":");
+    var dateTimeFrom = LocalDate.parse(dates[0]).atStartOfDay();
+    var dateTimeTo = LocalDate.parse(dates[1]).atStartOfDay();
+    return cb.and(cb.greaterThanOrEqualTo(field, dateTimeFrom), cb.lessThan(field, dateTimeTo));
   }
 }

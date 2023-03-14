@@ -213,12 +213,22 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testFilterByDates() {
-    var page = personRepository.findByCQL("dateBorn=2001-01-01:2001-01-02", OffsetRequest.of(0, 10));
+    var page = personRepository.findByCQL("dateBorn=2001-01-01:2001-01-03", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(2)
       .extracting(Person::getDateBorn)
       .contains(Timestamp.from(LocalDate.parse("2001-01-01").atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()),
         Timestamp.from(LocalDate.parse("2001-01-02").atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+  }
+
+  @Test
+  void testFilterByLocalDates() {
+    var page = personRepository.findByCQL("localDate=2001-01-01:2001-01-03", OffsetRequest.of(0, 10));
+    assertThat(page)
+      .hasSize(2)
+      .extracting(Person::getLocalDate)
+      .contains(LocalDate.parse("2001-01-01").atStartOfDay(),
+        LocalDate.parse("2001-01-02").atStartOfDay());
   }
 
 
