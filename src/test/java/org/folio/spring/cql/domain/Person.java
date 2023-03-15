@@ -7,6 +7,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 import lombok.Data;
@@ -24,6 +26,7 @@ public class Person {
   private UUID identifier;
   private Boolean isAlive;
   private Date dateBorn;
+  private LocalDateTime localDate;
 
   @ManyToOne
   @JoinColumn(name = "city_id")
