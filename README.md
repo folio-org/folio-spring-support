@@ -33,11 +33,11 @@ An example of the module based on folio-spring-base could be found at https://gi
 
 ## Execution Context
 
-[FolioExecutionContext](src/main/java/org/folio/spring/FolioExecutionContext.java) is used to store
+[FolioExecutionContext](folio-spring-support/src/main/java/org/folio/spring/FolioExecutionContext.java) is used to store
 essential request headers <i>(in thread local)</i>. Folio Spring Base populates this data
-using [FolioExecutionScopeFilter](src/main/java/org/folio/spring/scope/filter/FolioExecutionScopeFilter.java).
-It is used by [EnrichUrlAndHeadersClient](src/main/java/org/folio/spring/client/EnrichUrlAndHeadersClient.java), to provide right tenant id and other headers for outgoing REST requests.
-It is also used in [DataSourceSchemaAdvisorBeanPostProcessor](src/main/java/org/folio/spring/config/DataSourceSchemaAdvisorBeanPostProcessor.java) for selection of the appropriate schema for sql queries.
+using [FolioExecutionScopeFilter](folio-spring-support/src/main/java/org/folio/spring/scope/filter/FolioExecutionScopeFilter.java).
+It is used by [EnrichUrlAndHeadersClient](folio-spring-support/src/main/java/org/folio/spring/client/EnrichUrlAndHeadersClient.java), to provide right tenant id and other headers for outgoing REST requests.
+It is also used in [DataSourceSchemaAdvisorBeanPostProcessor](folio-spring-support/src/main/java/org/folio/spring/config/DataSourceSchemaAdvisorBeanPostProcessor.java) for selection of the appropriate schema for sql queries.
 
 FolioExecutionContext is immutable. In order to start new execution context the construct
 
@@ -77,7 +77,7 @@ void ayncMethod(Map<String, Collection<String>> headers) {
 
 | Property                                              | Description                                                                                                                                                                                         | Default       | Example                      |
 | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---------------------------- |
-| `header.validation.x-okapi-tenant.exclude.base-paths` | Specifies base paths to exclude form `x-okapi-tenant` header validation. See [TenantOkapiHeaderValidationFilter.java](src/main/java/org/folio/spring/filter/TenantOkapiHeaderValidationFilter.java) | `/admin`      | `/admin,/swagger-ui`         |
+| `header.validation.x-okapi-tenant.exclude.base-paths` | Specifies base paths to exclude form `x-okapi-tenant` header validation. See [TenantOkapiHeaderValidationFilter.java](folio-spring-support/src/main/java/org/folio/spring/filter/TenantOkapiHeaderValidationFilter.java) | `/admin`      | `/admin,/swagger-ui`         |
 | `folio.jpa.repository.base-packages`                  | Specifies base packages to scan for repositories                                                                                                                                                    | `org.folio.*` | `org.folio.qm.dao`           |
 | `folio.logging.request.enabled`                       | Turn on logging for incoming requests                                                                                                                                                               | `true`        | `true or false`              |
 | `folio.logging.request.level`                         | Specifies logging level for incoming requests                                                                                                                                                       | `basic`       | `none, basic, headers, full` |
