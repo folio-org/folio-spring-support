@@ -1,6 +1,6 @@
-# folio-spring-base
+# folio-spring-support
 
-Copyright (C) 2020-2022 The Open Library Foundation
+Copyright (C) 2020-2023 The Open Library Foundation
 
 This software is distributed under the terms of the Apache License,
 Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
@@ -29,15 +29,15 @@ This is a library (jar) that contains the basic functionality and main dependenc
 
 Please find a step-by-step guide on how to create a new FOLIO Spring based module at https://github.com/folio-org/mod-spring-template
 
-An example of the module based on folio-spring-base could be found at https://github.com/folio-org/folio-sample-modules/tree/master/mod-spring-petstore
+An example of the module based on folio-spring-support could be found at https://github.com/folio-org/folio-sample-modules/tree/master/mod-spring-petstore
 
 ## Execution Context
 
-[FolioExecutionContext](folio-spring-support/src/main/java/org/folio/spring/FolioExecutionContext.java) is used to store
+[FolioExecutionContext](folio-spring-base/src/main/java/org/folio/spring/FolioExecutionContext.java) is used to store
 essential request headers <i>(in thread local)</i>. Folio Spring Base populates this data
-using [FolioExecutionScopeFilter](folio-spring-support/src/main/java/org/folio/spring/scope/filter/FolioExecutionScopeFilter.java).
-It is used by [EnrichUrlAndHeadersClient](folio-spring-support/src/main/java/org/folio/spring/client/EnrichUrlAndHeadersClient.java), to provide right tenant id and other headers for outgoing REST requests.
-It is also used in [DataSourceSchemaAdvisorBeanPostProcessor](folio-spring-support/src/main/java/org/folio/spring/config/DataSourceSchemaAdvisorBeanPostProcessor.java) for selection of the appropriate schema for sql queries.
+using [FolioExecutionScopeFilter](folio-spring-base/src/main/java/org/folio/spring/scope/filter/FolioExecutionScopeFilter.java).
+It is used by [EnrichUrlAndHeadersClient](folio-spring-base/src/main/java/org/folio/spring/client/EnrichUrlAndHeadersClient.java), to provide right tenant id and other headers for outgoing REST requests.
+It is also used in [DataSourceSchemaAdvisorBeanPostProcessor](folio-spring-base/src/main/java/org/folio/spring/config/DataSourceSchemaAdvisorBeanPostProcessor.java) for selection of the appropriate schema for sql queries.
 
 FolioExecutionContext is immutable. In order to start new execution context the construct
 

@@ -10,9 +10,9 @@
   </parent>
 
   <groupId>org.folio</groupId>
-  <artifactId>folio-spring-base</artifactId>
+  <artifactId>folio-spring-support</artifactId>
   <version>6.2.0-SNAPSHOT</version>
-  <name>folio-spring-base</name>
+  <name>folio-spring-support</name>
   <description>This is a library (jar) that contains the basic functionality and main dependencies required for
     development FOLIO modules using
     Spring framework.
@@ -21,7 +21,7 @@
 
   <modules>
     <module>folio-spring-cql</module>
-    <module>folio-spring-support</module>
+    <module>folio-spring-base</module>
   </modules>
 
   <properties>
@@ -103,7 +103,7 @@
                 <property>main.basedir</property>
                 <project>
                   <groupId>org.folio</groupId>
-                  <artifactId>folio-spring-base</artifactId>
+                  <artifactId>folio-spring-support</artifactId>
                 </project>
               </configuration>
             </execution>
@@ -342,9 +342,9 @@
   </build>
 
   <scm>
-    <url>https://github.com/folio-org/folio-spring-base</url>
-    <connection>scm:git:git@github.com:folio-org/folio-spring-base.git</connection>
-    <developerConnection>scm:git:git@github.com:folio-org/folio-spring-base.git</developerConnection>
+    <url>https://github.com/folio-org/folio-spring-support</url>
+    <connection>scm:git:git@github.com:folio-org/folio-spring-support.git</connection>
+    <developerConnection>scm:git:git@github.com:folio-org/folio-spring-support.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
