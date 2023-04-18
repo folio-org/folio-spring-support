@@ -18,6 +18,9 @@ public class FolioSpringLiquibase extends SpringLiquibase {
     //just suppress liquibase auto-execution
   }
 
+  // suppress "Make sure using a dynamically formatted SQL query is safe here."
+  // because the character check prevents SQL injection
+  @SuppressWarnings("java:S2077")
   public void performLiquibaseUpdate() throws LiquibaseException {
     DatabaseFactory.getInstance().register(new FolioPostgresDatabase());
     var defaultSchema = getDefaultSchema();
@@ -32,7 +35,6 @@ public class FolioSpringLiquibase extends SpringLiquibase {
           statement.execute("create schema if not exists " + defaultSchema + ";");
         }
       } catch (SQLException e) {
-        e.printStackTrace();
         log.error("Default schema " + defaultSchema + " has not been created.", e);
       }
     }
