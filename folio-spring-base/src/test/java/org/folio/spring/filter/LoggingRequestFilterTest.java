@@ -139,15 +139,6 @@ class LoggingRequestFilterTest {
     assertThat(actualOrder).isEqualTo(REQUEST_WRAPPER_FILTER_MAX_ORDER + 3);
   }
 
-  @Test
-  void setOrderTest() {
-    var filter = new LoggingRequestFilter(LoggingRequestFilter.Level.FULL);
-    filter.setOrder(0);
-    var actualOrder = filter.getOrder();
-
-    assertThat(actualOrder).isZero();
-  }
-
   private Consumer<String> requestInfo() {
     return s -> assertThat(s).isEqualTo("---> " + TEST_METHOD + " " + TEST_URI + " " + TEST_QUERY);
   }

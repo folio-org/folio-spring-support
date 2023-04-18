@@ -32,8 +32,6 @@ public class LoggingRequestFilter extends GenericFilterBean implements OrderedFi
 
   private final Level level;
 
-  private int order = REQUEST_WRAPPER_FILTER_MAX_ORDER + 3;
-
   public LoggingRequestFilter(@Value("${folio.logging.request.level: BASIC}") Level level) {
     this.level = level;
   }
@@ -50,11 +48,7 @@ public class LoggingRequestFilter extends GenericFilterBean implements OrderedFi
 
   @Override
   public int getOrder() {
-    return order;
-  }
-
-  public void setOrder(int order) {
-    this.order = order;
+    return REQUEST_WRAPPER_FILTER_MAX_ORDER + 3;
   }
 
   private void filterWrapped(MultiReadHttpServletRequestWrapper request, ContentCachingResponseWrapper response,

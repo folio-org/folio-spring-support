@@ -24,8 +24,6 @@ public class TenantOkapiHeaderValidationFilter extends GenericFilterBean impleme
 
   public static final String ERROR_MSG = XOkapiHeaders.TENANT + " header must be provided";
 
-  private int order = REQUEST_WRAPPER_FILTER_MAX_ORDER + 1;
-
   @Value("${header.validation.x-okapi-tenant.exclude.base-paths:/admin}")
   private String[] excludeBasePaths;
 
@@ -47,10 +45,7 @@ public class TenantOkapiHeaderValidationFilter extends GenericFilterBean impleme
 
   @Override
   public int getOrder() {
-    return order;
+    return REQUEST_WRAPPER_FILTER_MAX_ORDER + 1;
   }
 
-  public void setOrder(int order) {
-    this.order = order;
-  }
 }
