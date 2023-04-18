@@ -75,14 +75,14 @@ void ayncMethod(Map<String, Collection<String>> headers) {
 
 ## Properties
 
-| Property                                              | Description                                                                                                                                                                                         | Default       | Example                      |
-| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---------------------------- |
-| `header.validation.x-okapi-tenant.exclude.base-paths` | Specifies base paths to exclude form `x-okapi-tenant` header validation. See [TenantOkapiHeaderValidationFilter.java](folio-spring-support/src/main/java/org/folio/spring/filter/TenantOkapiHeaderValidationFilter.java) | `/admin`      | `/admin,/swagger-ui`         |
-| `folio.jpa.repository.base-packages`                  | Specifies base packages to scan for repositories                                                                                                                                                    | `org.folio.*` | `org.folio.qm.dao`           |
-| `folio.logging.request.enabled`                       | Turn on logging for incoming requests                                                                                                                                                               | `true`        | `true or false`              |
-| `folio.logging.request.level`                         | Specifies logging level for incoming requests                                                                                                                                                       | `basic`       | `none, basic, headers, full` |
-| `folio.logging.feign.enabled`                         | Turn on logging for outgoing requests in feign clients                                                                                                                                              | `true`        | `true or false`              |
-| `folio.logging.feign.level`                           | Specifies logging level for outgoing requests                                                                                                                                                       | `basic`       | `none, basic, headers, full` |
+| Property                                              | Description                                                                                                                                                                                                           | Default       | Example                      |
+| ----------------------------------------------------- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ------------- | ---------------------------- |
+| `header.validation.x-okapi-tenant.exclude.base-paths` | Specifies base paths to exclude form `x-okapi-tenant` header validation. See [TenantOkapiHeaderValidationFilter.java](folio-spring-base/src/main/java/org/folio/spring/filter/TenantOkapiHeaderValidationFilter.java) | `/admin`      | `/admin,/swagger-ui`         |
+| `folio.jpa.repository.base-packages`                  | Specifies base packages to scan for repositories                                                                                                                                                                      | `org.folio.*` | `org.folio.qm.dao`           |
+| `folio.logging.request.enabled`                       | Turn on logging for incoming requests                                                                                                                                                                                 | `true`        | `true or false`              |
+| `folio.logging.request.level`                         | Specifies logging level for incoming requests                                                                                                                                                                         | `basic`       | `none, basic, headers, full` |
+| `folio.logging.feign.enabled`                         | Turn on logging for outgoing requests in feign clients                                                                                                                                                                | `true`        | `true or false`              |
+| `folio.logging.feign.level`                           | Specifies logging level for outgoing requests                                                                                                                                                                         | `basic`       | `none, basic, headers, full` |
 
 ## CQL support
 
@@ -103,7 +103,7 @@ Two methods are available for CQL-queries:
 ```java
 public interface JpaCqlRepository<T, ID> extends JpaRepository<T, ID> {
 
-  Page<T> findByCQL(String cql, OffsetRequest offset);
+  Page<T> findByCql(String cql, OffsetRequest offset);
 
   long count(String cql);
 }
