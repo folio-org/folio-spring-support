@@ -8,8 +8,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 @NoRepositoryBean
 public interface JpaCqlRepository<T, I> extends JpaRepository<T, I> {
 
-  @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
-  Page<T> findByCQL(String cql, OffsetRequest offset);
+  Page<T> findByCql(String cql, OffsetRequest offset);
 
   long count(String cql);
 }

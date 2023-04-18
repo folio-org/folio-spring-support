@@ -8,4 +8,8 @@ public class CqlQueryValidationException extends RuntimeException {
   public CqlQueryValidationException(Exception e) {
     super(e);
   }
+
+  public CqlQueryValidationException(String s) {
+    super(s);
+  }
 }

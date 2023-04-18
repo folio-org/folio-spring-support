@@ -10,13 +10,12 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Stream;
-import org.assertj.core.api.Assertions;
 import org.folio.spring.cql.domain.City;
-import org.folio.spring.cql.domain.CityRepository;
 import org.folio.spring.cql.domain.Person;
-import org.folio.spring.cql.domain.PersonRepository;
 import org.folio.spring.cql.domain.Str;
-import org.folio.spring.cql.domain.StrRepository;
+import org.folio.spring.cql.repo.CityRepository;
+import org.folio.spring.cql.repo.PersonRepository;
+import org.folio.spring.cql.repo.StrRepository;
 import org.folio.spring.data.OffsetRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,14 +26,15 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest
 @AutoConfigureEmbeddedDatabase(beanName = "dataSource", type = DatabaseType.POSTGRES, provider = DatabaseProvider.ZONKY)
+@ContextConfiguration(classes = JpaCqlConfiguration.class)
 @EnableAutoConfiguration(exclude = FlywayAutoConfiguration.class)
-@Sql({"/schema.sql", "/insert-data.sql"})
-class JpaCqlRepositoryTest {
+@Sql({"/sql/jpa-cql-general-it-schema.sql", "/sql/jpa-cql-general-test-data.sql"})
+class JpaCqlRepositoryIT {
 
   @Autowired
   private PersonRepository personRepository;
@@ -47,13 +47,14 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testTypesOfRepositories() {
-    Assertions.assertThat(personRepository).isInstanceOf(JpaCqlRepository.class);
-    assertThat(cityRepository).isInstanceOf(JpaRepository.class);
+    assertThat(personRepository).isInstanceOf(JpaCqlRepository.class);
+    assertThat(cityRepository).isInstanceOf(JpaCqlRepository.class);
+    assertThat(strRepository).isInstanceOf(JpaCqlRepository.class);
   }
 
   @Test
   void testSelectAllRecordsWithSort() {
-    var page = personRepository.findByCQL("(cql.allRecords=1)sortby age/sort.ascending", OffsetRequest.of(0, 10));
+    var page = personRepository.findByCql("(cql.allRecords=1)sortby age/sort.ascending", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(3)
       .extracting(Person::getAge)
@@ -63,7 +64,7 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testSelectAllRecordsWithAsterisks() {
-    var page = personRepository.findByCQL("name=* sortby age/sort.ascending", OffsetRequest.of(0, 10));
+    var page = personRepository.findByCql("name=* sortby age/sort.ascending", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(3)
       .extracting(Person::getAge)
@@ -73,10 +74,10 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testSelectAllRecordsWithSortAndPagination() {
-    var page1 = personRepository.findByCQL("(cql.allRecords=1)sortby age/sort.descending", OffsetRequest.of(0, 1));
-    var page2 = personRepository.findByCQL("(cql.allRecords=1)sortby age/sort.descending", OffsetRequest.of(1, 1));
-    var page3 = personRepository.findByCQL("(cql.allRecords=1)sortby age/sort.descending", OffsetRequest.of(2, 1));
-    var page4 = personRepository.findByCQL("(cql.allRecords=1)sortby age/sort.descending", OffsetRequest.of(3, 1));
+    var page1 = personRepository.findByCql("(cql.allRecords=1)sortby age/sort.descending", OffsetRequest.of(0, 1));
+    var page2 = personRepository.findByCql("(cql.allRecords=1)sortby age/sort.descending", OffsetRequest.of(1, 1));
+    var page3 = personRepository.findByCql("(cql.allRecords=1)sortby age/sort.descending", OffsetRequest.of(2, 1));
+    var page4 = personRepository.findByCql("(cql.allRecords=1)sortby age/sort.descending", OffsetRequest.of(3, 1));
     assertThat(page1)
       .hasSize(1)
       .extracting(Person::getAge)
@@ -94,7 +95,7 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testSelectAllRecordsByNameEquals() {
-    var page = personRepository.findByCQL("name=Jane", OffsetRequest.of(0, 10));
+    var page = personRepository.findByCql("name=Jane", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(1)
       .extracting(Person::getName)
@@ -103,7 +104,7 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testSelectAllRecordsByNameAndAge() {
-    var page = personRepository.findByCQL("name=John and age>20", OffsetRequest.of(0, 10));
+    var page = personRepository.findByCql("name=John and age>20", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(2)
       .extracting(Person::getName)
@@ -112,7 +113,7 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testSelectAllRecordsByNameOrAge() {
-    var page = personRepository.findByCQL("name=John or age<21", OffsetRequest.of(0, 10));
+    var page = personRepository.findByCql("name=John or age<21", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(3)
       .extracting(Person::getAge)
@@ -122,7 +123,7 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testSelectAllRecordsByNameNot() {
-    var page = personRepository.findByCQL("cql.allRecords=1 NOT age>=22", OffsetRequest.of(0, 10));
+    var page = personRepository.findByCql("cql.allRecords=1 NOT age>=22", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(1)
       .extracting(Person::getAge)
@@ -131,7 +132,7 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testSelectAllRecordsByCityIdWithLimit() {
-    var page = personRepository.findByCQL("city.id==2", OffsetRequest.of(0, 1));
+    var page = personRepository.findByCql("city.id==2", OffsetRequest.of(0, 1));
     assertThat(page)
       .hasSize(1)
       .extracting(Person::getCity)
@@ -141,7 +142,7 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testSelectAllRecordsByCityIdLessThanOrEquals() {
-    var page = personRepository.findByCQL("(city.id<=2)sortby city/sort.descending", OffsetRequest.of(0, 2));
+    var page = personRepository.findByCql("(city.id<=2)sortby city/sort.descending", OffsetRequest.of(0, 2));
     assertThat(page)
       .hasSize(2)
       .extracting(Person::getCity)
@@ -152,7 +153,7 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testSelectAllRecordsByCityIdNotEquals() {
-    var page = personRepository.findByCQL("city.id<>2", OffsetRequest.of(0, 10));
+    var page = personRepository.findByCql("city.id<>2", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(2)
       .extracting(Person::getCity)
@@ -162,7 +163,7 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testSelectRecordsByNameAndAsterisk() {
-    var page = personRepository.findByCQL("name=Jo*", OffsetRequest.of(0, 1));
+    var page = personRepository.findByCql("name=Jo*", OffsetRequest.of(0, 1));
     assertThat(page)
       .hasSize(1)
       .extracting(Person::getName)
@@ -171,7 +172,7 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testSelectAllRecordsByCityNameEquals() {
-    var page = personRepository.findByCQL("city.name==Kyiv", OffsetRequest.of(0, 10));
+    var page = personRepository.findByCql("city.name==Kyiv", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(1)
       .extracting(Person::getCity)
@@ -183,7 +184,7 @@ class JpaCqlRepositoryTest {
   void testInvalidQuery() {
     var offsetRequest = OffsetRequest.of(0, 10);
     org.junit.jupiter.api.Assertions.assertThrows(CqlQueryValidationException.class,
-      () -> personRepository.findByCQL("!!sortby name", offsetRequest)
+      () -> personRepository.findByCql("!!sortby name", offsetRequest)
     );
   }
 
@@ -198,7 +199,7 @@ class JpaCqlRepositoryTest {
   void testWithUnsupportedQueryOperator() {
     var offsetRequest = OffsetRequest.of(0, 10);
     var thrown = org.junit.jupiter.api.Assertions.assertThrows(CqlQueryValidationException.class,
-      () -> personRepository.findByCQL("city.name%Kyiv", offsetRequest)
+      () -> personRepository.findByCql("city.name%Kyiv", offsetRequest)
     );
 
     org.junit.jupiter.api.Assertions.assertTrue(thrown.getMessage().contains("Not implemented yet"));
@@ -206,7 +207,7 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testFilterByDates() {
-    var page = personRepository.findByCQL("dateBorn=2001-01-01:2001-01-03", OffsetRequest.of(0, 10));
+    var page = personRepository.findByCql("dateBorn=2001-01-01:2001-01-03", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(2)
       .extracting(Person::getDateBorn)
@@ -216,7 +217,7 @@ class JpaCqlRepositoryTest {
 
   @Test
   void testFilterByLocalDates() {
-    var page = personRepository.findByCQL("localDate=2001-01-01:2001-01-03", OffsetRequest.of(0, 10));
+    var page = personRepository.findByCql("localDate=2001-01-01:2001-01-03", OffsetRequest.of(0, 10));
     assertThat(page)
       .hasSize(2)
       .extracting(Person::getLocalDate)
@@ -243,7 +244,7 @@ class JpaCqlRepositoryTest {
   @ParameterizedTest
   @MethodSource
   void testLikeMasking(String cql, List<String> expected) {
-    var page = strRepository.findByCQL("str==\"" + cql + "\" sortBy str", OffsetRequest.of(0, 100));
+    var page = strRepository.findByCql("str==\"" + cql + "\" sortBy str", OffsetRequest.of(0, 100));
     assertThat(page)
       .extracting(Str::getStr)
       .containsExactlyElementsOf(expected);
@@ -260,7 +261,7 @@ class JpaCqlRepositoryTest {
   @ParameterizedTest
   @MethodSource
   void testNotLikeMasking(String cql, List<String> expected) {
-    var page = strRepository.findByCQL("str<>\"" + cql + "\"", OffsetRequest.of(0, 100));
+    var page = strRepository.findByCql("str<>\"" + cql + "\"", OffsetRequest.of(0, 100));
     assertThat(page)
       .extracting(Str::getStr)
       .containsExactlyInAnyOrderElementsOf(expected);

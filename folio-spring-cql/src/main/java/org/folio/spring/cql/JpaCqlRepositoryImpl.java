@@ -34,7 +34,7 @@ public class JpaCqlRepositoryImpl<T, I> extends SimpleJpaRepository<T, I> implem
   }
 
   @Override
-  public Page<T> findByCQL(String cql, OffsetRequest pageable) {
+  public Page<T> findByCql(String cql, OffsetRequest pageable) {
     var criteria = cql2JpaCriteria.toCollectCriteria(cql);
     List<T> resultList = em
       .createQuery(criteria)
