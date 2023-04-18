@@ -194,7 +194,6 @@ public class Cql2JpaCriteria<E> {
       final var dotIdx = fieldName.indexOf(".");
       final var attributeName = fieldName.substring(0, dotIdx);
       var children = root.join(attributeName, JoinType.LEFT);
-      root.fetch(attributeName);
       return children.get(fieldName.substring(dotIdx + 1));
     } else if (!isEmpty(node.getRelation().getModifiers())) {
       return root.join(fieldName, JoinType.INNER);
