@@ -7,13 +7,13 @@ import io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseProvider;
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseType;
 import org.folio.spring.cql.domain.User;
 import org.folio.spring.cql.repo.UserRepository;
-import org.folio.spring.data.OffsetRequest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -45,7 +45,7 @@ class JpaCqlModifiersIT {
     "attributes=/@key=key1 *"
   })
   void testBooleansForModifiers(String query) {
-    var page = userRepository.findByCql(query, OffsetRequest.of(0, 10));
+    var page = userRepository.findByCql(query, PageRequest.of(0, 10));
     assertThat(page).hasSize(1);
   }
 
@@ -59,7 +59,7 @@ class JpaCqlModifiersIT {
     "name=user1 and attributes=/@uuidValue=c330b021-9ef7-46b0-a8ed-200135bffe4b *",
   })
   void testFieldTypesForModifiers(String query) {
-    var page = userRepository.findByCql(query, OffsetRequest.of(0, 10));
+    var page = userRepository.findByCql(query, PageRequest.of(0, 10));
     assertThat(page).hasSize(1).extracting(User::getName).containsExactly("user1");
   }
 
@@ -84,7 +84,7 @@ class JpaCqlModifiersIT {
     "name=user1 and attributes=/@uuidValue<>13d84483-59f4-47cf-806a-2dc1296112ca *",
   })
   void testOperatorsForModifiers(String query) {
-    var page = userRepository.findByCql(query, OffsetRequest.of(0, 10));
+    var page = userRepository.findByCql(query, PageRequest.of(0, 10));
     assertThat(page).hasSize(1).extracting(User::getName).containsExactly("user1");
   }
 }

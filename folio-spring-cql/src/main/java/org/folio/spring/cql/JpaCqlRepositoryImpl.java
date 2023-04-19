@@ -3,8 +3,8 @@ package org.folio.spring.cql;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
-import org.folio.spring.data.OffsetRequest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
@@ -34,7 +34,7 @@ public class JpaCqlRepositoryImpl<T, I> extends SimpleJpaRepository<T, I> implem
   }
 
   @Override
-  public Page<T> findByCql(String cql, OffsetRequest pageable) {
+  public Page<T> findByCql(String cql, Pageable pageable) {
     var criteria = cql2JpaCriteria.toCollectCriteria(cql);
     List<T> resultList = em
       .createQuery(criteria)
