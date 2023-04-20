@@ -9,6 +9,8 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 - [Table of Contents](#table-of-contents)
 - [Introduction](#introduction)
+- [Code structure](#code-structure)
+- [Execution Context](#execution-context)
 - [Properties](#properties)
 - [CQL support](#cql-support)
 - [Logging](#logging)
