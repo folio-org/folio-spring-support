@@ -25,11 +25,19 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 ## Introduction
 
-This is a library (jar) that contains the basic functionality and main dependencies required for development of FOLIO modules using Spring framework (also known as "Spring Way").
+This is a library that contains the basic functionality and main dependencies required for development of FOLIO modules using Spring framework (also known as "Spring Way").
 
 Please find a step-by-step guide on how to create a new FOLIO Spring based module at https://github.com/folio-org/mod-spring-template
 
 An example of the module based on folio-spring-support could be found at https://github.com/folio-org/folio-sample-modules/tree/master/mod-spring-petstore
+
+## Code structure
+
+The library comprises several submodules that are built as separate artifacts (jar files) and can be integrated into a project as distinct dependencies. This facilitates more precise dependency management depending on the requirements of each project.
+
+The library includes the following submodules:
+* **folio-spring-cql** - facilitates CQL querying (refer to the [CQL support](#cql-support) section below)
+* **folio-spring-base** - provides fundamental functionality for developing FOLIO modules using the Spring framework.  
 
 ## Execution Context
 
@@ -257,7 +265,7 @@ import org.folio.spring.service.TenantService;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.folio.yourmodule.SuperCoolDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 @Service
