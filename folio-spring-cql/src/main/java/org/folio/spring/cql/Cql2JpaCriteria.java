@@ -219,7 +219,6 @@ public class Cql2JpaCriteria<E> {
     };
   }
 
-  @SuppressWarnings("checkstyle:FallThrough")
   private Predicate indexNode(Path<?> field, CQLTermNode node, CqlModifiers modifiers,
                               CriteriaBuilder cb)
     throws QueryValidationException {
