@@ -1,3 +1,6 @@
+## 7.0.0 2023-04-25
+* [FOLSPRINGB-104](https://issues.folio.org/browse/FOLSPRINGB-104) Split CQL support into a separate artifact
+
 ## 6.1.0 2023-03-20
 * [FOLSPRINGB-95](https://issues.folio.org/browse/FOLSPRINGB-95) non-public beginFolioExecutionContext avoids wrong tenant/user
 * [FOLSPRINGB-99](https://issues.folio.org/browse/FOLSPRINGB-99) Add support for filtering by date range in JpaCqlRepository
