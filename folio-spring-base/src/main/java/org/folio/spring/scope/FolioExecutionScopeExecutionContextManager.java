@@ -44,6 +44,8 @@ public class FolioExecutionScopeExecutionContextManager {
 
   private static final InheritableThreadLocal<Map<String, Object>> folioExecutionScopeHolder =
     new NamedInheritableThreadLocal<>("FolioExecutionScope");
+  private static final String EXECUTION_SCOPE_NOT_SET_UP_MSG =
+    "FolioExecutionScope is not set up. Fallback to default FolioExecutionScope.";
 
   /**
    * Store folioExecutionContext as {@link ThreadLocal} variable.
@@ -110,8 +112,11 @@ public class FolioExecutionScopeExecutionContextManager {
   static Map<String, Object> getFolioExecutionScope() {
     Map<String, Object> folioExecutionScope = folioExecutionScopeHolder.get();
     if (folioExecutionScope == null) {
-      var stackTrace = ExceptionUtils.getStackTrace(new Exception());
-      log.warn("FolioExecutionScope is not set up. Fallback to default FolioExecutionScope. {}", stackTrace);
+      if (log.isTraceEnabled()) {
+        var stackTrace = ExceptionUtils.getStackTrace(new Exception());
+        log.trace(EXECUTION_SCOPE_NOT_SET_UP_MSG + " {}", stackTrace);
+      }
+      log.warn(EXECUTION_SCOPE_NOT_SET_UP_MSG);
       return fallBackFolioExecutionScope;
     }
     return folioExecutionScope;
