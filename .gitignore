@@ -25,7 +25,7 @@ hs_err_pid*
 #IntelliJ
 .idea/
 *.iml
-/target
+target/
 #eclipse
 .project
 .settings/

@@ -6,5 +6,5 @@ buildMvn {
   doApiLint = true
   doApiDoc = true
   apiTypes = 'OAS'
-  apiDirectories = 'src/main/resources/swagger.api'
+  apiDirectories = 'folio-spring-base/src/main/resources/swagger.api'
 }
