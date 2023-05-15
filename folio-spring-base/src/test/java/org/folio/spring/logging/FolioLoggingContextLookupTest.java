@@ -22,7 +22,7 @@ class FolioLoggingContextLookupTest {
 
   @BeforeEach
   void setUp() {
-    FolioLoggingContextHolder.removeFolioExecutionContext();
+    FolioLoggingContextHolder.removeFolioExecutionContext(null);
   }
 
   @Test

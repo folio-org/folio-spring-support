@@ -47,13 +47,37 @@ class FolioExecutionScopeExecutionContextManagerTest {
 
   @Test
   void getRunnableWithCurrentFolioContext() {
-    Collection<String> headerValueCollection = List.of("dummy-tenanant-1");
+    Collection<String> headerValueCollection = List.of("dummy-tenant-2");
     var allHeaders = Map.of(TENANT, headerValueCollection);
     var localFolioExecutionContext = new DefaultFolioExecutionContext(folioModuleMetadata, allHeaders);
     Runnable task;
     FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(localFolioExecutionContext);
     try {
       task = FolioExecutionScopeExecutionContextManager.getRunnableWithCurrentFolioContext(() -> {
+        var tenantId = folioExecutionContext.getTenantId();
+        var localTenantId = localFolioExecutionContext.getTenantId();
+        assertEquals(tenantId, localTenantId);
+        var instance = folioExecutionContext.getInstance();
+        assertEquals(localFolioExecutionContext, instance);
+      });
+    } finally {
+      FolioExecutionScopeExecutionContextManager.endFolioExecutionContext();
+    }
+    task.run();
+  }
+
+  @Test
+  void getRunnableWithCurrentFolioContextWithStack() {
+    Collection<String> headerValueCollection = List.of("dummy-tenant-3");
+    var allHeaders = Map.of(TENANT, headerValueCollection);
+    var localFolioExecutionContext = new DefaultFolioExecutionContext(folioModuleMetadata, allHeaders);
+    Runnable task;
+    FolioExecutionScopeExecutionContextManager.beginFolioExecutionContext(localFolioExecutionContext);
+    try {
+      task = FolioExecutionScopeExecutionContextManager.getRunnableWithCurrentFolioContext(() -> {
+        // push & pop for FolioContext
+        getRunnableWithFolioContext();
+
         var tenantId = folioExecutionContext.getTenantId();
         var localTenantId = localFolioExecutionContext.getTenantId();
         assertEquals(tenantId, localTenantId);

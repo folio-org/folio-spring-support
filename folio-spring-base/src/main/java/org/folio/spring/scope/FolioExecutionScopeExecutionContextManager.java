@@ -1,5 +1,7 @@
 package org.folio.spring.scope;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,11 +41,21 @@ public class FolioExecutionScopeExecutionContextManager {
 
   private static final Map<String, Object> fallBackFolioExecutionScope = new ConcurrentHashMap<>();
 
-  private static final InheritableThreadLocal<FolioExecutionContext> folioExecutionContextHolder =
-    new NamedInheritableThreadLocal<>("FolioExecutionContext");
+  private static final InheritableThreadLocal<Deque<FolioExecutionContext>> folioExecutionContextHolder =
+    new NamedInheritableThreadLocal<>("FolioExecutionContext") {
+      @Override
+      protected Deque<FolioExecutionContext> initialValue() {
+        return new ArrayDeque<>();
+      }
+    };
 
-  private static final InheritableThreadLocal<Map<String, Object>> folioExecutionScopeHolder =
-    new NamedInheritableThreadLocal<>("FolioExecutionScope");
+  private static final InheritableThreadLocal<Deque<Map<String, Object>>> folioExecutionScopeHolder =
+    new NamedInheritableThreadLocal<>("FolioExecutionScope") {
+      @Override
+      protected Deque<Map<String, Object>> initialValue() {
+        return new ArrayDeque<>();
+      }
+    };
   private static final String EXECUTION_SCOPE_NOT_SET_UP_MSG =
     "FolioExecutionScope is not set up. Fallback to default FolioExecutionScope.";
 
@@ -55,8 +67,10 @@ public class FolioExecutionScopeExecutionContextManager {
   static void beginFolioExecutionContext(FolioExecutionContext folioExecutionContext) {
     var scopeMap = new ConcurrentHashMap<String, Object>();
     scopeMap.put(CONVERSATION_ID_KEY, UUID.randomUUID().toString());
-    folioExecutionScopeHolder.set(scopeMap);
-    folioExecutionContextHolder.set(folioExecutionContext);
+
+    folioExecutionScopeHolder.get().push(scopeMap);
+    folioExecutionContextHolder.get().push(folioExecutionContext);
+
     FolioLoggingContextHolder.putFolioExecutionContext(folioExecutionContext);
     log.debug("FolioExecutionContext created: {};\nCurrent thread: {}", folioExecutionContext,
       Thread.currentThread().getName());
@@ -68,9 +82,12 @@ public class FolioExecutionScopeExecutionContextManager {
    * <p>The visibility of this method is package-private to enforce using {@link FolioExecutionContextSetter}.
    */
   static void endFolioExecutionContext() {
-    folioExecutionContextHolder.remove();
-    folioExecutionScopeHolder.remove();
-    FolioLoggingContextHolder.removeFolioExecutionContext();
+    var folioExecutionContexts = folioExecutionContextHolder.get();
+    folioExecutionContexts.pop();
+    folioExecutionScopeHolder.get().pop();
+
+    var folioExecutionContextToRestore = folioExecutionContexts.peek();
+    FolioLoggingContextHolder.removeFolioExecutionContext(folioExecutionContextToRestore);
     log.debug("FolioExecutionContext removed;\nCurrent thread: {}", Thread.currentThread().getName());
   }
 
@@ -102,7 +119,7 @@ public class FolioExecutionScopeExecutionContextManager {
    * Retrieve FolioExecutionContext from {@link ThreadLocal} variable.
    */
   static FolioExecutionContext getFolioExecutionContext() {
-    return folioExecutionContextHolder.get();
+    return folioExecutionContextHolder.get().peek();
   }
 
   static String getConversationIdForScope() {
@@ -110,7 +127,7 @@ public class FolioExecutionScopeExecutionContextManager {
   }
 
   static Map<String, Object> getFolioExecutionScope() {
-    Map<String, Object> folioExecutionScope = folioExecutionScopeHolder.get();
+    Map<String, Object> folioExecutionScope = folioExecutionScopeHolder.get().peek();
     if (folioExecutionScope == null) {
       if (log.isTraceEnabled()) {
         var stackTrace = ExceptionUtils.getStackTrace(new Exception());
