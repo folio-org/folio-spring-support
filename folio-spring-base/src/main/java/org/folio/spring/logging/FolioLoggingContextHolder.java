@@ -15,8 +15,12 @@ public final class FolioLoggingContextHolder {
     LogManager.getContext().putObject(FOLIO_EXECUTION_CONTEXT_KEY, folioExecutionContext);
   }
 
-  public static void removeFolioExecutionContext() {
-    LogManager.getContext().removeObject(FOLIO_EXECUTION_CONTEXT_KEY);
+  public static void removeFolioExecutionContext(FolioExecutionContext folioExecutionContextToRestore) {
+    if (folioExecutionContextToRestore == null) {
+      LogManager.getContext().removeObject(FOLIO_EXECUTION_CONTEXT_KEY);
+    } else {
+      LogManager.getContext().putObject(FOLIO_EXECUTION_CONTEXT_KEY, folioExecutionContextToRestore);
+    }
   }
 
   public static Optional<FolioExecutionContext> getFolioExecutionContext() {
