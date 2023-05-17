@@ -82,6 +82,41 @@ void ayncMethod(Map<String, Collection<String>> headers) {
   }
 }
 ```
+FOLIO scope implementation supports nested FolioExecutionContexts it means that the following code works correctly for
+```
+// Autowired
+private final FolioModuleMetadata folioModuleMetadata;
+
+// Autowired
+protected final FolioExecutionContext context;
+
+void someMethod(Map<String, Collection<String>> headers) {
+  Map<String, Collection<String>> headers1 = getHeaderForTenant("Tenant1");
+  try (var x = new FolioExecutionContextSetter(folioModuleMetadata, headers1)) {
+    String tenant1 = context.getTenantId();
+    businessMethod(tenant1);
+
+    Map<String, Collection<String>> headers2 = getHeaderForTenant("Tenant2");
+    try (var x = new FolioExecutionContextSetter(folioModuleMetadata, headers2)) {
+      String tenant2 = context.getTenantId();
+      businessMethod(tenant2);
+    }
+    
+    String tenant1_1 = context.getTenantId();
+    assert tenant1.equals(tenant1_1);
+  }
+}
+
+...
+
+void businessMethod(String tenantId) {
+  _do_some_useful_stuff_
+  String tenantId = context.getTenantId();
+
+  assert tenant.equals(tenantId);
+}
+```
+
 
 ## Properties
 
