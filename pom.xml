@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.0.6</version>
+    <version>3.1.0</version> <!-- also change spring-boot.version -->
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
 
@@ -26,38 +26,40 @@
 
   <properties>
     <java.version>17</java.version>
-    <spring-boot.version>3.0.5</spring-boot.version>
-    <spring-cloud-starter-openfeign.version>4.0.0</spring-cloud-starter-openfeign.version>
+    <spring-boot.version>3.1.0</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
+    <spring-cloud-starter-openfeign.version>4.0.2</spring-cloud-starter-openfeign.version>
+    <snakeyaml.version>2.0</snakeyaml.version>
     <commons-lang3.version>3.12.0</commons-lang3.version>
-    <maven-compat.version>3.8.7</maven-compat.version>
-    <jackson-databind-nullable.version>0.2.4</jackson-databind-nullable.version>
-    <swagger-annotations.version>2.2.8</swagger-annotations.version>
-    <feign-okhttp.version>12.1</feign-okhttp.version>
+    <maven-compat.version>3.9.2</maven-compat.version>
+    <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
+    <swagger-annotations.version>2.2.10</swagger-annotations.version>
+    <feign-okhttp.version>12.3</feign-okhttp.version>
     <lombok.version>1.18.26</lombok.version>
-    <mapstruct.version>1.5.3.Final</mapstruct.version>
-    <cql2pgjson.version>35.0.4</cql2pgjson.version>
+    <mapstruct.version>1.5.5.Final</mapstruct.version>
+    <cql2pgjson.version>35.0.6</cql2pgjson.version>
     <postgresql.version>42.6.0</postgresql.version>
-    <liquibase-core.version>4.18.0</liquibase-core.version>
+    <liquibase-core.version>4.22.0</liquibase-core.version>
     <rhino.version>1.7.14</rhino.version>
 
     <!-- Test dependencies versions -->
     <easy-random.version>5.0.0</easy-random.version>
-    <embedded-database-spring-test.version>2.2.0</embedded-database-spring-test.version>
-    <embedded-postgres.version>2.0.2</embedded-postgres.version>
+    <embedded-database-spring-test.version>2.3.0</embedded-database-spring-test.version>
+    <embedded-postgres.version>2.0.4</embedded-postgres.version>
+    <mockito-inline.version>5.2.0</mockito-inline.version>
 
     <!-- Plugins versions -->
-    <versions-maven-plugin.version>2.13.0</versions-maven-plugin.version>
-    <maven-enforcer-plugin.version>3.1.0</maven-enforcer-plugin.version>
-    <build-helper-maven-plugin.version>3.3.0</build-helper-maven-plugin.version>
+    <versions-maven-plugin.version>2.15.0</versions-maven-plugin.version>
+    <maven-enforcer-plugin.version>3.3.0</maven-enforcer-plugin.version>
+    <build-helper-maven-plugin.version>3.4.0</build-helper-maven-plugin.version>
     <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-    <maven-checkstyle-plugin.version>3.2.1</maven-checkstyle-plugin.version>
-    <openapi-generator.version>6.4.0</openapi-generator.version>
-    <maven-failsafe-plugin.version>3.0.0-M9</maven-failsafe-plugin.version>
-    <maven-release-plugin.version>3.0.0-M7</maven-release-plugin.version>
-    <maven-surefire-plugin.version>3.0.0-M9</maven-surefire-plugin.version>
-    <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-    <maven-javadoc-plugin.version>3.4.1</maven-javadoc-plugin.version>
-    <maven-deploy-plugin.version>3.0.0</maven-deploy-plugin.version>
+    <maven-checkstyle-plugin.version>3.2.2</maven-checkstyle-plugin.version>
+    <openapi-generator.version>6.6.0</openapi-generator.version>
+    <maven-failsafe-plugin.version>3.1.0</maven-failsafe-plugin.version>
+    <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
+    <maven-surefire-plugin.version>3.1.0</maven-surefire-plugin.version>
+    <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+    <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
+    <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -68,6 +70,12 @@
         <version>${easy-random.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-inline</artifactId>
+        <version>${mockito-inline.version}</version>
       </dependency>
 
       <dependency>
@@ -84,7 +92,7 @@
         <plugin>
           <groupId>org.commonjava.maven.plugins</groupId>
           <artifactId>directory-maven-plugin</artifactId>
-          <version>0.1</version>
+          <version>1.0</version>
           <executions>
             <execution>
               <id>directories</id>
@@ -186,7 +194,7 @@
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.38</version>
+              <version>10.11.0</version>
             </dependency>
           </dependencies>
           <executions>
