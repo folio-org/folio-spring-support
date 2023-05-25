@@ -37,8 +37,9 @@ class FolioExecutionContextTest {
   @Test
   void executeCanThrow() {
     assertTenantId().isNull();
+    var fooContext = folioExecutionContext("foo");
     var e = assertThrows(RuntimeException.class, () -> {
-      folioExecutionContext("foo").execute(() -> {
+      fooContext.execute(() -> {
         assertTenantId().isEqualTo("foo");
         throw new RuntimeException("catch me if you can");
       });
