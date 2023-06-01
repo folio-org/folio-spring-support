@@ -3,6 +3,9 @@ package org.folio.spring;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import lombok.SneakyThrows;
+import org.folio.spring.scope.FolioExecutionContextSetter;
 
 /**
  * FolioExecutionContext is used to store essential request headers in thread local.
@@ -66,5 +69,16 @@ public interface FolioExecutionContext {
    */
   default Object getInstance() {
     return this;
+  }
+
+  /**
+   * Stores the FolioExecutionContext in a ThreadLocal variable, runs the job, removes
+   * FolioExecutionContext from ThreadLocal variable, and returns the job's result.
+   */
+  @SneakyThrows
+  default <T> T execute(Callable<T> job) {
+    try (var x = new FolioExecutionContextSetter(this)) {
+      return job.call();
+    }
   }
 }
