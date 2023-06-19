@@ -1,3 +1,8 @@
+## 7.1.0 2023-06-19
+* [FOLSPRINGB-96](https://issues.folio.org/browse/FOLSPRINGB-96) Add executeWithinContext method
+* [FOLSPRINGB-106](https://issues.folio.org/browse/FOLSPRINGB-106) Implementation for store/restore of FolioExecutionContext
+* [FOLSPRINGB-108](https://issues.folio.org/browse/FOLSPRINGB-108) Upgrade dependencies for Poppy, fix vulnerabilities
+
 ## 7.0.0 2023-04-25
 * [FOLSPRINGB-104](https://issues.folio.org/browse/FOLSPRINGB-104) Split CQL support into a separate artifact
 
