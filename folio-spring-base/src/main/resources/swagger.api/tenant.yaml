@@ -206,3 +206,4 @@ components:
       value:
         module_from: mod-sample-1.0.2
         purge: false
+
