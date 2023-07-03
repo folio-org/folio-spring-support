@@ -1,3 +1,6 @@
+## 7.1.1 2023-07-03
+* [FOLSPRINGB-111](https://issues.folio.org/browse/FOLSPRINGB-111) Spring Boot 3.1.1 fixing CVE-2023-34981
+
 ## 7.1.0 2023-06-19
 * [FOLSPRINGB-96](https://issues.folio.org/browse/FOLSPRINGB-96) Add executeWithinContext method
 * [FOLSPRINGB-106](https://issues.folio.org/browse/FOLSPRINGB-106) Implementation for store/restore of FolioExecutionContext
