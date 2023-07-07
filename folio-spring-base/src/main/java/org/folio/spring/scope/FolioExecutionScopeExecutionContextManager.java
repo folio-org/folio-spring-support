@@ -47,6 +47,17 @@ public class FolioExecutionScopeExecutionContextManager {
       protected Deque<FolioExecutionContext> initialValue() {
         return new ArrayDeque<>();
       }
+
+      @Override
+      protected Deque<FolioExecutionContext> childValue(Deque<FolioExecutionContext> parentValue) {
+        var result = initialValue();
+        if (parentValue != null && !parentValue.isEmpty()) {
+          result.push((FolioExecutionContext) parentValue.peek().getInstance());
+        }
+        log.debug(
+          "InheritableThreadLocal folioExecutionScopeHolder childValue: {}", Thread.currentThread().getName());
+        return result;
+      }
     };
 
   private static final InheritableThreadLocal<Deque<Map<String, Object>>> folioExecutionScopeHolder =
@@ -55,6 +66,19 @@ public class FolioExecutionScopeExecutionContextManager {
       protected Deque<Map<String, Object>> initialValue() {
         return new ArrayDeque<>();
       }
+
+      @Override
+      protected Deque<Map<String, Object>> childValue(Deque<Map<String, Object>> parentValue) {
+        var result = initialValue();
+        if (parentValue != null && !parentValue.isEmpty()) {
+          var scope = new ConcurrentHashMap<>(parentValue.peek());
+          result.push(scope);
+        }
+        log.debug(
+          "InheritableThreadLocal folioExecutionContextHolder childValue: {}", Thread.currentThread().getName());
+        return result;
+      }
+
     };
   private static final String EXECUTION_SCOPE_NOT_SET_UP_MSG =
     "FolioExecutionScope is not set up. Fallback to default FolioExecutionScope.";
