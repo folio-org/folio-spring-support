@@ -2,10 +2,14 @@ package org.folio.spring.scope;
 
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
@@ -90,6 +94,34 @@ class FolioExecutionScopeExecutionContextManagerTest {
     task.run();
   }
 
+  @Test
+  void testFolioExecutionContextChildValue() {
+    FolioExecutionScopeExecutionContextManager.FolioExecutionContextThreadLocal testFolioExecutionContextHolder =
+      new FolioExecutionScopeExecutionContextManager.FolioExecutionContextThreadLocal("FolioExecutionContext");
+    FolioExecutionContext fec = new DefaultFolioExecutionContext(null, Collections.emptyMap());
+    testFolioExecutionContextHolder.get().push(fec);
+    Deque<FolioExecutionContext> parent = testFolioExecutionContextHolder.get();
+    Deque<FolioExecutionContext> child = testFolioExecutionContextHolder.childValue(parent);
+
+    assertNotEquals(parent, child);
+    assertEquals(parent.peek().getInstance(), child.peek().getInstance());
+  }
+
+  @Test
+  void testFolioExecutionScopeChildValue() {
+    FolioExecutionScopeExecutionContextManager.FolioExecutionScopeThreadLocal testFolioExecutionScopeHolder
+      = new FolioExecutionScopeExecutionContextManager.FolioExecutionScopeThreadLocal("FolioExecutionScope");
+    Map<String, Object> parentScope = new ConcurrentHashMap<>();
+    parentScope.put("key1", "value1");
+    parentScope.put("key2", "value2");
+    testFolioExecutionScopeHolder.get().push(parentScope);
+    Deque<Map<String, Object>> parent = testFolioExecutionScopeHolder.get();
+    Deque<Map<String, Object>> child = testFolioExecutionScopeHolder.childValue(parent);
+
+    assertNotEquals(parent, child);
+    assertEquals(parent.peek(), child.peek());
+  }
+
   @Configuration
   static class TestConfiguration {
     @Bean
@@ -113,5 +145,4 @@ class FolioExecutionScopeExecutionContextManagerTest {
       };
     }
   }
-
 }

@@ -41,45 +41,12 @@ public class FolioExecutionScopeExecutionContextManager {
 
   private static final Map<String, Object> fallBackFolioExecutionScope = new ConcurrentHashMap<>();
 
-  private static final InheritableThreadLocal<Deque<FolioExecutionContext>> folioExecutionContextHolder =
-    new NamedInheritableThreadLocal<>("FolioExecutionContext") {
-      @Override
-      protected Deque<FolioExecutionContext> initialValue() {
-        return new ArrayDeque<>();
-      }
+  private static final FolioExecutionContextThreadLocal folioExecutionContextHolder =
+    new FolioExecutionContextThreadLocal("FolioExecutionContext");
 
-      @Override
-      protected Deque<FolioExecutionContext> childValue(Deque<FolioExecutionContext> parentValue) {
-        var result = initialValue();
-        if (parentValue != null && !parentValue.isEmpty()) {
-          result.push((FolioExecutionContext) parentValue.peek().getInstance());
-        }
-        log.debug(
-          "InheritableThreadLocal folioExecutionScopeHolder childValue: {}", Thread.currentThread().getName());
-        return result;
-      }
-    };
+  private static final FolioExecutionScopeThreadLocal folioExecutionScopeHolder =
+    new FolioExecutionScopeThreadLocal("FolioExecutionScope");
 
-  private static final InheritableThreadLocal<Deque<Map<String, Object>>> folioExecutionScopeHolder =
-    new NamedInheritableThreadLocal<>("FolioExecutionScope") {
-      @Override
-      protected Deque<Map<String, Object>> initialValue() {
-        return new ArrayDeque<>();
-      }
-
-      @Override
-      protected Deque<Map<String, Object>> childValue(Deque<Map<String, Object>> parentValue) {
-        var result = initialValue();
-        if (parentValue != null && !parentValue.isEmpty()) {
-          var scope = new ConcurrentHashMap<>(parentValue.peek());
-          result.push(scope);
-        }
-        log.debug(
-          "InheritableThreadLocal folioExecutionContextHolder childValue: {}", Thread.currentThread().getName());
-        return result;
-      }
-
-    };
   private static final String EXECUTION_SCOPE_NOT_SET_UP_MSG =
     "FolioExecutionScope is not set up. Fallback to default FolioExecutionScope.";
 
@@ -161,5 +128,49 @@ public class FolioExecutionScopeExecutionContextManager {
       return fallBackFolioExecutionScope;
     }
     return folioExecutionScope;
+  }
+
+  public static class FolioExecutionContextThreadLocal
+    extends NamedInheritableThreadLocal<Deque<FolioExecutionContext>> {
+
+    public FolioExecutionContextThreadLocal(String name) {
+      super(name);
+    }
+
+    @Override
+    protected Deque<FolioExecutionContext> initialValue() {
+      return new ArrayDeque<>();
+    }
+
+    @Override
+    protected Deque<FolioExecutionContext> childValue(Deque<FolioExecutionContext> parentValue) {
+      var result = initialValue();
+      if (parentValue != null && !parentValue.isEmpty()) {
+        result.push((FolioExecutionContext) parentValue.peek().getInstance());
+      }
+      return result;
+    }
+  }
+
+  public static class FolioExecutionScopeThreadLocal extends NamedInheritableThreadLocal<Deque<Map<String, Object>>> {
+
+    public FolioExecutionScopeThreadLocal(String name) {
+      super(name);
+    }
+
+    @Override
+    protected Deque<Map<String, Object>> initialValue() {
+      return new ArrayDeque<>();
+    }
+
+    @Override
+    protected Deque<Map<String, Object>> childValue(Deque<Map<String, Object>> parentValue) {
+      var result = initialValue();
+      if (parentValue != null && !parentValue.isEmpty()) {
+        var scope = new ConcurrentHashMap<>(parentValue.peek());
+        result.push(scope);
+      }
+      return result;
+    }
   }
 }
