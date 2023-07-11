@@ -1,3 +1,7 @@
+## 7.1.2 2023-07-11
+* Remove threshold filters from logging configuration
+* Create a new deque for every Thread to handle properly different execution contexts
+
 ## 7.1.1 2023-07-03
 * [FOLSPRINGB-111](https://issues.folio.org/browse/FOLSPRINGB-111) Spring Boot 3.1.1 fixing CVE-2023-34981
 
