@@ -54,6 +54,7 @@
     <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
     <maven-checkstyle-plugin.version>3.2.2</maven-checkstyle-plugin.version>
     <openapi-generator.version>6.6.0</openapi-generator.version>
+    <guava.version>32.1.1-jre</guava.version>  <!-- remove when openapi-generator ships with non-vulnerable guava >= 32.0.0 -->
     <maven-failsafe-plugin.version>3.1.0</maven-failsafe-plugin.version>
     <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
     <maven-surefire-plugin.version>3.1.0</maven-surefire-plugin.version>
