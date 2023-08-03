@@ -22,6 +22,7 @@
   <modules>
     <module>folio-spring-cql</module>
     <module>folio-spring-base</module>
+    <module>folio-token</module>
   </modules>
 
   <properties>
