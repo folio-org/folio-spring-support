@@ -54,7 +54,7 @@ public class TokenUtils {
         .orElseThrow(() -> new IllegalArgumentException("No cookie found for name: " + cookieName));
   }
 
-  private Instant parseExpiration(String expireDate) {
+  public Instant parseExpiration(String expireDate) {
     try {
       return Instant.parse(expireDate);
     } catch (Exception ex) {

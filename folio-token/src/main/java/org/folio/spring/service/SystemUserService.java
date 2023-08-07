@@ -1,6 +1,9 @@
 package org.folio.spring.service;
 
 import static java.util.Objects.isNull;
+import static java.util.Optional.ofNullable;
+import static org.folio.edge.api.utils.Constants.X_OKAPI_TOKEN;
+import static org.folio.spring.utils.TokenUtils.parseExpiration;
 import static org.folio.spring.utils.TokenUtils.parseUserTokenFromCookies;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
@@ -10,6 +13,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.folio.edge.api.utils.exception.AuthorizationException;
 import org.folio.spring.client.AuthnClient;
 import org.folio.spring.client.AuthnClient.UserCredentials;
 import org.folio.spring.client.UsersClient;
@@ -75,9 +79,11 @@ public class SystemUserService {
    * @return token value
    */
   public UserToken authSystemUser(SystemUser user) {
-    return getToken(() ->
-            authnClient.loginWithExpiry(new UserCredentials(user.username(), systemUserProperties.password())),
-        user.username(), "log in");
+    var token = getTokenWithExpiry(user);
+    if (token == null) {
+      getTokenLegacy(user);
+    }
+    return token;
   }
 
   @Autowired(required = false)
@@ -96,9 +102,6 @@ public class SystemUserService {
     // create context for authentication
     try (var fex = new FolioExecutionContextSetter(contextBuilder.forSystemUser(systemUser))) {
       var token = authSystemUser(systemUser);
-      if (token == null) {
-        loginSystemUser(systemUser);
-      }
       systemUser = systemUser.withToken(token);
       log.info("Token for system user has been issued [tenantId={}]", tenantId);
     }
@@ -110,16 +113,25 @@ public class SystemUserService {
     }
   }
 
-  private UserToken login(String username) {
-    return getToken(() ->
-            authnClient.login(new UserCredentials(username, systemUserProperties.password())),
-        username, "relogin");
+  private UserToken getTokenLegacy(SystemUser user) {
+    var response =
+        authnClient.login(new UserCredentials(user.username(), systemUserProperties.password()));
+
+    var accessToken =  ofNullable(response.getHeaders()
+        .get(X_OKAPI_TOKEN))
+        .orElseThrow(() -> new AuthorizationException("Cannot retrieve okapi token for tenant: " + user.username()))
+        .get(0);
+
+    return UserToken.builder()
+        .accessToken(accessToken)
+        .accessTokenExpiration(parseExpiration(response.getBody().accessTokenExpiration()))
+        .build();
   }
 
-  private UserToken loginSystemUser(SystemUser user) {
+  private UserToken getTokenWithExpiry(SystemUser user) {
     return getToken(() ->
-            authnClient.login(new UserCredentials(user.username(), systemUserProperties.password())),
-        user.username(), "legacy endpoint");
+            authnClient.loginWithExpiry(new UserCredentials(user.username(), systemUserProperties.password())),
+        user.username(), "log in expiry");
   }
 
   private UserToken getToken(Supplier<ResponseEntity<AuthnClient.LoginResponse>> tokenSupplier,
