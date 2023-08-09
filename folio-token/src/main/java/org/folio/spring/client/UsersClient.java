@@ -26,11 +26,6 @@ public interface UsersClient {
       public Personal(String lastName) {
         this(null, lastName);
       }
-
-      public Personal(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-      }
     }
   }
 }
