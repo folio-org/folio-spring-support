@@ -1,8 +1,6 @@
 package org.folio.spring.utils;
 
 import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.handler.codec.http.cookie.CookieHeaderNames;
-import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import java.time.Instant;
 import java.util.Collection;
@@ -16,18 +14,6 @@ public class TokenUtils {
 
   public static final String FOLIO_ACCESS_TOKEN = "folioAccessToken";
   public static final String FOLIO_REFRESH_TOKEN = "folioRefreshToken";
-
-  public static String encodeRefreshTokenToCookie(String token, Instant expiration) {
-    var ttlSeconds = expiration.getEpochSecond() - Instant.now().getEpochSecond();
-    var cookie = new DefaultCookie(FOLIO_REFRESH_TOKEN, token);
-    cookie.setMaxAge(ttlSeconds);
-    cookie.setSecure(true);
-    cookie.setPath("/authn");
-    cookie.setHttpOnly(true);
-    cookie.setSameSite(CookieHeaderNames.SameSite.None);
-    cookie.setDomain(null);
-    return cookie.toString();
-  }
 
   public static UserToken parseUserTokenFromCookies(List<String> cookieHeaders,
                                                     AuthnClient.LoginResponse loginResponse) {
