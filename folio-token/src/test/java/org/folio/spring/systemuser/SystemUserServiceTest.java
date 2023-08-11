@@ -115,7 +115,7 @@ class SystemUserServiceTest {
     when(authnClient.loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
     when(expectedResponse.getHeaders()).thenReturn(expectedHeaders);
 
-    var actual = systemUserService(systemUserProperties()).getToken(systemUser);
+    var actual = systemUserService(systemUserProperties()).authSystemUser(systemUser);
     assertThat(actual).isEqualTo(expectedUserToken);
   }
 
@@ -127,7 +127,7 @@ class SystemUserServiceTest {
     var systemUser = systemUserValue();
 
     var systemUserService = systemUserService(systemUserProperties());
-    assertThatThrownBy(() -> systemUserService.getToken(systemUser)).isInstanceOf(IllegalStateException.class)
+    assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(IllegalStateException.class)
         .hasMessage("User [username] cannot log in expiry because of missing tokens");
   }
 
@@ -141,7 +141,7 @@ class SystemUserServiceTest {
     var systemUser = systemUserValue();
 
     var systemUserService = systemUserService(systemUserProperties());
-    assertThatThrownBy(() -> systemUserService.getToken(systemUser)).isInstanceOf(IllegalStateException.class)
+    assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(IllegalStateException.class)
         .hasMessage("User [username] cannot log in expiry because of missing tokens");
   }
 
@@ -153,7 +153,7 @@ class SystemUserServiceTest {
     var systemUser = systemUserValue();
 
     var systemUserService = systemUserService(systemUserProperties());
-    assertThatThrownBy(() -> systemUserService.getToken(systemUser)).isInstanceOf(IllegalStateException.class)
+    assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(IllegalStateException.class)
         .hasMessage("User [username] cannot log in expiry because expire times missing for status 200 OK");
   }
 
