@@ -62,7 +62,7 @@ public class SystemUserService {
 
     systemUserCache.invalidate(tenantId);
     if (userToken.accessTokenExpiration().isAfter(now)) {
-      var newToken = getTokenLegacy(user);
+      var newToken = getToken(user);
       user = user.withToken(newToken);
     } else {
       user = getSystemUser(tenantId);
@@ -78,7 +78,7 @@ public class SystemUserService {
    * @param user {@link SystemUser} to log with
    * @return token value
    */
-  public UserToken authSystemUser(SystemUser user) {
+  public UserToken getToken(SystemUser user) {
     var token = getTokenWithExpiry(user);
     if (token == null) {
       getTokenLegacy(user);
@@ -101,7 +101,7 @@ public class SystemUserService {
 
     // create context for authentication
     try (var fex = new FolioExecutionContextSetter(contextBuilder.forSystemUser(systemUser))) {
-      var token = authSystemUser(systemUser);
+      var token = getToken(systemUser);
       systemUser = systemUser.withToken(token);
       log.info("Token for system user has been issued [tenantId={}]", tenantId);
     }
@@ -129,12 +129,12 @@ public class SystemUserService {
   }
 
   private UserToken getTokenWithExpiry(SystemUser user) {
-    return getToken(() ->
+    return getTokenWithSupplier(() ->
             authnClient.loginWithExpiry(new UserCredentials(user.username(), systemUserProperties.password())),
         user.username(), "log in expiry");
   }
 
-  private UserToken getToken(Supplier<ResponseEntity<AuthnClient.LoginResponse>> tokenSupplier,
+  private UserToken getTokenWithSupplier(Supplier<ResponseEntity<AuthnClient.LoginResponse>> tokenSupplier,
                              String username, String action) {
     var response = tokenSupplier.get();
 
