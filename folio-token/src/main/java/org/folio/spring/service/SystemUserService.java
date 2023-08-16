@@ -3,7 +3,6 @@ package org.folio.spring.service;
 import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 import static org.folio.edge.api.utils.Constants.X_OKAPI_TOKEN;
-import static org.folio.spring.utils.TokenUtils.parseExpiration;
 import static org.folio.spring.utils.TokenUtils.parseUserTokenFromCookies;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
@@ -26,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 @Log4j2
 @Service
@@ -80,8 +80,8 @@ public class SystemUserService {
    */
   public UserToken authSystemUser(SystemUser user) {
     var token = getTokenWithExpiry(user);
-    if (token == null) {
-      getTokenLegacy(user);
+    if (ObjectUtils.isEmpty(token)) {
+      token  = getTokenLegacy(user);
     }
     return token;
   }
@@ -124,7 +124,7 @@ public class SystemUserService {
 
     return UserToken.builder()
         .accessToken(accessToken)
-        .accessTokenExpiration(parseExpiration(response.getBody().accessTokenExpiration()))
+        .accessTokenExpiration(Instant.MAX)
         .build();
   }
 

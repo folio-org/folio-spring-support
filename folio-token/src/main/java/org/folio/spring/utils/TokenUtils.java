@@ -40,7 +40,7 @@ public class TokenUtils {
         .orElseThrow(() -> new IllegalArgumentException("No cookie found for name: " + cookieName));
   }
 
-  public static Instant parseExpiration(String expireDate) {
+  private static Instant parseExpiration(String expireDate) {
     try {
       return Instant.parse(expireDate);
     } catch (Exception ex) {
