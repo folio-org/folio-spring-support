@@ -61,12 +61,7 @@ public class SystemUserService {
     }
 
     systemUserCache.invalidate(tenantId);
-    if (userToken.accessTokenExpiration().isAfter(now)) {
-      var newToken = authSystemUser(user);
-      user = user.withToken(newToken);
-    } else {
-      user = getSystemUser(tenantId);
-    }
+    user = getSystemUser(tenantId);
     systemUserCache.put(tenantId, user);
 
     return user;
