@@ -9,7 +9,6 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 import com.github.benmanes.caffeine.cache.Cache;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.edge.api.utils.exception.AuthorizationException;
@@ -22,7 +21,6 @@ import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
 import org.folio.spring.scope.FolioExecutionContextSetter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -138,22 +136,5 @@ public class SystemUserService {
         .map(cookieHeaders -> parseUserTokenFromCookies(cookieHeaders, response.getBody()))
         .orElseThrow(() -> new IllegalStateException(String.format(
             "User [%s] cannot %s because of missing tokens", user.username(), "login with expiry")));
-  }
-
-  private UserToken getToken(Supplier<ResponseEntity<AuthnClient.LoginResponse>> tokenSupplier,
-                             String username, String action) {
-    var response = tokenSupplier.get();
-
-    if (isNull(response.getBody())) {
-      throw new IllegalStateException(String.format(
-          "User [%s] cannot %s because expire times missing for status %s",
-          username, action, response.getStatusCode()));
-    }
-
-    return Optional.ofNullable(response.getHeaders().get(SET_COOKIE))
-        .filter(list -> !CollectionUtils.isEmpty(list))
-        .map(cookieHeaders -> parseUserTokenFromCookies(cookieHeaders, response.getBody()))
-        .orElseThrow(() -> new IllegalStateException(String.format(
-            "User [%s] cannot %s because of missing tokens", username, action)));
   }
 }
