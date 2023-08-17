@@ -21,9 +21,9 @@ import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
 import org.folio.spring.scope.FolioExecutionContextSetter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
 
 @Log4j2
 @Service
@@ -73,7 +73,7 @@ public class SystemUserService {
    */
   public UserToken authSystemUser(SystemUser user) {
     var token = getTokenWithExpiry(user);
-    if (ObjectUtils.isEmpty(token)) {
+    if (isNull(token)) {
       token  = getTokenLegacy(user);
     }
     return token;
@@ -110,6 +110,9 @@ public class SystemUserService {
     var response =
         authnClient.login(new UserCredentials(user.username(), systemUserProperties.password()));
 
+    if (!isNull(response) && response.getStatusCode() == HttpStatusCode.valueOf(404)) {
+      return null;
+    }
     var accessToken =  ofNullable(response.getHeaders()
         .get(X_OKAPI_TOKEN))
         .orElseThrow(() -> new AuthorizationException("Cannot retrieve okapi token for tenant: " + user.username()))
@@ -125,7 +128,10 @@ public class SystemUserService {
     var response =
         authnClient.loginWithExpiry(new UserCredentials(user.username(), systemUserProperties.password()));
 
-    if (isNull(response.getBody())) {
+    if (!isNull(response) && response.getStatusCode() == HttpStatusCode.valueOf(404)) {
+      return null;
+    }
+    if (!isNull(response) && isNull(response.getBody())) {
       throw new IllegalStateException(String.format(
           "User [%s] cannot %s because expire times missing for status %s",
           user.username(), "login with expiry", response.getStatusCode()));

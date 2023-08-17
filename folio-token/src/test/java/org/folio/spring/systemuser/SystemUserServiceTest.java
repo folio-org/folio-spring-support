@@ -24,6 +24,7 @@ import org.folio.spring.client.AuthnClient.UserCredentials;
 import org.folio.spring.client.UsersClient;
 import org.folio.spring.config.properties.FolioEnvironment;
 import org.folio.spring.context.ExecutionContextBuilder;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
 import org.folio.spring.service.PrepareSystemUserService;
@@ -35,6 +36,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMapAdapter;
 
@@ -44,12 +46,14 @@ class SystemUserServiceTest {
   public static final String OKAPI_URL = "http://okapi";
   private static final String TENANT_ID = "test";
   private static final Instant TOKEN_EXPIRATION = Instant.now().plus(1, ChronoUnit.DAYS);
+  private static final String MOCK_TOKEN = "eyJhbGciOiJIUzI1NiJ9eyJzdWIiOiJ0ZXN0X2FkbWluIiwidXNlcl9pZCI6ImQyNjUwOGJ"
+      + "lLTJmMGItNTUyMC1iZTNkLWQwYjRkOWNkNmY2ZSIsImlhdCI6MTYxNjQ4NDc5NCwidGVuYW50IjoidGVzdCJ9VRYeA0s1O14hAXoTG34EAl80";
   @Mock
   private AuthnClient authnClient;
   @Mock
   private ExecutionContextBuilder contextBuilder;
-  private final ResponseEntity<AuthnClient.LoginResponse> expectedResponse = Mockito.spy(ResponseEntity.of(Optional.of(
-      new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString()))));
+  private final ResponseEntity<AuthnClient.LoginResponse> expectedResponse =
+      Mockito.spy(ResponseEntity.of(Optional.of(new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString()))));
   @Mock
   private FolioExecutionContext context;
   @Mock
@@ -96,7 +100,7 @@ class SystemUserServiceTest {
     var actual = systemUserService.getAuthedSystemUser(TENANT_ID);
     assertThat(actual.token().accessToken()).isEqualTo(expectedUserToken.accessToken());
     verify(userCache).get(eq(TENANT_ID), any());
-    verify(authnClient, never()).login(any());
+    verify(authnClient, never()).loginWithExpiry(any());
     verify(environment, never()).getOkapiUrl();
     verify(contextBuilder, never()).forSystemUser(any());
   }
@@ -156,6 +160,31 @@ class SystemUserServiceTest {
         .hasMessage("User [username] cannot login with expiry because expire times missing for status 200 OK");
   }
 
+  @Test
+  void authSystemUser_when_loginExpiry_notFound() {
+    var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
+    when(authnClient.loginWithExpiry(new UserCredentials("username", "password")))
+        .thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    when(authnClient.login(new UserCredentials("username", "password")))
+        .thenReturn(buildClientResponse(MOCK_TOKEN));
+    var systemUser = systemUserValue();
+    var systemUserService = systemUserService(systemUserProperties());
+    var actual = systemUserService.authSystemUser(systemUser);
+    assertThat(actual).isEqualTo(expectedUserToken);
+  }
+
+  @Test
+  void authSystemUser_when_loginExipry_and_loginLegacy_notFound() {
+    when(authnClient.loginWithExpiry(new UserCredentials("username", "password")))
+        .thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    when(authnClient.login(new UserCredentials("username", "password")))
+        .thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    var systemUser = systemUserValue();
+    var systemUserService = systemUserService(systemUserProperties());
+    var actual = systemUserService.authSystemUser(systemUser);
+    assertThat(actual).isNull();
+  }
+
   private SystemUserService systemUserService(SystemUserProperties properties) {
     return new SystemUserService(contextBuilder, properties, environment, authnClient, prepareSystemUserService);
   }
@@ -179,7 +208,7 @@ class SystemUserServiceTest {
 
   private ResponseEntity<AuthnClient.LoginResponse> buildClientResponse(String token) {
     return ResponseEntity.ok()
-        .headers(cookieHeaders(token))
+        .header(XOkapiHeaders.TOKEN, token)
         .body(new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString()));
   }
 }
