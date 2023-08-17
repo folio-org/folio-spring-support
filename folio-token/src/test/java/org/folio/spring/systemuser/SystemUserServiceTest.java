@@ -4,7 +4,6 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.spring.utils.TokenUtils.FOLIO_ACCESS_TOKEN;
-import static org.folio.spring.utils.TokenUtils.FOLIO_REFRESH_TOKEN;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -128,7 +127,7 @@ class SystemUserServiceTest {
 
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(IllegalStateException.class)
-        .hasMessage("User [username] cannot log in expiry because of missing tokens");
+        .hasMessage("User [username] cannot login with expiry because of missing tokens");
   }
 
   @Test
@@ -142,7 +141,7 @@ class SystemUserServiceTest {
 
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(IllegalStateException.class)
-        .hasMessage("User [username] cannot log in expiry because of missing tokens");
+        .hasMessage("User [username] cannot login with expiry because of missing tokens");
   }
 
   @Test
@@ -154,7 +153,7 @@ class SystemUserServiceTest {
 
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(IllegalStateException.class)
-        .hasMessage("User [username] cannot log in expiry because expire times missing for status 200 OK");
+        .hasMessage("User [username] cannot login with expiry because expire times missing for status 200 OK");
   }
 
   private SystemUserService systemUserService(SystemUserProperties properties) {
@@ -174,8 +173,7 @@ class SystemUserServiceTest {
 
   private HttpHeaders cookieHeaders(String accessToken, String refreshToken) {
     return new HttpHeaders(new MultiValueMapAdapter<>(Map.of(HttpHeaders.SET_COOKIE, List.of(
-        new DefaultCookie(FOLIO_ACCESS_TOKEN, accessToken).toString(),
-        new DefaultCookie(FOLIO_REFRESH_TOKEN, refreshToken).toString()
+        new DefaultCookie(FOLIO_ACCESS_TOKEN, accessToken).toString()
     ))));
   }
 

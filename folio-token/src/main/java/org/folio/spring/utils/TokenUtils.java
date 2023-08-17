@@ -13,7 +13,6 @@ import org.folio.spring.model.UserToken;
 public class TokenUtils {
 
   public static final String FOLIO_ACCESS_TOKEN = "folioAccessToken";
-  public static final String FOLIO_REFRESH_TOKEN = "folioRefreshToken";
 
   public static UserToken parseUserTokenFromCookies(List<String> cookieHeaders,
                                                     AuthnClient.LoginResponse loginResponse) {

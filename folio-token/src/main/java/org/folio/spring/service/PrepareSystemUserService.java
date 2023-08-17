@@ -66,6 +66,11 @@ public class PrepareSystemUserService {
     log.info("Saved credentials for user: [{}]", systemUserProperties.username());
   }
 
+  private void deleteCredentials() {
+    authnClient.deleteCredentials(systemUserProperties.username());
+    log.info("Removed credentials for user {}.", systemUserProperties.username());
+  }
+
   private void assignPermissions(String userId) {
     List<String> permissionsToAssign = getResourceLines(systemUserProperties.permissionsFilePath());
 

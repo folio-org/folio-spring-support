@@ -2,7 +2,6 @@ package org.folio.spring.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.spring.utils.TokenUtils.FOLIO_ACCESS_TOKEN;
-import static org.folio.spring.utils.TokenUtils.FOLIO_REFRESH_TOKEN;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.handler.codec.http.cookie.DefaultCookie;
@@ -22,9 +21,7 @@ class TokenUtilsTest {
     var refreshExp = Instant.now();
     var authResponse = new AuthnClient.LoginResponse(accessExp.toString());
     var accessToken = "acc";
-    var refreshToken = "ref";
-    var cookies = List.of(new DefaultCookie(FOLIO_ACCESS_TOKEN, accessToken).toString(),
-        new DefaultCookie(FOLIO_REFRESH_TOKEN, refreshToken).toString());
+    var cookies = List.of(new DefaultCookie(FOLIO_ACCESS_TOKEN, accessToken).toString());
     var expected = UserToken.builder()
         .accessToken(accessToken)
         .accessTokenExpiration(accessExp)

@@ -124,9 +124,20 @@ public class SystemUserService {
   }
 
   private UserToken getTokenWithExpiry(SystemUser user) {
-    return getToken(() ->
-            authnClient.loginWithExpiry(new UserCredentials(user.username(), systemUserProperties.password())),
-        user.username(), "log in expiry");
+    var response =
+        authnClient.loginWithExpiry(new UserCredentials(user.username(), systemUserProperties.password()));
+
+    if (isNull(response.getBody())) {
+      throw new IllegalStateException(String.format(
+          "User [%s] cannot %s because expire times missing for status %s",
+          user.username(), "login with expiry", response.getStatusCode()));
+    }
+
+    return Optional.ofNullable(response.getHeaders().get(SET_COOKIE))
+        .filter(list -> !CollectionUtils.isEmpty(list))
+        .map(cookieHeaders -> parseUserTokenFromCookies(cookieHeaders, response.getBody()))
+        .orElseThrow(() -> new IllegalStateException(String.format(
+            "User [%s] cannot %s because of missing tokens", user.username(), "login with expiry")));
   }
 
   private UserToken getToken(Supplier<ResponseEntity<AuthnClient.LoginResponse>> tokenSupplier,
