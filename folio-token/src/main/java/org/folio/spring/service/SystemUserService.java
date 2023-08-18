@@ -34,7 +34,6 @@ public class SystemUserService {
   private final FolioEnvironment environment;
   private final AuthnClient authnClient;
   private final PrepareSystemUserService prepareUserService;
-
   private Cache<String, SystemUser> systemUserCache;
 
   /**
@@ -72,7 +71,7 @@ public class SystemUserService {
    */
   public UserToken authSystemUser(SystemUser user) {
     var token = getTokenWithExpiry(user);
-    if (isNull(token)) {
+    if (token == null) {
       token  = getTokenLegacy(user);
     }
     return token;
@@ -142,7 +141,7 @@ public class SystemUserService {
       return null;
     }
 
-    if (isNull(response.getBody())) {
+    if (isNull(response) || isNull(response.getBody())) {
       throw new IllegalStateException(String.format(
           "User [%s] cannot %s because expire times missing for status %s",
           user.username(), "login with expiry", response.getStatusCode()));

@@ -1,3 +1,0 @@
-org.folio.spring.tools.config.KafkaConfig
-org.folio.spring.tools.config.RetryTemplateConfiguration
-org.folio.spring.tools.config.SystemUserConfig
