@@ -8,7 +8,6 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import java.time.Instant;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.edge.api.utils.exception.AuthorizationException;
@@ -107,37 +106,49 @@ public class SystemUserService {
   }
 
   private UserToken getTokenLegacy(SystemUser user) {
-    var response =
-        authnClient.login(new UserCredentials(user.username(), systemUserProperties.password()));
+    var responseOptional =
+      ofNullable(authnClient.login(new UserCredentials(user.username(), systemUserProperties.password())));
 
-    if (!isNull(response) && response.getStatusCode() == HttpStatusCode.valueOf(404)) {
+    if (responseOptional.isEmpty()) {
+      throw new AuthorizationException("Unexpected response from login: " + user.username());
+    }
+
+    var response = responseOptional.get();
+    if (response.getStatusCode() == HttpStatusCode.valueOf(404)) {
       return null;
     }
-    var accessToken =  ofNullable(response.getHeaders()
-        .get(X_OKAPI_TOKEN))
-        .orElseThrow(() -> new AuthorizationException("Cannot retrieve okapi token for tenant: " + user.username()))
-        .get(0);
+
+    var accessToken = ofNullable(response.getHeaders()
+      .get(X_OKAPI_TOKEN))
+      .orElseThrow(() -> new AuthorizationException("Cannot retrieve okapi token for tenant: " + user.username()))
+      .get(0);
 
     return UserToken.builder()
-        .accessToken(accessToken)
-        .accessTokenExpiration(Instant.MAX)
-        .build();
+      .accessToken(accessToken)
+      .accessTokenExpiration(Instant.MAX)
+      .build();
   }
 
   private UserToken getTokenWithExpiry(SystemUser user) {
-    var response =
-        authnClient.loginWithExpiry(new UserCredentials(user.username(), systemUserProperties.password()));
+    var responseOptional =
+        ofNullable(authnClient.loginWithExpiry(new UserCredentials(user.username(), systemUserProperties.password())));
 
-    if (!isNull(response) && response.getStatusCode() == HttpStatusCode.valueOf(404)) {
+    if (responseOptional.isEmpty()) {
+      throw new AuthorizationException("Unexpected response from loginWithExpiry: " + user.username());
+    }
+
+    var response = responseOptional.get();
+    if (response.getStatusCode() == HttpStatusCode.valueOf(404)) {
       return null;
     }
-    if (isNull(response) || isNull(response.getBody())) {
+
+    if (isNull(response.getBody())) {
       throw new IllegalStateException(String.format(
           "User [%s] cannot %s because expire times missing for status %s",
           user.username(), "login with expiry", response.getStatusCode()));
     }
 
-    return Optional.ofNullable(response.getHeaders().get(SET_COOKIE))
+    return ofNullable(response.getHeaders().get(SET_COOKIE))
         .filter(list -> !CollectionUtils.isEmpty(list))
         .map(cookieHeaders -> parseUserTokenFromCookies(cookieHeaders, response.getBody()))
         .orElseThrow(() -> new IllegalStateException(String.format(
