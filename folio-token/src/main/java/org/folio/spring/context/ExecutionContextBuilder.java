@@ -2,7 +2,6 @@ package org.folio.spring.context;
 
 import static java.util.Collections.singleton;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.folio.spring.kafka.KafkaUtils.getHeaderValue;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,7 +15,6 @@ import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.model.SystemUser;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,16 +25,6 @@ public class ExecutionContextBuilder {
 
   public Builder builder() {
     return new Builder(moduleMetadata);
-  }
-
-  public FolioExecutionContext forMessageHeaders(MessageHeaders headers) {
-    var tenantId = getHeaderValue(XOkapiHeaders.TENANT, headers);
-    var okapiUrl = getHeaderValue(XOkapiHeaders.URL, headers);
-    var token = getHeaderValue(XOkapiHeaders.TOKEN, headers);
-    var userId = getHeaderValue(XOkapiHeaders.USER_ID, headers);
-    var requestId = getHeaderValue(XOkapiHeaders.REQUEST_ID, headers);
-
-    return buildContext(okapiUrl, tenantId, token, userId, requestId);
   }
 
   public FolioExecutionContext forSystemUser(SystemUser systemUser) {

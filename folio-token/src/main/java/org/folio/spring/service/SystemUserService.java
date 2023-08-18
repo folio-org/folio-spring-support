@@ -131,7 +131,7 @@ public class SystemUserService {
     if (!isNull(response) && response.getStatusCode() == HttpStatusCode.valueOf(404)) {
       return null;
     }
-    if (isNull(response.getBody())) {
+    if (!isNull(response) && isNull(response.getBody())) {
       throw new IllegalStateException(String.format(
           "User [%s] cannot %s because expire times missing for status %s",
           user.username(), "login with expiry", response.getStatusCode()));

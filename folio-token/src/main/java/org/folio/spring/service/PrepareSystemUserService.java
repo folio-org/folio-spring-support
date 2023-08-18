@@ -45,11 +45,6 @@ public class PrepareSystemUserService {
 
       createFolioUser(userId);
       assignPermissions(userId);
-      try {
-        deleteCredentials(userId);
-      } catch (feign.FeignException.NotFound e) {
-        // ignore if not exist
-      }
       saveCredentials();
     }
     log.info("System user has been created");
@@ -71,9 +66,9 @@ public class PrepareSystemUserService {
     log.info("Saved credentials for user: [{}]", systemUserProperties.username());
   }
 
-  private void deleteCredentials(String userId) {
-    authnClient.deleteCredentials(userId);
-    log.info("Removed credentials for user {}.", userId);
+  private void deleteCredentials() {
+    authnClient.deleteCredentials(systemUserProperties.username());
+    log.info("Removed credentials for user {}.", systemUserProperties.username());
   }
 
   private void assignPermissions(String userId) {
