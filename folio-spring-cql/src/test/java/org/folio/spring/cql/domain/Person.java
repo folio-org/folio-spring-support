@@ -26,6 +26,7 @@ public class Person {
   private Boolean isAlive;
   private Date dateBorn;
   private LocalDateTime localDate;
+  private boolean deleted = false;
 
   @ManyToOne
   @JoinColumn(name = "city_id")
