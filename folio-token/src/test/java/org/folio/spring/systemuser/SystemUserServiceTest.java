@@ -74,14 +74,16 @@ class SystemUserServiceTest {
   void getAuthedSystemUser_positive() {
     var expectedUserId = UUID.randomUUID();
     var expectedUserToken = userToken(TOKEN_EXPIRATION);
-    var expectedHeaders = cookieHeaders(expectedUserToken.accessToken(), expectedUserToken.accessToken());
 
-    when(authnClient.loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
+    when(authnClient
+        .loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
     when(prepareSystemUserService.getFolioUser("username")).thenReturn(Optional.of(
-        new UsersClient.User(expectedUserId.toString(), "username", true, new UsersClient.User.Personal("last"))));
+        new UsersClient.User(expectedUserId.toString(),
+            "username", true, new UsersClient.User.Personal("last"))));
     when(environment.getOkapiUrl()).thenReturn(OKAPI_URL);
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
-    when(expectedResponse.getHeaders()).thenReturn(expectedHeaders);
+    when(expectedResponse.getHeaders())
+        .thenReturn(cookieHeaders(expectedUserToken.accessToken(), expectedUserToken.accessToken()));
 
     var actual = systemUserService(systemUserProperties()).getAuthedSystemUser(TENANT_ID);
     assertThat(actual.token()).isEqualTo(expectedUserToken);
@@ -109,12 +111,11 @@ class SystemUserServiceTest {
     var cachedUserToken = userToken(Instant.now().minus(1, ChronoUnit.DAYS));
     var systemUserService = systemUserService(systemUserProperties());
     var expectedToken = "access-token";
-    var expectedHeaders = cookieHeaders(expectedToken);
     systemUserService.setSystemUserCache(userCache);
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
     var tokenResponseMock = cachedUserToken.accessToken();
     when(authnClient.loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
-    when(expectedResponse.getHeaders()).thenReturn(expectedHeaders);
+    when(expectedResponse.getHeaders()).thenReturn(cookieHeaders(expectedToken));
     when(userCache.get(eq(TENANT_ID), any())).thenReturn(systemUserValue().withToken(cachedUserToken));
 
     var actual = systemUserService.getAuthedSystemUser(TENANT_ID);
@@ -130,11 +131,10 @@ class SystemUserServiceTest {
         .accessToken(expectedToken)
         .accessTokenExpiration(TOKEN_EXPIRATION)
         .build();
-    var expectedHeaders = cookieHeaders(expectedToken);
     var systemUser = systemUserValue();
 
     when(authnClient.loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
-    when(expectedResponse.getHeaders()).thenReturn(expectedHeaders);
+    when(expectedResponse.getHeaders()).thenReturn(cookieHeaders(expectedToken));
 
     var actual = systemUserService(systemUserProperties()).authSystemUser(systemUser);
     assertThat(actual).isEqualTo(expectedUserToken);
