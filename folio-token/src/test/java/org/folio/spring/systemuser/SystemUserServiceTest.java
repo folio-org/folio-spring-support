@@ -110,12 +110,11 @@ class SystemUserServiceTest {
   void getAuthedSystemUserUsingCacheWithExpiredAccessToken_positive() {
     var cachedUserToken = userToken(Instant.now().minus(1, ChronoUnit.DAYS));
     var systemUserService = systemUserService(systemUserProperties());
-    var expectedToken = "access-token";
     systemUserService.setSystemUserCache(userCache);
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
     var tokenResponseMock = cachedUserToken.accessToken();
     when(authnClient.loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
-    when(expectedResponse.getHeaders()).thenReturn(cookieHeaders(expectedToken));
+    when(expectedResponse.getHeaders()).thenReturn(cookieHeaders("access-token"));
     when(userCache.get(eq(TENANT_ID), any())).thenReturn(systemUserValue().withToken(cachedUserToken));
 
     var actual = systemUserService.getAuthedSystemUser(TENANT_ID);
