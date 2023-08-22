@@ -22,7 +22,7 @@
   <modules>
     <module>folio-spring-cql</module>
     <module>folio-spring-base</module>
-    <module>folio-system-user</module>
+    <module>folio-spring-system-user</module>
   </modules>
 
   <properties>
