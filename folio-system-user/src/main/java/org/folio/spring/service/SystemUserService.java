@@ -38,8 +38,9 @@ public class SystemUserService {
 
   /**
    * Get authenticate system user.
-   * Get from cache if present (or loginWithExpiry otherwise). Call loginWithExpiry token endpoint in case
-   * access token expired. Call login endpoint in case refresh token expired
+   * Get from cache if present (or getSystemUser otherwise). Call login expiry endpoint in case
+   * access token expired. Call login endpoint in case login-expiry endpoint returns null or it
+   * doesn't exist
    *
    * @param tenantId The tenant name
    * @return {@link SystemUser} with token value
