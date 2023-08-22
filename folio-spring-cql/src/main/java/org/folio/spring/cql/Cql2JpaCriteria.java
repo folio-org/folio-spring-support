@@ -33,6 +33,7 @@ import org.folio.cql2pgjson.exception.QueryValidationException;
 import org.folio.cql2pgjson.model.CqlModifiers;
 import org.folio.cql2pgjson.model.CqlSort;
 import org.folio.cql2pgjson.util.Cql2SqlUtil;
+import org.springframework.data.jpa.domain.Specification;
 import org.z3950.zing.cql.CQLAndNode;
 import org.z3950.zing.cql.CQLBooleanNode;
 import org.z3950.zing.cql.CQLNode;
@@ -83,6 +84,22 @@ public class Cql2JpaCriteria<E> {
   }
 
   /**
+   * Create {@link CriteriaQuery} for collect/select query utilizing the given {@link Specification} into WHERE.
+   *
+   * @param specification specification describing the criteria for collect query
+   * @return {@link CriteriaQuery} for collect
+   */
+  public CriteriaQuery<E> toCollectCriteria(Specification<E> specification) {
+    var cb = em.getCriteriaBuilder();
+    var query = cb.createQuery(domainClass);
+    var root = query.from(domainClass);
+
+    query.where(specification.toPredicate(root, query, cb));
+
+    return query;
+  }
+
+  /**
    * Convert the CQL query into WHERE and the ORDER BY SQL clauses and return {@link CriteriaQuery} for count.
    *
    * @param cql the query to convert
@@ -104,6 +121,59 @@ public class Cql2JpaCriteria<E> {
     } catch (IOException | CQLParseException | QueryValidationException e) {
       throw new CqlQueryValidationException(e);
     }
+  }
+
+  /**
+   * Create {@link CriteriaQuery} for count utilizing the given {@link Specification} into WHERE.
+   *
+   * @param specification specification describing the criteria for count query
+   * @return {@link CriteriaQuery} for count
+   */
+  public CriteriaQuery<Long> toCountCriteria(Specification<E> specification) {
+    var cb = em.getCriteriaBuilder();
+    var query = cb.createQuery(Long.class);
+    var root = query.from(domainClass);
+    query.select(cb.count(root));
+    query.orderBy(Collections.emptyList());
+    root.getFetches().clear();
+    query.where(specification.toPredicate(root, query, cb));
+    return query;
+  }
+
+  /**
+   * Create collect criteria specification which can be used with other specifications in order to create
+   * more complex ones.
+   *
+   * @param cql query string
+   * @return {@link Specification} describing the criteria
+   */
+  public Specification<E> createCollectSpecification(String cql) {
+    return (root, query, criteriaBuilder) -> {
+      try {
+        var node = new CQLParser().parse(cql);
+        return createPredicate(node, root, criteriaBuilder, query);
+      } catch (IOException | CQLParseException | QueryValidationException e) {
+        throw new CqlQueryValidationException(e);
+      }
+    };
+  }
+
+  /**
+   * Create count criteria specification which can be used with other specifications in order to create
+   * more complex ones.
+   *
+   * @param cql query string
+   * @return {@link Specification} describing the criteria
+   */
+  public Specification<E> createCountSpecification(String cql) {
+    return (root, query, criteriaBuilder) -> {
+      try {
+        var node = new CQLParser().parse(cql);
+        return createPredicate(node, root, criteriaBuilder, criteriaBuilder.createQuery(Long.class));
+      } catch (IOException | CQLParseException | QueryValidationException e) {
+        throw new CqlQueryValidationException(e);
+      }
+    };
   }
 
   private <T> Predicate createPredicate(CQLNode node, Root<E> root, CriteriaBuilder cb, CriteriaQuery<T> query)

@@ -63,6 +63,43 @@ class JpaCqlRepositoryIT {
   }
 
   @Test
+  @Sql({
+    "/sql/jpa-cql-general-it-schema.sql",
+    "/sql/jpa-cql-general-test-data.sql",
+    "/sql/jpa-cql-person-test-data.sql"
+  })
+  void testSelectsWithAndWithoutDeletedCriteria() {
+    var page1 = personRepository.findByCqlAndDeletedFalse("name=Jane", PageRequest.of(0, 10));
+    var page2 = personRepository.findByCql("name=Jane", PageRequest.of(0, 10));
+    assertThat(page1)
+      .hasSize(2)
+      .extracting(Person::getName)
+      .contains("Jane");
+    assertThat(page2)
+      .hasSize(3)
+      .extracting(Person::getName)
+      .contains("Jane");
+
+    page1 = personRepository.findByCqlAndDeletedFalse("name=John and age>20", PageRequest.of(0, 10));
+    page2 = personRepository.findByCql("name=John and age>20", PageRequest.of(0, 10));
+    assertThat(page1)
+      .hasSize(3)
+      .extracting(Person::getAge)
+      .startsWith(22)
+      .endsWith(30);
+    assertThat(page2)
+      .hasSize(4)
+      .extracting(Person::getAge)
+      .startsWith(22)
+      .endsWith(33);
+
+    assertThat(personRepository.countDeletedFalse("(cql.allRecords=1)sortby age/sort.ascending"))
+      .isEqualTo(5);
+    assertThat(personRepository.count("(cql.allRecords=1)sortby age/sort.ascending"))
+      .isEqualTo(7);
+  }
+
+  @Test
   void testSelectAllRecordsWithAsterisks() {
     var page = personRepository.findByCql("name=* sortby age/sort.ascending", PageRequest.of(0, 10));
     assertThat(page)
