@@ -9,7 +9,7 @@
   </parent>
 
   <name>folio-system-user</name>
-  <artifactId>folio-system-user</artifactId>
+  <artifactId>folio-spring-system-user</artifactId>
   <description/>
 
   <properties>
