@@ -1,14 +1,12 @@
 package org.folio.spring.service;
 
 import static java.util.Objects.isNull;
-import static java.util.Optional.ofNullable;
 import static org.folio.edge.api.utils.Constants.X_OKAPI_TOKEN;
 import static org.folio.spring.utils.TokenUtils.parseUserTokenFromCookies;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import java.time.Instant;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.edge.api.utils.exception.AuthorizationException;
@@ -113,13 +111,15 @@ public class SystemUserService {
     if (isNull(response) || response.getStatusCode() == HttpStatusCode.valueOf(404)) {
       return null;
     }
-    var accessToken =  ofNullable(response.getHeaders()
-        .get(X_OKAPI_TOKEN))
-        .orElseThrow(() -> new AuthorizationException("Cannot retrieve okapi token for tenant: " + user.username()))
-        .get(0);
+
+    var accessToken = response.getHeaders().get(X_OKAPI_TOKEN);
+
+    if (isNull(accessToken)) {
+      throw new AuthorizationException("Cannot retrieve okapi token for tenant: " + user.username());
+    }
 
     return UserToken.builder()
-        .accessToken(accessToken)
+        .accessToken(accessToken.get(0))
         .accessTokenExpiration(Instant.MAX)
         .build();
   }
@@ -131,16 +131,20 @@ public class SystemUserService {
     if (isNull(response) || response.getStatusCode() == HttpStatusCode.valueOf(404)) {
       return null;
     }
+
     if (isNull(response.getBody())) {
       throw new IllegalStateException(String.format(
           "User [%s] cannot %s because expire times missing for status %s",
           user.username(), "login with expiry", response.getStatusCode()));
     }
 
-    return Optional.ofNullable(response.getHeaders().get(SET_COOKIE))
-        .filter(list -> !CollectionUtils.isEmpty(list))
-        .map(cookieHeaders -> parseUserTokenFromCookies(cookieHeaders, response.getBody()))
-        .orElseThrow(() -> new IllegalStateException(String.format(
-            "User [%s] cannot %s because of missing tokens", user.username(), "login with expiry")));
+    var cookieHeaders = response.getHeaders().get(SET_COOKIE);
+
+    if (isNull(cookieHeaders) || CollectionUtils.isEmpty(cookieHeaders)) {
+      throw new IllegalStateException(String.format(
+          "User [%s] cannot %s because of missing tokens", user.username(), "login with expiry"));
+    }
+
+    return parseUserTokenFromCookies(cookieHeaders, response.getBody());
   }
 }
