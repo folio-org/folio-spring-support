@@ -6,11 +6,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.With;
+import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -22,10 +19,6 @@ import org.springframework.stereotype.Component;
 public class ExecutionContextBuilder {
 
   private final FolioModuleMetadata moduleMetadata;
-
-  public Builder builder() {
-    return new Builder(moduleMetadata);
-  }
 
   public FolioExecutionContext forSystemUser(SystemUser systemUser) {
     var okapiUrl = systemUser.okapiUrl();
@@ -54,79 +47,6 @@ public class ExecutionContextBuilder {
     if (isNotBlank(requestId)) {
       headers.put(XOkapiHeaders.REQUEST_ID, singleton(requestId));
     }
-
-    return builder()
-        .withTenantId(tenantId)
-        .withOkapiUrl(okapiUrl)
-        .withUserId(userId)
-        .withToken(token)
-        .withRequestId(requestId)
-        .withOkapiHeaders(headers)
-        .withAllHeaders(headers)
-        .build();
-  }
-
-  @With
-  @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  public static class Builder {
-
-    private final FolioModuleMetadata moduleMetadata;
-    private final Map<String, Collection<String>> allHeaders;
-    private final Map<String, Collection<String>> okapiHeaders;
-    private String tenantId;
-    private String okapiUrl;
-    private String token;
-    private String userId;
-    private String requestId;
-
-    public Builder(FolioModuleMetadata moduleMetadata) {
-      this.moduleMetadata = moduleMetadata;
-      this.allHeaders = new HashMap<>();
-      this.okapiHeaders = new HashMap<>();
-    }
-
-    public FolioExecutionContext build() {
-      return new FolioExecutionContext() {
-        @Override
-        public String getTenantId() {
-          return tenantId;
-        }
-
-        @Override
-        public String getOkapiUrl() {
-          return okapiUrl;
-        }
-
-        @Override
-        public String getToken() {
-          return token;
-        }
-
-        @Override
-        public UUID getUserId() {
-          return isNotBlank(userId) ? UUID.fromString(userId) : FolioExecutionContext.super.getUserId();
-        }
-
-        @Override
-        public String getRequestId() {
-          return requestId;
-        }
-
-        @Override
-        public Map<String, Collection<String>> getAllHeaders() {
-          return allHeaders;
-        }
-
-        @Override
-        public Map<String, Collection<String>> getOkapiHeaders() {
-          return okapiHeaders;
-        }
-
-        @Override
-        public FolioModuleMetadata getFolioModuleMetadata() {
-          return moduleMetadata;
-        }
-      };
-    }
+    return new DefaultFolioExecutionContext(moduleMetadata, headers);
   }
 }

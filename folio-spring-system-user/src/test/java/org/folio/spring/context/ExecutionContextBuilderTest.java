@@ -1,5 +1,6 @@
 package org.folio.spring.context;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -42,9 +43,9 @@ class ExecutionContextBuilderTest {
 
     var context = builder.forSystemUser(systemUser);
 
-    assertThat(context.getTenantId()).isNull();
-    assertThat(context.getToken()).isNull();
-    assertThat(context.getOkapiUrl()).isNull();
+    assertThat(context.getTenantId()).isEqualTo(EMPTY);
+    assertThat(context.getToken()).isEqualTo(EMPTY);
+    assertThat(context.getOkapiUrl()).isEqualTo(EMPTY);
 
     assertThat(context.getAllHeaders()).isNotNull();
     assertThat(context.getOkapiHeaders()).isNotNull().isEmpty();
