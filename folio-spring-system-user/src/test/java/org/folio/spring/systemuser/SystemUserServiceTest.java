@@ -6,18 +6,25 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.spring.utils.TokenUtils.FOLIO_ACCESS_TOKEN;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.github.benmanes.caffeine.cache.Cache;
+import feign.FeignException;
+import feign.Request;
+import feign.Response;
+import feign.Util;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.folio.edge.api.utils.exception.AuthorizationException;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.client.AuthnClient;
 import org.folio.spring.client.AuthnClient.UserCredentials;
@@ -202,6 +209,32 @@ class SystemUserServiceTest {
     assertThat(actual).isNull();
   }
 
+  @Test
+  void authSystemUser_when_loginExipry_notFoundException() {
+    var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
+    doThrow(FeignException.errorStatus("GET", create404Response()))
+        .when(authnClient).loginWithExpiry(any());
+    when(authnClient.login(new UserCredentials("username", "password")))
+        .thenReturn(buildClientResponse(MOCK_TOKEN));
+    var systemUser = systemUserValue();
+    var systemUserService = systemUserService(systemUserProperties());
+    var actual = systemUserService.authSystemUser(systemUser);
+    assertThat(actual).isEqualTo(expectedUserToken);
+  }
+
+  @Test
+  void authSystemUser_when_loginExipry_notFoundException_loginLegacReturnsNull() {
+    var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
+    doThrow(FeignException.errorStatus("GET", create404Response()))
+        .when(authnClient).loginWithExpiry(any());
+    when(authnClient.login(new UserCredentials("username", "password")))
+        .thenReturn(buildClientResponse(null));
+    var systemUser = systemUserValue();
+    var systemUserService = systemUserService(systemUserProperties());
+    assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(AuthorizationException.class)
+        .hasMessage("Cannot retrieve okapi token for tenant: username");
+  }
+
   private SystemUserService systemUserService(SystemUserProperties properties) {
     return new SystemUserService(contextBuilder, properties, environment, authnClient, prepareSystemUserService);
   }
@@ -227,5 +260,14 @@ class SystemUserServiceTest {
     return ResponseEntity.ok()
         .header(XOkapiHeaders.TOKEN, token)
         .body(new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString()));
+  }
+
+  private Response create404Response() {
+    return Response.builder()
+        .status(HttpStatus.NOT_FOUND.value())
+        .reason("Not Found")
+        .request(Request.create(Request.HttpMethod.GET,
+            "/some/path", Collections.emptyMap(), null, Util.UTF_8))
+        .build();
   }
 }

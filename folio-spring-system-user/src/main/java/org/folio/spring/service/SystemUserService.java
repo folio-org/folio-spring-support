@@ -6,6 +6,7 @@ import static org.folio.spring.utils.TokenUtils.parseUserTokenFromCookies;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 import com.github.benmanes.caffeine.cache.Cache;
+import feign.FeignException;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -19,6 +20,7 @@ import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
 import org.folio.spring.scope.FolioExecutionContextSetter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -70,11 +72,22 @@ public class SystemUserService {
    * @return token value
    */
   public UserToken authSystemUser(SystemUser user) {
-    var token = getTokenWithExpiry(user);
-    if (token == null) {
-      token  = getTokenLegacy(user);
+    try {
+      var token = getTokenWithExpiry(user);
+      if (token == null) {
+        log.info("Login with expiry end-point returned null");
+        return getTokenLegacy(user);
+      }
+      return token;
+    } catch (FeignException ex) {
+      if (ex.status() == HttpStatus.NOT_FOUND.value()) {
+        log.info("Login with expiry end-point not found");
+        return getTokenLegacy(user);
+      } else {
+        log.info("Login with expiry and legacy end-point returned null or not found");
+        return null;
+      }
     }
-    return token;
   }
 
   @Autowired(required = false)
@@ -112,14 +125,14 @@ public class SystemUserService {
       return null;
     }
 
-    var accessToken = response.getHeaders().get(X_OKAPI_TOKEN);
+    var accessToken = response.getHeaders().get(X_OKAPI_TOKEN).get(0);
 
     if (isNull(accessToken)) {
       throw new AuthorizationException("Cannot retrieve okapi token for tenant: " + user.username());
     }
 
     return UserToken.builder()
-        .accessToken(accessToken.get(0))
+        .accessToken(accessToken)
         .accessTokenExpiration(Instant.MAX)
         .build();
   }
