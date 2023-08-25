@@ -21,15 +21,16 @@ import org.folio.spring.model.UserToken;
 import org.folio.spring.scope.FolioExecutionContextSetter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+
 
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class SystemUserService {
 
+  public static final String CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT = "Cannot retrieve okapi token for tenant: ";
   private final ExecutionContextBuilder contextBuilder;
   private final SystemUserProperties systemUserProperties;
   private final FolioEnvironment environment;
@@ -72,22 +73,16 @@ public class SystemUserService {
    * @return token value
    */
   public UserToken authSystemUser(SystemUser user) {
-    try {
-      var token = getTokenWithExpiry(user);
-      if (token == null) {
-        log.info("Login with expiry end-point returned null");
-        return getTokenLegacy(user);
-      }
-      return token;
-    } catch (FeignException ex) {
-      if (ex.status() == HttpStatus.NOT_FOUND.value()) {
-        log.info("Login with expiry end-point not found");
-        return getTokenLegacy(user);
-      } else {
-        log.info("Login with expiry and legacy end-point returned null or not found");
-        return null;
-      }
+    var token = getTokenWithExpiry(user);
+    if (!isValidUserToken(token)) {
+      log.info("Login with expiry end-point returned null");
+      return getTokenLegacy(user);
     }
+    return token;
+  }
+
+  private boolean isValidUserToken(UserToken token) {
+    return token != null && token.accessToken() != null && token.accessTokenExpiration() != null;
   }
 
   @Autowired(required = false)
@@ -118,46 +113,56 @@ public class SystemUserService {
   }
 
   private UserToken getTokenLegacy(SystemUser user) {
-    var response =
-        authnClient.login(new UserCredentials(user.username(), systemUserProperties.password()));
+    try {
+      var response =
+          authnClient.login(new UserCredentials(user.username(), systemUserProperties.password()));
 
-    if (isNull(response) || response.getStatusCode() == HttpStatusCode.valueOf(404)) {
-      return null;
+      var accessToken = response.getHeaders().get(X_OKAPI_TOKEN).get(0);
+
+      if (isNull(accessToken)) {
+        throw new AuthorizationException(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT + user.username());
+      }
+
+      return UserToken.builder().accessToken(accessToken).accessTokenExpiration(Instant.MAX).build();
+    } catch (FeignException fex) {
+      if (fex.status() == HttpStatus.NOT_FOUND.value()) {
+        log.info("Login with legacy end-point not found");
+        throw new AuthorizationException(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT + user.username());
+      } else {
+        log.info("Login with legacy end-point returned unexpected error");
+        throw new AuthorizationException(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT + user.username());
+      }
     }
-
-    var accessToken = response.getHeaders().get(X_OKAPI_TOKEN).get(0);
-
-    if (isNull(accessToken)) {
-      throw new AuthorizationException("Cannot retrieve okapi token for tenant: " + user.username());
-    }
-
-    return UserToken.builder()
-        .accessToken(accessToken)
-        .accessTokenExpiration(Instant.MAX)
-        .build();
   }
 
   private UserToken getTokenWithExpiry(SystemUser user) {
-    var response =
-        authnClient.loginWithExpiry(new UserCredentials(user.username(), systemUserProperties.password()));
+    try {
+      var response =
+          authnClient.loginWithExpiry(new UserCredentials(user.username(), systemUserProperties.password()));
 
-    if (isNull(response) || response.getStatusCode() == HttpStatusCode.valueOf(404)) {
-      return null;
+      if (isNull(response.getBody())) {
+        throw new IllegalStateException(
+            String.format("User [%s] cannot %s because expire times missing for status %s",
+            user.username(), "login with expiry", response.getStatusCode()));
+      }
+
+      var cookieHeaders = response.getHeaders().get(SET_COOKIE);
+
+      if (isNull(cookieHeaders) || CollectionUtils.isEmpty(cookieHeaders)) {
+        throw new IllegalStateException(
+            String.format("User [%s] cannot %s because of missing tokens",
+                user.username(), "login with expiry"));
+      }
+
+      return parseUserTokenFromCookies(cookieHeaders, response.getBody());
+    } catch (FeignException fex) {
+      if (fex.status() == HttpStatus.NOT_FOUND.value()) {
+        log.info("Login with legacy end-point not found. calling login with legacy end-point.");
+        return getTokenLegacy(user);
+      } else {
+        log.info("Login with legacy end-point returned unexpected error");
+        throw new AuthorizationException(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT + user.username());
+      }
     }
-
-    if (isNull(response.getBody())) {
-      throw new IllegalStateException(String.format(
-          "User [%s] cannot %s because expire times missing for status %s",
-          user.username(), "login with expiry", response.getStatusCode()));
-    }
-
-    var cookieHeaders = response.getHeaders().get(SET_COOKIE);
-
-    if (isNull(cookieHeaders) || CollectionUtils.isEmpty(cookieHeaders)) {
-      throw new IllegalStateException(String.format(
-          "User [%s] cannot %s because of missing tokens", user.username(), "login with expiry"));
-    }
-
-    return parseUserTokenFromCookies(cookieHeaders, response.getBody());
   }
 }

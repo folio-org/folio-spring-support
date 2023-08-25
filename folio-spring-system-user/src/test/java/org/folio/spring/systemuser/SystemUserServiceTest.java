@@ -185,31 +185,6 @@ class SystemUserServiceTest {
   }
 
   @Test
-  void authSystemUser_when_loginExpiry_notFound() {
-    var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
-    when(authnClient.loginWithExpiry(new UserCredentials("username", "password")))
-        .thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    when(authnClient.login(new UserCredentials("username", "password")))
-        .thenReturn(buildClientResponse(MOCK_TOKEN));
-    var systemUser = systemUserValue();
-    var systemUserService = systemUserService(systemUserProperties());
-    var actual = systemUserService.authSystemUser(systemUser);
-    assertThat(actual).isEqualTo(expectedUserToken);
-  }
-
-  @Test
-  void authSystemUser_when_loginExipry_and_loginLegacy_notFound() {
-    when(authnClient.loginWithExpiry(new UserCredentials("username", "password")))
-        .thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    when(authnClient.login(new UserCredentials("username", "password")))
-        .thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    var systemUser = systemUserValue();
-    var systemUserService = systemUserService(systemUserProperties());
-    var actual = systemUserService.authSystemUser(systemUser);
-    assertThat(actual).isNull();
-  }
-
-  @Test
   void authSystemUser_when_loginExipry_notFoundException() {
     var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
     doThrow(FeignException.errorStatus("GET", create404Response()))
@@ -229,6 +204,18 @@ class SystemUserServiceTest {
         .when(authnClient).loginWithExpiry(any());
     when(authnClient.login(new UserCredentials("username", "password")))
         .thenReturn(buildClientResponse(null));
+    var systemUser = systemUserValue();
+    var systemUserService = systemUserService(systemUserProperties());
+    assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(AuthorizationException.class)
+        .hasMessage("Cannot retrieve okapi token for tenant: username");
+  }
+
+  @Test
+  void authSystemUser_when_loginExpiry_and_tokenLegacy_both_notFound() {
+    doThrow(FeignException.errorStatus("GET", create404Response()))
+        .when(authnClient).loginWithExpiry(any());
+    doThrow(FeignException.errorStatus("GET", create404Response()))
+        .when(authnClient).login(any());
     var systemUser = systemUserValue();
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(AuthorizationException.class)
