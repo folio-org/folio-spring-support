@@ -31,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 public class SystemUserService {
 
   public static final String CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT = "Cannot retrieve okapi token for tenant: ";
+  public static final String LOGIN_WITH_LEGACY_END_POINT_RETURNED_UNEXPECTED_ERROR = "Login with legacy end-point returned unexpected error";
   private final ExecutionContextBuilder contextBuilder;
   private final SystemUserProperties systemUserProperties;
   private final FolioEnvironment environment;
@@ -138,13 +139,14 @@ public class SystemUserService {
         log.info("Login with legacy end-point not found");
         throw new AuthorizationException(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT + user.username());
       } else {
-        log.info("Login with legacy end-point returned unexpected error");
+        log.info(LOGIN_WITH_LEGACY_END_POINT_RETURNED_UNEXPECTED_ERROR);
         throw new AuthorizationException(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT + user.username());
       }
     }
   }
 
   private UserToken getTokenLegacy(String tenantId, String username, String password) {
+    log.info("Attempting to issue token for system user [tenantId={}]", tenantId);
     try {
       var response =
           authnClient.login(new UserCredentials(username, password));
@@ -161,7 +163,7 @@ public class SystemUserService {
         log.info("Login with legacy end-point not found");
         throw new AuthorizationException(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT + username);
       } else {
-        log.info("Login with legacy end-point returned unexpected error");
+        log.info(LOGIN_WITH_LEGACY_END_POINT_RETURNED_UNEXPECTED_ERROR);
         throw new AuthorizationException(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT + username);
       }
     }
@@ -192,7 +194,7 @@ public class SystemUserService {
         log.info("Login with legacy end-point not found. calling login with legacy end-point.");
         return getTokenLegacy(user);
       } else {
-        log.info("Login with legacy end-point returned unexpected error");
+        log.info(LOGIN_WITH_LEGACY_END_POINT_RETURNED_UNEXPECTED_ERROR);
         throw new AuthorizationException(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT + user.username());
       }
     }
@@ -223,7 +225,7 @@ public class SystemUserService {
         log.info("Login with legacy end-point not found. calling login with legacy end-point.");
         return getTokenLegacy(tenantId, username, password);
       } else {
-        log.info("Login with legacy end-point returned unexpected error");
+        log.info(LOGIN_WITH_LEGACY_END_POINT_RETURNED_UNEXPECTED_ERROR);
         throw new AuthorizationException(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT + username);
       }
     }
