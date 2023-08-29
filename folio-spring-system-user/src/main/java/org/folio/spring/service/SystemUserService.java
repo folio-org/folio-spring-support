@@ -31,7 +31,9 @@ import org.springframework.util.CollectionUtils;
 public class SystemUserService {
 
   public static final String CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT = "Cannot retrieve okapi token for tenant: ";
-  public static final String LOGIN_WITH_LEGACY_END_POINT_RETURNED_UNEXPECTED_ERROR = "Login with legacy end-point returned unexpected error";
+  public static final String
+      LOGIN_WITH_LEGACY_END_POINT_RETURNED_UNEXPECTED_ERROR = "Login with legacy end-point returned unexpected error";
+  public static final String LOGIN_WITH_EXPIRY = "login with expiry";
   private final ExecutionContextBuilder contextBuilder;
   private final SystemUserProperties systemUserProperties;
   private final FolioEnvironment environment;
@@ -177,7 +179,7 @@ public class SystemUserService {
       if (isNull(response.getBody())) {
         throw new IllegalStateException(
             String.format("User [%s] cannot %s because expire times missing for status %s",
-            user.username(), "login with expiry", response.getStatusCode()));
+            user.username(), LOGIN_WITH_EXPIRY, response.getStatusCode()));
       }
 
       var cookieHeaders = response.getHeaders().get(SET_COOKIE);
@@ -185,7 +187,7 @@ public class SystemUserService {
       if (isNull(cookieHeaders) || CollectionUtils.isEmpty(cookieHeaders)) {
         throw new IllegalStateException(
             String.format("User [%s] cannot %s because of missing tokens",
-                user.username(), "login with expiry"));
+                user.username(), LOGIN_WITH_EXPIRY));
       }
 
       return parseUserTokenFromCookies(cookieHeaders, response.getBody());
@@ -208,7 +210,7 @@ public class SystemUserService {
       if (isNull(response.getBody())) {
         throw new IllegalStateException(
             String.format("User [%s] cannot %s because expire times missing for status %s",
-                username, "login with expiry", response.getStatusCode()));
+                username, LOGIN_WITH_EXPIRY, response.getStatusCode()));
       }
 
       var cookieHeaders = response.getHeaders().get(SET_COOKIE);
@@ -216,7 +218,7 @@ public class SystemUserService {
       if (isNull(cookieHeaders) || CollectionUtils.isEmpty(cookieHeaders)) {
         throw new IllegalStateException(
             String.format("User [%s] cannot %s because of missing tokens",
-                username, "login with expiry"));
+                username, LOGIN_WITH_EXPIRY));
       }
 
       return parseUserTokenFromCookies(cookieHeaders, response.getBody());
