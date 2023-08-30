@@ -284,6 +284,30 @@ class SystemUserServiceTest {
   }
 
   @Test
+  void authSystemUser_when_loginExpiry_Returns400Response() {
+    var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
+    doThrow(FeignException.errorStatus("GET", create400Response()))
+        .when(authnClient).loginWithExpiry(any());
+    var systemUser = systemUserValue();
+    var systemUserService = systemUserService(systemUserProperties());
+    assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(AuthorizationException.class)
+        .hasMessage("Cannot retrieve okapi token for tenant: username");
+  }
+
+  @Test
+  void overloaded_authSystemUser_when_loginExpiry_Returns400Response() {
+    var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
+    doThrow(FeignException.errorStatus("GET", create400Response()))
+        .when(authnClient).loginWithExpiry(any());
+    var systemUser = systemUserValue();
+    var systemUserService = systemUserService(systemUserProperties());
+    assertThatThrownBy(() -> systemUserService
+        .authSystemUser("tenantId", "username", "password"))
+        .isInstanceOf(AuthorizationException.class)
+        .hasMessage("Cannot retrieve okapi token for tenant: username");
+  }
+
+  @Test
   void overloaded_authSystemUser_when_loginExipry_notFoundException_loginLegacReturnsNull() {
     var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
     doThrow(FeignException.errorStatus("GET", create404Response()))
@@ -354,6 +378,15 @@ class SystemUserServiceTest {
   private Response create404Response() {
     return Response.builder()
         .status(HttpStatus.NOT_FOUND.value())
+        .reason("Not Found")
+        .request(Request.create(Request.HttpMethod.GET,
+            "/some/path", Collections.emptyMap(), null, Util.UTF_8))
+        .build();
+  }
+
+  private Response create400Response() {
+    return Response.builder()
+        .status(HttpStatus.BAD_REQUEST.value())
         .reason("Not Found")
         .request(Request.create(Request.HttpMethod.GET,
             "/some/path", Collections.emptyMap(), null, Util.UTF_8))
