@@ -176,7 +176,7 @@ public class SystemUserService {
     } catch (FeignException fex) {
       if (fex.status() == HttpStatus.NOT_FOUND.value()) {
         log.error("Login with legacy end-point not found. calling login with legacy end-point.");
-        return getTokenLegacy(credentials);
+        return null;
       } else {
         log.error(LOGIN_WITH_LEGACY_END_POINT_RETURNED_UNEXPECTED_ERROR);
         throw new AuthorizationException(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT + credentials.username());

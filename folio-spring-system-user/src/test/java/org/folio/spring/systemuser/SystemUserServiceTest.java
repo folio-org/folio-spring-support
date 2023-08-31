@@ -244,7 +244,7 @@ class SystemUserServiceTest {
   }
 
   @Test
-  void authSystemUser_when_loginExipry_notFoundException() {
+  void authSystemUser_when_loginExpiry_notFoundException() {
     var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
     doThrow(FeignException.errorStatus("GET", create404Response()))
         .when(authnClient).loginWithExpiry(any());
@@ -257,7 +257,7 @@ class SystemUserServiceTest {
   }
 
   @Test
-  void overloaded_authSystemUser_when_loginExipry_notFoundException() {
+  void overloaded_authSystemUser_when_loginExpiry_notFoundException() {
     var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
     doThrow(FeignException.errorStatus("GET", create404Response()))
         .when(authnClient).loginWithExpiry(any());
@@ -271,7 +271,7 @@ class SystemUserServiceTest {
   }
 
   @Test
-  void authSystemUser_when_loginExipry_notFoundException_loginLegacReturnsNull() {
+  void authSystemUser_when_loginExpiry_notFoundException_loginLegacReturnsNull() {
     var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
     doThrow(FeignException.errorStatus("GET", create404Response()))
         .when(authnClient).loginWithExpiry(any());
@@ -306,10 +306,20 @@ class SystemUserServiceTest {
   }
 
   @Test
-  void overloaded_authSystemUser_when_loginExipry_notFoundException_loginLegacReturnsNull() {
+  void overloaded_authSystemUser_when_loginExpiry_notFoundException_loginLegacReturnsNull() {
     var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
     var systemUser = systemUserValue();
+    var systemUserService = systemUserService(systemUserProperties());
+    assertThatThrownBy(() -> systemUserService
+        .authSystemUser("tenantId", "username", "password"))
+        .isInstanceOf(AuthorizationException.class)
+        .hasMessage("Cannot retrieve okapi token for tenant: tenantId");
+  }
+
+  @Test
+  void overloaded_authSystemUser_when_loginExpiryReturnsNull() {
+    when(contextBuilder.forSystemUser(any())).thenReturn(context);
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService
         .authSystemUser("tenantId", "username", "password"))
