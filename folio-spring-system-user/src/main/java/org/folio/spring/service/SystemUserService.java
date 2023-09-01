@@ -76,31 +76,29 @@ public class SystemUserService {
    * @return token value
    */
   public UserToken authSystemUser(SystemUser user) {
-    UserCredentials userCredentials = new UserCredentials(user.username(), systemUserProperties.password());
-    var token = getTokenWithExpiry(userCredentials);
-    if (!isValidUserToken(token)) {
-      log.info("Login with expiry end-point returned null");
-      return getTokenLegacy(userCredentials);
-    }
-    return token;
+    return getToken(new UserCredentials(user.username(), systemUserProperties.password()));
   }
 
   public UserToken authSystemUser(String tenantId, String username, String password) {
     log.info("Attempting to issue token for system user [tenantId={}]", tenantId);
     try (var fex =
              new FolioExecutionContextSetter(contextBuilder.forSystemUser(prepareSystemUser(tenantId, username)))) {
-      UserCredentials userCredentials = new UserCredentials(username, password);
-      var token = getTokenWithExpiry(userCredentials);
-      if (!isValidUserToken(token)) {
-        log.info("Login with expiry end-point returned null");
-        return getTokenLegacy(userCredentials);
-      }
+      var token = getToken(new UserCredentials(username, password));
       log.info("Token for system user has been issued [tenantId={}]", tenantId);
       return token;
     } catch (Exception exp) {
       log.error("Unexpected error occurred while setting folio context" + exp);
       throw new AuthorizationException(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT + tenantId);
     }
+  }
+
+  private UserToken getToken(UserCredentials userCredentials) {
+    var token = getTokenWithExpiry(userCredentials);
+    if (!isValidUserToken(token)) {
+      log.info("Login with expiry end-point returned null");
+      return getTokenLegacy(userCredentials);
+    }
+    return token;
   }
 
   private boolean isValidUserToken(UserToken token) {

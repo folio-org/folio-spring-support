@@ -54,6 +54,8 @@ class SystemUserServiceTest {
   private static final String TENANT_ID = "test";
   private static final Instant TOKEN_EXPIRATION = Instant.now().plus(1, ChronoUnit.DAYS);
   private static final String MOCK_TOKEN = "test_token";
+  private static final String CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID
+      = "Cannot retrieve okapi token for tenant: tenantId";
   @Mock
   private AuthnClient authnClient;
   @Mock
@@ -182,9 +184,9 @@ class SystemUserServiceTest {
 
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService
-        .authSystemUser("tenanId", "username", "password"))
+        .authSystemUser("tenantId", "username", "password"))
         .isInstanceOf(AuthorizationException.class)
-        .hasMessage("Cannot retrieve okapi token for tenant: tenanId");
+        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
   }
 
   @Test
@@ -214,7 +216,7 @@ class SystemUserServiceTest {
     assertThatThrownBy(() -> systemUserService
         .authSystemUser("tenantId", "username", "password"))
         .isInstanceOf(AuthorizationException.class)
-        .hasMessage("Cannot retrieve okapi token for tenant: tenantId");
+        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
   }
 
   @Test
@@ -240,7 +242,7 @@ class SystemUserServiceTest {
     assertThatThrownBy(() -> systemUserService
         .authSystemUser("tenantId", "username", "password"))
         .isInstanceOf(AuthorizationException.class)
-        .hasMessage("Cannot retrieve okapi token for tenant: tenantId");
+        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
   }
 
   @Test
@@ -302,7 +304,7 @@ class SystemUserServiceTest {
     assertThatThrownBy(() -> systemUserService
         .authSystemUser("tenantId", "username", "password"))
         .isInstanceOf(AuthorizationException.class)
-        .hasMessage("Cannot retrieve okapi token for tenant: tenantId");
+        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
   }
 
   @Test
@@ -314,7 +316,7 @@ class SystemUserServiceTest {
     assertThatThrownBy(() -> systemUserService
         .authSystemUser("tenantId", "username", "password"))
         .isInstanceOf(AuthorizationException.class)
-        .hasMessage("Cannot retrieve okapi token for tenant: tenantId");
+        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
   }
 
   @Test
@@ -324,7 +326,7 @@ class SystemUserServiceTest {
     assertThatThrownBy(() -> systemUserService
         .authSystemUser("tenantId", "username", "password"))
         .isInstanceOf(AuthorizationException.class)
-        .hasMessage("Cannot retrieve okapi token for tenant: tenantId");
+        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
   }
 
   @Test
@@ -346,7 +348,7 @@ class SystemUserServiceTest {
     assertThatThrownBy(() -> systemUserService
         .authSystemUser("tenantId", "username", "password"))
         .isInstanceOf(AuthorizationException.class)
-        .hasMessage("Cannot retrieve okapi token for tenant: tenantId");
+        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
   }
 
   private SystemUserService systemUserService(SystemUserProperties properties) {
