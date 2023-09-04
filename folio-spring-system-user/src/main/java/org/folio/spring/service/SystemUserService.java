@@ -33,6 +33,8 @@ public class SystemUserService {
   public static final String CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT = "Cannot retrieve okapi token for tenant: ";
   public static final String
       LOGIN_WITH_LEGACY_END_POINT_RETURNED_UNEXPECTED_ERROR = "Login with legacy end-point returned unexpected error";
+  public static final String
+      LOGIN_WITH_EXPIRY_END_POINT_RETURNED_UNEXPECTED_ERROR = "Login with expiry end-point returned unexpected error";
   public static final String LOGIN_WITH_EXPIRY = "login with expiry";
   private final ExecutionContextBuilder contextBuilder;
   private final SystemUserProperties systemUserProperties;
@@ -176,7 +178,7 @@ public class SystemUserService {
         log.error("Login with legacy end-point not found. calling login with legacy end-point.");
         return null;
       } else {
-        log.error(LOGIN_WITH_LEGACY_END_POINT_RETURNED_UNEXPECTED_ERROR);
+        log.error(LOGIN_WITH_EXPIRY_END_POINT_RETURNED_UNEXPECTED_ERROR);
         throw new AuthorizationException(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT + credentials.username());
       }
     }
