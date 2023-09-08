@@ -32,10 +32,10 @@ public class SystemUserService {
   public static final String CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT = "Cannot retrieve okapi token for tenant: ";
   public static final String
       LOGIN_WITH_LEGACY_END_POINT_RETURNED_UNEXPECTED_ERROR = "Login with legacy end-point returned "
-      + "unexpected error: {}";
+      + "unexpected error";
   public static final String
       LOGIN_WITH_EXPIRY_END_POINT_RETURNED_UNEXPECTED_ERROR = "Login with expiry end-point returned "
-      + "unexpected error: {}";
+      + "unexpected error";
   public static final String LOGIN_WITH_EXPIRY = "login with expiry";
   public static final String
       LOGIN_WITH_EXPIRY_END_POINT_NOT_FOUND_CALLING_LOGIN_WITH_LEGACY_END_POINT = "Login with expiry end-point "
@@ -64,8 +64,7 @@ public class SystemUserService {
 
     var user = systemUserCache.get(tenantId, this::getSystemUser);
     var userToken = user.token();
-    var now = Instant.now().minusSeconds(30L);
-    if (userToken.accessTokenExpiration().isAfter(now)) {
+    if (userToken.accessTokenExpiration().isAfter(Instant.now().minusSeconds(30L))) {
       return user;
     }
 
