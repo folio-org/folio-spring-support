@@ -39,6 +39,8 @@ import org.folio.spring.service.SystemUserProperties;
 import org.folio.spring.service.SystemUserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -99,9 +101,10 @@ class SystemUserServiceTest {
     assertThat(actual.userId()).isEqualTo(expectedUserId.toString());
   }
 
-  @Test
-  void getAuthedSystemUserUsingCache_positive() {
-    var expectedUserToken = userToken(Instant.now().plus(1, ChronoUnit.DAYS));
+  @ParameterizedTest
+  @ValueSource(ints = { 40, 24 * 60 * 60 })
+  void getAuthedSystemUserUsingCache_positive(int plusSeconds) {
+    var expectedUserToken = userToken(Instant.now().plusSeconds(plusSeconds));
     var systemUserService = systemUserService(systemUserProperties());
     systemUserService.setSystemUserCache(userCache);
 
@@ -115,9 +118,10 @@ class SystemUserServiceTest {
     verify(contextBuilder, never()).forSystemUser(any());
   }
 
-  @Test
-  void getAuthedSystemUserUsingCacheWithExpiredAccessToken_positive() {
-    var cachedUserToken = userToken(Instant.now().minus(1, ChronoUnit.DAYS));
+  @ParameterizedTest
+  @ValueSource(ints = { -24 * 60 * 60, -1, 30 })  // expires within 30 seconds
+  void getAuthedSystemUserUsingCacheWithExpiredAccessToken_positive(int plusSeconds) {
+    var cachedUserToken = userToken(Instant.now().plusSeconds(plusSeconds));
     var systemUserService = systemUserService(systemUserProperties());
     systemUserService.setSystemUserCache(userCache);
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
