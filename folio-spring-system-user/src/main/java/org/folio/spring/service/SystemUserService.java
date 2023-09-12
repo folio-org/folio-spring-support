@@ -50,9 +50,9 @@ public class SystemUserService {
 
   /**
    * Get authenticate system user.
-   * Get from cache if present (or getSystemUser otherwise). Call login expiry endpoint in case
-   * access token expired. Call login endpoint in case login-expiry endpoint returns null or it
-   * doesn't exist
+   * 
+   * <p>Get from cache if present and is valid (not expired) for at least 30 seconds from now.
+   * Otherwise call login expiry endpoint to get a new system user token.
    *
    * @param tenantId The tenant name
    * @return {@link SystemUser} with token value
@@ -64,7 +64,7 @@ public class SystemUserService {
 
     var user = systemUserCache.get(tenantId, this::getSystemUser);
     var userToken = user.token();
-    if (userToken.accessTokenExpiration().isAfter(Instant.now().minusSeconds(30L))) {
+    if (userToken.accessTokenExpiration().isAfter(Instant.now().plusSeconds(30L))) {
       return user;
     }
 
