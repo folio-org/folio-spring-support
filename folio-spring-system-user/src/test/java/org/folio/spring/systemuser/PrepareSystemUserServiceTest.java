@@ -2,6 +2,7 @@ package org.folio.spring.systemuser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.spring.model.ResultList.asSinglePage;
+import static org.folio.spring.service.PrepareSystemUserService.SYSTEM_USER_TYPE;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -114,7 +115,8 @@ class PrepareSystemUserServiceTest {
   }
 
   private ResultList<UsersClient.User> userExistsResponse() {
-    return asSinglePage(new UsersClient.User("id", "username", true, new Personal("lastName")));
+    return asSinglePage(new UsersClient.User("id", "username", SYSTEM_USER_TYPE, true,
+      new Personal("lastName")));
   }
 
   private ResultList<UsersClient.User> userNotExistResponse() {

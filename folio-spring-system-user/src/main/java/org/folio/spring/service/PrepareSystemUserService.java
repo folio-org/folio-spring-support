@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PrepareSystemUserService {
 
+  public static final String SYSTEM_USER_TYPE = "system";
+
   private final UsersClient usersClient;
   private final AuthnClient authnClient;
   private final PermissionsClient permissionsClient;
@@ -95,7 +97,7 @@ public class PrepareSystemUserService {
   }
 
   private User prepareUserObject(String id) {
-    return new User(id, systemUserProperties.username(), true,
+    return new User(id, systemUserProperties.username(), SYSTEM_USER_TYPE,  true,
         new User.Personal(systemUserProperties.lastname()));
   }
 

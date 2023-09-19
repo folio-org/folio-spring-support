@@ -19,7 +19,7 @@ public interface UsersClient {
   void saveUser(@RequestBody User user);
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  record User(String id, String username, boolean active, Personal personal) {
+  record User(String id, String username, String type, boolean active, Personal personal) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Personal(String firstName, String lastName) {
