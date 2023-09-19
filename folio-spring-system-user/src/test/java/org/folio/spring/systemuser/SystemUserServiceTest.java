@@ -3,7 +3,7 @@ package org.folio.spring.systemuser;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.folio.spring.service.PrepareSystemUserService.SYSTEM;
+import static org.folio.spring.service.PrepareSystemUserService.SYSTEM_USER_TYPE;
 import static org.folio.spring.utils.TokenUtils.FOLIO_ACCESS_TOKEN;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -91,7 +91,7 @@ class SystemUserServiceTest {
         .loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
     when(prepareSystemUserService.getFolioUser("username")).thenReturn(Optional.of(
         new UsersClient.User(expectedUserId.toString(),
-            "username", SYSTEM,true, new UsersClient.User.Personal("last"))));
+            "username", SYSTEM_USER_TYPE,true, new UsersClient.User.Personal("last"))));
     when(environment.getOkapiUrl()).thenReturn(OKAPI_URL);
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
     when(expectedResponse.getHeaders())
