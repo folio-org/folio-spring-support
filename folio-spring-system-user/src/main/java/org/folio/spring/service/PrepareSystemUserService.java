@@ -18,6 +18,7 @@ import org.folio.spring.client.PermissionsClient.Permission;
 import org.folio.spring.client.PermissionsClient.Permissions;
 import org.folio.spring.client.UsersClient;
 import org.folio.spring.client.UsersClient.User;
+import org.folio.spring.model.UserType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -95,7 +96,7 @@ public class PrepareSystemUserService {
   }
 
   private User prepareUserObject(String id) {
-    return new User(id, systemUserProperties.username(), true,
+    return new User(id, systemUserProperties.username(),  UserType.SYSTEM.getName(),  true,
         new User.Personal(systemUserProperties.lastname()));
   }
 

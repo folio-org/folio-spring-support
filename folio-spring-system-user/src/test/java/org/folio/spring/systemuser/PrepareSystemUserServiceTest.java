@@ -16,6 +16,7 @@ import org.folio.spring.client.PermissionsClient.Permission;
 import org.folio.spring.client.UsersClient;
 import org.folio.spring.client.UsersClient.User.Personal;
 import org.folio.spring.model.ResultList;
+import org.folio.spring.model.UserType;
 import org.folio.spring.service.PrepareSystemUserService;
 import org.folio.spring.service.SystemUserProperties;
 import org.junit.jupiter.api.Test;
@@ -114,7 +115,8 @@ class PrepareSystemUserServiceTest {
   }
 
   private ResultList<UsersClient.User> userExistsResponse() {
-    return asSinglePage(new UsersClient.User("id", "username", true, new Personal("lastName")));
+    return asSinglePage(new UsersClient.User("id", "username", UserType.SYSTEM.getName(), true,
+      new Personal("lastName")));
   }
 
   private ResultList<UsersClient.User> userNotExistResponse() {

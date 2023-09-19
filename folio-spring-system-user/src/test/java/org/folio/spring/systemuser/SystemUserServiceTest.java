@@ -34,6 +34,7 @@ import org.folio.spring.context.ExecutionContextBuilder;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
+import org.folio.spring.model.UserType;
 import org.folio.spring.service.PrepareSystemUserService;
 import org.folio.spring.service.SystemUserProperties;
 import org.folio.spring.service.SystemUserService;
@@ -90,7 +91,7 @@ class SystemUserServiceTest {
         .loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
     when(prepareSystemUserService.getFolioUser("username")).thenReturn(Optional.of(
         new UsersClient.User(expectedUserId.toString(),
-            "username", true, new UsersClient.User.Personal("last"))));
+            "username", UserType.SYSTEM.getName(),true, new UsersClient.User.Personal("last"))));
     when(environment.getOkapiUrl()).thenReturn(OKAPI_URL);
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
     when(expectedResponse.getHeaders())
