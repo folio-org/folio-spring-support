@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PrepareSystemUserService {
 
-  public final static String SYSTEM_USER_TYPE = "system";
+  public static final String SYSTEM_USER_TYPE = "system";
 
   private final UsersClient usersClient;
   private final AuthnClient authnClient;

@@ -91,7 +91,7 @@ class SystemUserServiceTest {
         .loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
     when(prepareSystemUserService.getFolioUser("username")).thenReturn(Optional.of(
         new UsersClient.User(expectedUserId.toString(),
-            "username", SYSTEM_USER_TYPE,true, new UsersClient.User.Personal("last"))));
+            "username", SYSTEM_USER_TYPE, true, new UsersClient.User.Personal("last"))));
     when(environment.getOkapiUrl()).thenReturn(OKAPI_URL);
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
     when(expectedResponse.getHeaders())
