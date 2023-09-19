@@ -2,6 +2,7 @@ package org.folio.spring.systemuser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.spring.model.ResultList.asSinglePage;
+import static org.folio.spring.service.PrepareSystemUserService.SYSTEM;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -16,7 +17,6 @@ import org.folio.spring.client.PermissionsClient.Permission;
 import org.folio.spring.client.UsersClient;
 import org.folio.spring.client.UsersClient.User.Personal;
 import org.folio.spring.model.ResultList;
-import org.folio.spring.model.UserType;
 import org.folio.spring.service.PrepareSystemUserService;
 import org.folio.spring.service.SystemUserProperties;
 import org.junit.jupiter.api.Test;
@@ -115,7 +115,7 @@ class PrepareSystemUserServiceTest {
   }
 
   private ResultList<UsersClient.User> userExistsResponse() {
-    return asSinglePage(new UsersClient.User("id", "username", UserType.SYSTEM.getName(), true,
+    return asSinglePage(new UsersClient.User("id", "username", SYSTEM, true,
       new Personal("lastName")));
   }
 
