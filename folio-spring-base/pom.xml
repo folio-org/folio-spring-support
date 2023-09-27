@@ -90,6 +90,15 @@
       <version>${feign-okhttp.version}</version>
     </dependency>
 
+    <!-- fixes https://nvd.nist.gov/vuln/detail/CVE-2023-3635
+         remove when okhttp ships with okio-jvm >= 3.4.0 -->
+    <dependency>
+      <groupId>com.squareup.okio</groupId>
+      <artifactId>okio-jvm</artifactId>
+      <version>3.4.0</version>
+      <scope>runtime</scope>
+    </dependency>
+
     <!-- OAS generation -->
     <dependency>
       <groupId>org.openapitools</groupId>
