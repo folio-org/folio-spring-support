@@ -37,7 +37,7 @@
     <feign-okhttp.version>12.3</feign-okhttp.version>
     <lombok.version>1.18.28</lombok.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
-    <cql2pgjson.version>35.0.6</cql2pgjson.version>
+    <cql2pgjson.version>35.1.0</cql2pgjson.version>
     <postgresql.version>42.6.0</postgresql.version>
     <liquibase-core.version>4.22.0</liquibase-core.version>
     <rhino.version>1.7.14</rhino.version>
