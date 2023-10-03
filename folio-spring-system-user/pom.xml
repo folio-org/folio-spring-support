@@ -10,7 +10,7 @@
 
   <name>folio-spring-system-user</name>
   <artifactId>folio-spring-system-user</artifactId>
-  <description/>
+  <description />
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>

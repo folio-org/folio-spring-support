@@ -113,8 +113,7 @@
     </dependency>
 
     <dependency>
-      <!-- Needed as long as openapi-generator ships with a vulnerable guava version (< 32.0.0-jre)
-           https://nvd.nist.gov/vuln/detail/CVE-2023-2976
+      <!-- Needed as long as openapi-generator ships with a vulnerable guava version (< 32.0.0-jre) https://nvd.nist.gov/vuln/detail/CVE-2023-2976
       -->
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
