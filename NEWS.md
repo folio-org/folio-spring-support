@@ -1,3 +1,7 @@
+## 7.2.0 2023-10-03
+* [FOLSPRINGB-115](https://issues.folio.org/browse/FOLSPRINGB-115) Add submodule for creating and utilizing system-user
+* [FOLSPRINGB-118](https://issues.folio.org/browse/FOLSPRINGB-118) Implement refresh token rotation method for edge module
+
 ## 7.1.0 2023-06-19
 * [FOLSPRINGB-96](https://issues.folio.org/browse/FOLSPRINGB-96) Add executeWithinContext method
 * [FOLSPRINGB-106](https://issues.folio.org/browse/FOLSPRINGB-106) Implementation for store/restore of FolioExecutionContext

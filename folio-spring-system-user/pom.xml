@@ -8,7 +8,7 @@
     <version>7.2.0-SNAPSHOT</version>
   </parent>
 
-  <name>folio-system-user</name>
+  <name>folio-spring-system-user</name>
   <artifactId>folio-spring-system-user</artifactId>
   <description/>
 
