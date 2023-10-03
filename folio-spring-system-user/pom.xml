@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.folio</groupId>
     <artifactId>folio-spring-support</artifactId>
-    <version>7.2.0-SNAPSHOT</version>
+    <version>7.3.0-SNAPSHOT</version>
   </parent>
 
-  <name>folio-system-user</name>
+  <name>folio-spring-system-user</name>
   <artifactId>folio-spring-system-user</artifactId>
-  <description/>
+  <description />
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
