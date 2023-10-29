@@ -21,11 +21,9 @@ import org.folio.spring.model.UserToken;
 import org.folio.spring.scope.FolioExecutionContextSetter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 @Log4j2
-@Service
 @RequiredArgsConstructor
 public class SystemUserService {
 
@@ -50,7 +48,7 @@ public class SystemUserService {
 
   /**
    * Get authenticate system user.
-   * 
+   *
    * <p>Get from cache if present and is valid (not expired) for at least 30 seconds from now.
    * Otherwise call login expiry endpoint to get a new system user token.
    *

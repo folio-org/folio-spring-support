@@ -41,4 +41,15 @@ Requirements:
 If system user was created during enabling for tenant, then the system user could be used to make request
 to other modules. To do so `SystemUserScopedExecutionService` could be used.
 
+### Disable system user functionality
+
+Setting property `folio.system-user.enabled=false` will disable system user functionality:
+* all actions called using `SystemUserScopedExecutionService` will be performed in `DefaultFolioExecutionContext`
+* `X-Okapi-Token` header won't be populated with system user JWT token value
+* All unused Spring components will be excluded from Spring context, including:
+  * `AuthnClient`
+  * `PermissionsClient`
+  * `UsersClient`
+  * `SystemUserService`
+
 ****
