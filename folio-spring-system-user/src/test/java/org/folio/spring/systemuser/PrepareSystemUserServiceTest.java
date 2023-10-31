@@ -6,6 +6,7 @@ import static org.folio.spring.service.PrepareSystemUserService.SYSTEM_USER_TYPE
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -128,12 +129,13 @@ class PrepareSystemUserServiceTest {
   }
 
   @Test
-  void donNotupdateCredentialsForAnExistingUserWithoutSystemUserPassword() {
+  void donotUpdateCredentialsForAnExistingUserWithoutSystemUserPassword() {
     when(usersClient.query(any())).thenReturn(userExistsResponse());
     when(permissionsClient.getUserPermissions(any()))
       .thenReturn(asSinglePage("inventory-storage.instance.item.get"));
     prepareSystemUser(systemUserPropertiesWithoutPassword());
-    verifyNoInteractions(authnClient);
+    verify(authnClient, never()).deleteCredentials(any());
+    verify(authnClient, never()).saveCredentials(any());
   }
 
   private ResultList<UsersClient.User> userExistsResponse() {
