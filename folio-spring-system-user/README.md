@@ -27,7 +27,7 @@ Requirements:
     * users.collection.get
     * users.item.post
     * login.item.post
-    * "login.item.delete",
+    * login.item.delete
     * perms.users.get
     * perms.users.item.post
     * perms.users.assign.immutable
