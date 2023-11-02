@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.folio.spring.client.AuthnClient;
 import org.folio.spring.client.AuthnClient.UserCredentials;
 import org.folio.spring.client.PermissionsClient;
@@ -43,10 +42,8 @@ public class PrepareSystemUserService {
     if (folioUser.isPresent()) {
       log.info("System user already exists");
       addPermissions(userId);
-      if (StringUtils.isNotEmpty(systemUserProperties.password())) {
-        deleteCredentials(userId);
-        saveCredentials();
-      }
+      deleteCredentials(userId);
+      saveCredentials();
     } else {
       log.info("No system user exist, creating...");
       createFolioUser(userId);
