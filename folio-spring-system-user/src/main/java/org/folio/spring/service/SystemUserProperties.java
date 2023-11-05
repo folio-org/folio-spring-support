@@ -1,11 +1,14 @@
 package org.folio.spring.service;
 
+import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 @Data
+@Validated
 @NoArgsConstructor
 @AllArgsConstructor
 @ConfigurationProperties("folio.system-user")
@@ -24,6 +27,7 @@ public final class SystemUserProperties {
   /**
    * System user password.
    */
+  @NotEmpty(message = "system user password must be configured to be non-empty")
   private String password;
 
   /**

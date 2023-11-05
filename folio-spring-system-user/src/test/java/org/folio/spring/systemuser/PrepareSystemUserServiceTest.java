@@ -35,7 +35,6 @@ class PrepareSystemUserServiceTest {
   private AuthnClient authnClient;
   @Mock
   private PermissionsClient permissionsClient;
-
   @Captor
   private ArgumentCaptor<UsersClient.User> userArgumentCaptor;
 
@@ -45,6 +44,10 @@ class PrepareSystemUserServiceTest {
 
   private static SystemUserProperties systemUserProperties(boolean enabled) {
     return new SystemUserProperties(enabled, "username", "password", "system", "permissions/test-permissions.csv");
+  }
+
+  private static SystemUserProperties systemUserPropertiesWithoutPassword() {
+    return new SystemUserProperties("username", "", "system", "permissions/test-permissions.csv");
   }
 
   private static SystemUserProperties systemUserPropertiesWithoutPermissions() {
@@ -116,6 +119,16 @@ class PrepareSystemUserServiceTest {
       .addPermission(any(), eq(new Permission("inventory-storage.instance.item.get")));
     verify(permissionsClient, times(1))
       .addPermission(any(), eq(new Permission("inventory-storage.instance.item.post")));
+  }
+
+  @Test
+  void updateCredentialsForAnExistingUser() {
+    when(usersClient.query(any())).thenReturn(userExistsResponse());
+    when(permissionsClient.getUserPermissions(any()))
+      .thenReturn(asSinglePage("inventory-storage.instance.item.get"));
+    prepareSystemUser(systemUserProperties());
+    verify(authnClient).deleteCredentials(any());
+    verify(authnClient).saveCredentials(any());
   }
 
   @Test

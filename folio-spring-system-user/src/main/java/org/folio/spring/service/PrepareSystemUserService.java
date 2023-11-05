@@ -49,14 +49,21 @@ public class PrepareSystemUserService {
     if (folioUser.isPresent()) {
       log.info("System user already exists");
       addPermissions(userId);
+      deleteCredentials(userId);
+      saveCredentials();
     } else {
       log.info("No system user exist, creating...");
-
       createFolioUser(userId);
       assignPermissions(userId);
       saveCredentials();
     }
     log.info("System user has been created");
+  }
+
+  public void deleteCredentials(String userId) {
+    authnClient.deleteCredentials(userId);
+
+    log.info("Removed credentials for user {}.", userId);
   }
 
   public Optional<User> getFolioUser(String username) {
