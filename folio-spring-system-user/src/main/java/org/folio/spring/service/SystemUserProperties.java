@@ -4,6 +4,7 @@ import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -49,6 +50,10 @@ public final class SystemUserProperties {
    * @param permissionsFilePath - path to the system user permissions CSV file
    */
   public SystemUserProperties(String username, String password, String lastname, String permissionsFilePath) {
+    if (StringUtils.isEmpty(password)) {
+      throw new IllegalArgumentException("system user password must be configured to be non-empty");
+    }
+
     this.username = username;
     this.password = password;
     this.lastname = lastname;
