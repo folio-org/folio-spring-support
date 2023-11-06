@@ -24,6 +24,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
     - [Upon Creation](#upon-creation)
     - [Upon Deletion](#upon-deletion)
   - [Sample](#sample)
+- [Internationalization](#internationalization) # TODO
 - [Additional information](#additional-information)
   - [Issue tracker](#issue-tracker)
 

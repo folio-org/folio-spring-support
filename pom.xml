@@ -41,6 +41,7 @@
     <postgresql.version>42.6.0</postgresql.version>
     <liquibase-core.version>4.22.0</liquibase-core.version>
     <rhino.version>1.7.14</rhino.version>
+    <icu4j.version>74.1</icu4j.version>
 
     <!-- Test dependencies versions -->
     <easy-random.version>5.0.0</easy-random.version>
