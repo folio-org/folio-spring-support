@@ -1,3 +1,8 @@
+## 7.2.1 2023-11-06
+* [FOLSPRINGB-126](https://issues.folio.org/browse/FOLSPRINGB-126) Reject empty and null system user password
+* [FOLSPRINGB-127](https://issues.folio.org/browse/FOLSPRINGB-127) Update existing system-user credentials based on provided system user environment
+* [FOLSPRINGB-130](https://issues.folio.org/browse/FOLSPRINGB-130) Dependencies update: Spring Boot 3.1.5, Spring Cloud Openfeign 4.0.4
+
 ## 7.2.0 2023-10-03
 * [FOLSPRINGB-115](https://issues.folio.org/browse/FOLSPRINGB-115) Add submodule for creating and utilizing system-user
 * [FOLSPRINGB-118](https://issues.folio.org/browse/FOLSPRINGB-118) Implement refresh token rotation method for edge module
