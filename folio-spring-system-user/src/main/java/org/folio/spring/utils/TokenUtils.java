@@ -2,7 +2,9 @@ package org.folio.spring.utils;
 
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import lombok.experimental.UtilityClass;
@@ -27,8 +29,16 @@ public class TokenUtils {
 
     return UserToken.builder()
         .accessToken(accessToken)
-        .accessTokenExpiration(parseExpiration(loginResponse.accessTokenExpiration()))
+        .accessTokenExpiration(calculateTokenExpirationForUser(loginResponse))
         .build();
+  }
+
+  private Instant calculateTokenExpirationForUser(AuthnClient.LoginResponse loginResponse) {
+    var tokenExpiration = parseExpiration(loginResponse.accessTokenExpiration());
+    var now = Instant.now();
+    var customTtlMinutes = (long) Math.ceil(Duration.between(now, tokenExpiration).toMinutes() / 2.0);
+
+    return now.plus(customTtlMinutes, ChronoUnit.MINUTES);
   }
 
   private String getTokenFromCookies(String cookieName, List<Cookie> cookies) {
