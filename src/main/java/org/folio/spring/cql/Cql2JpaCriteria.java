@@ -90,7 +90,7 @@ public class Cql2JpaCriteria<E> {
       var cb = em.getCriteriaBuilder();
       var query = cb.createQuery(Long.class);
       var root = query.from(domainClass);
-      query.select(cb.count(root));
+      query.select(cb.countDistinct(root));
       var predicate = createPredicate(node, root, cb, query);
       query.orderBy(Collections.emptyList());
       root.getFetches().clear();
