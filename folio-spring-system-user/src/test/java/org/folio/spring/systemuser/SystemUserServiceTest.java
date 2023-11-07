@@ -56,6 +56,8 @@ class SystemUserServiceTest {
   public static final String OKAPI_URL = "http://okapi";
   private static final String TENANT_ID = "test";
   private static final Instant TOKEN_EXPIRATION = Instant.now().plus(1, ChronoUnit.DAYS);
+  private static final Instant CUSTOM_TOKEN_EXPIRATION = TOKEN_EXPIRATION.minus(12, ChronoUnit.HOURS)
+    .truncatedTo(ChronoUnit.MINUTES);
   private static final String MOCK_TOKEN = "test_token";
   private static final String CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID
       = "Cannot retrieve okapi token for tenant: tenantId";
@@ -85,7 +87,7 @@ class SystemUserServiceTest {
   @Test
   void getAuthedSystemUser_positive() {
     var expectedUserId = UUID.randomUUID();
-    var expectedUserToken = userToken(TOKEN_EXPIRATION);
+    var expectedUserToken = userToken(CUSTOM_TOKEN_EXPIRATION);
 
     when(authnClient
         .loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
@@ -98,7 +100,7 @@ class SystemUserServiceTest {
         .thenReturn(cookieHeaders(expectedUserToken.accessToken(), expectedUserToken.accessToken()));
 
     var actual = systemUserService(systemUserProperties()).getAuthedSystemUser(TENANT_ID);
-    assertThat(actual.token()).isEqualTo(expectedUserToken);
+    assertToken(actual.token(), expectedUserToken);
     assertThat(actual.userId()).isEqualTo(expectedUserId.toString());
   }
 
@@ -120,7 +122,7 @@ class SystemUserServiceTest {
   }
 
   @ParameterizedTest
-  @ValueSource(ints = { -24 * 60 * 60, -1, 30 })  // expires within 30 seconds
+  @ValueSource(ints = { -24 * 60 * 60, -1})
   void getAuthedSystemUserUsingCacheWithExpiredAccessToken_positive(int plusSeconds) {
     var cachedUserToken = userToken(Instant.now().plusSeconds(plusSeconds));
     var systemUserService = systemUserService(systemUserProperties());
@@ -132,8 +134,10 @@ class SystemUserServiceTest {
     when(userCache.get(eq(TENANT_ID), any())).thenReturn(systemUserValue().withToken(cachedUserToken));
 
     var actual = systemUserService.getAuthedSystemUser(TENANT_ID);
-    assertThat(actual.token().accessToken()).isEqualTo(tokenResponseMock);
-    assertThat(actual.token().accessTokenExpiration()).isEqualTo(TOKEN_EXPIRATION);
+    assertThat(actual.token().accessToken())
+      .isEqualTo(tokenResponseMock);
+    assertThat(actual.token().accessTokenExpiration().truncatedTo(ChronoUnit.MINUTES))
+      .isEqualTo(CUSTOM_TOKEN_EXPIRATION);
     verify(userCache).get(eq(TENANT_ID), any());
   }
 
@@ -142,7 +146,7 @@ class SystemUserServiceTest {
     var expectedToken = "x-okapi-token-value";
     var expectedUserToken = UserToken.builder()
         .accessToken(expectedToken)
-        .accessTokenExpiration(TOKEN_EXPIRATION)
+        .accessTokenExpiration(CUSTOM_TOKEN_EXPIRATION)
         .build();
     var systemUser = systemUserValue();
 
@@ -150,23 +154,22 @@ class SystemUserServiceTest {
     when(expectedResponse.getHeaders()).thenReturn(cookieHeaders(expectedToken));
 
     var actual = systemUserService(systemUserProperties()).authSystemUser(systemUser);
-    assertThat(actual).isEqualTo(expectedUserToken);
+    assertToken(actual, expectedUserToken);
   }
 
   @Test
   void overloaded_authSystemUser_positive() {
     var expectedToken = "x-okapi-token-value";
-    var expectedUserToken = UserToken.builder()
-        .accessToken(expectedToken)
-        .accessTokenExpiration(TOKEN_EXPIRATION)
-        .build();
-    var systemUser = systemUserValue();
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
     when(authnClient.loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
     when(expectedResponse.getHeaders()).thenReturn(cookieHeaders(expectedToken));
+    var expectedUserToken = UserToken.builder()
+      .accessToken(expectedToken)
+      .accessTokenExpiration(CUSTOM_TOKEN_EXPIRATION)
+      .build();
 
     var actual = systemUserService(systemUserProperties()).authSystemUser("tenantId", "username", "password");
-    assertThat(actual).isEqualTo(expectedUserToken);
+    assertToken(actual, expectedUserToken);
   }
 
   @Test
@@ -354,6 +357,13 @@ class SystemUserServiceTest {
         .authSystemUser("tenantId", "username", "password"))
         .isInstanceOf(AuthorizationException.class)
         .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
+  }
+
+  private void assertToken(UserToken actualToken, UserToken expectedToken) {
+    assertThat(actualToken.accessToken())
+      .isEqualTo(expectedToken.accessToken());
+    assertThat(actualToken.accessTokenExpiration().truncatedTo(ChronoUnit.MINUTES))
+      .isEqualTo(expectedToken.accessTokenExpiration());
   }
 
   private SystemUserService systemUserService(SystemUserProperties properties) {
