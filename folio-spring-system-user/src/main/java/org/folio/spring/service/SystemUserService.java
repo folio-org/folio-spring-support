@@ -51,7 +51,7 @@ public class SystemUserService {
   /**
    * Get authenticate system user.
    *
-   * <p>Get from cache if present and is valid (not expired) for at least 30 seconds from now.
+   * <p>Get from cache if present and is valid (not expired).
    * Otherwise call login expiry endpoint to get a new system user token.
    *
    * @param tenantId The tenant name

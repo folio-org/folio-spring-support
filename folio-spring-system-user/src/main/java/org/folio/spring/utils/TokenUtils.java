@@ -33,6 +33,10 @@ public class TokenUtils {
         .build();
   }
 
+  /**
+   * Half of original token ttl is used as suggested for system users
+   * on <a href="https://wiki.folio.org/pages/viewpage.action?pageId=96414255">...</a>.
+   * */
   private Instant calculateTokenExpirationForUser(AuthnClient.LoginResponse loginResponse) {
     var tokenExpiration = parseExpiration(loginResponse.accessTokenExpiration());
     var now = Instant.now();
