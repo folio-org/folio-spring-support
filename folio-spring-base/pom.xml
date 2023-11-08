@@ -164,13 +164,6 @@
       <version>${rhino.version}</version>
     </dependency>
 
-    <!-- Internationalization -->
-    <dependency>
-      <groupId>com.ibm.icu</groupId>
-      <artifactId>icu4j</artifactId>
-      <version>${icu4j.version}</version>
-    </dependency>
-
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
