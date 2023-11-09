@@ -1,3 +1,6 @@
+## 7.2.2 2023-11-09
+* [FOLSPRINGB-132](https://issues.folio.org/browse/FOLSPRINGB-132) Use half of access token expiration as user cache expiration
+
 ## 7.2.1 2023-11-06
 * [FOLSPRINGB-126](https://issues.folio.org/browse/FOLSPRINGB-126) Reject empty and null system user password
 * [FOLSPRINGB-127](https://issues.folio.org/browse/FOLSPRINGB-127) Update existing system-user credentials based on provided system user environment
