@@ -4,6 +4,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Locale;
 import org.junit.jupiter.api.Test;
@@ -103,6 +105,40 @@ class TranslationMapTest {
     assertThat(
       france.format("mod-foo.thisDoesNotExist"),
       is("mod-foo.thisDoesNotExist")
+    );
+  }
+
+  @Test
+  void testComplexFormat() {
+    TranslationMap map = new TranslationMap(Locale.ENGLISH, FILE_EN_BASE);
+
+    assertThat(
+      map.format(
+        "mod-foo.complex",
+        "text",
+        "placeholder",
+        "count",
+        1,
+        "date",
+        LocalDate.of(2000, 1, 2),
+        "time",
+        LocalTime.of(1, 12)
+      ),
+      is("placeholder, #one, date Jan 2, 2000, time 1:12 AM")
+    );
+    assertThat(
+      map.format(
+        "mod-foo.complex",
+        "text",
+        "placeholder2",
+        "count",
+        2,
+        "date",
+        LocalDate.of(1991, 11, 23),
+        "time",
+        LocalTime.of(15, 57)
+      ),
+      is("placeholder2, #other, date Nov 23, 1991, time 3:57 PM")
     );
   }
 }

@@ -1,5 +1,6 @@
 {
   "foo": "[mod-foo] en {test}",
   "en_base_only": "[mod-foo] In en base!",
-  "en_only": "[mod-foo] In en base!"
+  "en_only": "[mod-foo] In en base!",
+  "complex": "{text}, #{count, plural, one {one} other {other}}, date {date, date, medium}, time {time, time, short}"
 }
