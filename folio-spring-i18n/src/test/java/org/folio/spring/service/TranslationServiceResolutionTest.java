@@ -10,6 +10,9 @@ import java.util.Locale;
 import org.folio.spring.config.TranslationConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 class TranslationServiceResolutionTest {
 
@@ -134,6 +137,37 @@ class TranslationServiceResolutionTest {
     assertThat(
       service.format("mod-foo.foo"),
       is("[mod-foo] en {test}") // en is test default (Locale.ENGLISH above)
+    );
+  }
+
+  @Test
+  void testAcceptLanguage() {
+    TranslationService service = getService("multiple");
+
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setPreferredLocales(
+      Arrays.asList(Locale.CANADA, Locale.FRANCE, Locale.US)
+    );
+    RequestContextHolder.setRequestAttributes(
+      new ServletRequestAttributes(request)
+    );
+
+    assertThat(
+      service.format("mod-foo.foo"),
+      is("[mod-foo] en_ca {test}") // en is test default (Locale.ENGLISH above)
+    );
+
+    request.setPreferredLocales(
+      Arrays.asList(Locale.CHINESE, Locale.FRANCE, Locale.US)
+    );
+    RequestContextHolder.setRequestAttributes(
+      new ServletRequestAttributes(request)
+    );
+
+    // chinese is not provided
+    assertThat(
+      service.format("mod-foo.foo"),
+      is("[mod-foo] fr_fr {test}") // en is test default (Locale.ENGLISH above)
     );
   }
 }
