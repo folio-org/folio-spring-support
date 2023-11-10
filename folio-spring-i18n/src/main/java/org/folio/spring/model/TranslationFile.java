@@ -53,7 +53,7 @@ public class TranslationFile {
           );
 
         String moduleName = Path
-          .of(resource.getFile().getAbsolutePath())
+          .of(resource.getURI().getPath())
           .getParent()
           .getFileName()
           .toString();

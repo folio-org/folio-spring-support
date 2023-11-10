@@ -294,7 +294,7 @@ public class TranslationService {
         )
         .stream()
         .filter(Resource::isReadable)
-        .collect(Collectors.groupingBy(resource -> resource.getFilename()));
+        .collect(Collectors.groupingBy(Resource::getFilename));
 
       List<TranslationFile> files = localeGroups
         .entrySet()
