@@ -3,6 +3,7 @@ package org.folio.spring.model;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -139,6 +140,17 @@ class TranslationMapTest {
         LocalTime.of(15, 57)
       ),
       is("placeholder2, #other, date Nov 23, 1991, time 3:57 PM")
+    );
+  }
+
+  @Test
+  void testBadFormat() {
+    TranslationMap map = new TranslationMap(Locale.ENGLISH, FILE_EN_BASE);
+
+    assertThrows(
+      IllegalArgumentException.class,
+      () -> map.format("test", "non-matched key"),
+      "Every key must have a value"
     );
   }
 }
