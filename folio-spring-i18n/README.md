@@ -1,5 +1,15 @@
 # Documentation for folio-spring-i18n features
 
+- [Introduction](#introduction)
+- [Adding this module to your project](#adding-this-module-to-your-project)
+- [Using translations in your code](#using-translations-in-your-code)
+  - [`String format(String key, Object... args)`](#string-formatstring-key-object-args)
+    - [Example](#example)
+  - [`String formatList(Collection<?> list)`](#string-formatlistcollection-list)
+    - [Example](#example-1)
+
+## Introduction
+
 Translations may be performed in backend modules using this library, per [this TC decision](https://wiki.folio.org/x/SqTc). These translations work the same as UI modules:
 
 - Translations are stored in JSON files within the module's path, with a structure like `/translations/mod-foo/locale.json` (`/translations/` may be customized with `folio.translation-directory` property)
@@ -15,6 +25,43 @@ This library provides a number of features, including:
 - Full ICU token support
 
 See https://wiki.folio.org/display/I18N/How+to+Translate+FOLIO for more information on how translations are contributed and tracked.
+
+## Adding this module to your project
+
+To add this module to your project, add the following to your `pom.xml` in `<dependencies>`:
+
+```xml
+<dependency>
+  <groupId>org.folio</groupId>
+  <artifactId>folio-spring-i18n</artifactId>
+  <version>${folio-spring-base.version}</version>
+</dependency>
+```
+
+Then, add the following to your `pom.xml` in `<build>`:
+
+```xml
+  <resources>
+    <resource>
+      <directory>src/main/resources</directory>
+    </resource>
+    <resource>
+      <directory>${project.basedir}/translations</directory>
+      <targetPath>translations</targetPath>
+    </resource>
+  </resources>
+  <testResources>
+    <testResource>
+      <directory>src/test/resources</directory>
+    </testResource>
+    <testResource>
+      <directory>${project.basedir}/translations</directory>
+      <targetPath>translations</targetPath>
+    </testResource>
+  </testResources>
+```
+
+Now, create a folder `/translations/mod-name-here` and you're good to go!
 
 ## Using translations in your code
 
