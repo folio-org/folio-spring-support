@@ -1,4 +1,4 @@
-package org.folio.spring.model;
+package org.folio.spring.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.folio.spring.config.TranslationConfiguration;
-import org.folio.spring.service.TranslationService;
+import org.folio.spring.model.TranslationFile;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-class TranslationFileGetFilesTest {
+class TranslationServiceGetFilesTest {
 
   private TranslationService getService(String path) {
     TranslationConfiguration translationConfiguration = new TranslationConfiguration(
