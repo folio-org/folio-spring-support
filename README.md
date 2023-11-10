@@ -24,7 +24,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
     - [Upon Creation](#upon-creation)
     - [Upon Deletion](#upon-deletion)
   - [Sample](#sample)
-- [Internationalization](#internationalization) # TODO
+- [Internationalization](#internationalization)
 - [Additional information](#additional-information)
   - [Issue tracker](#issue-tracker)
 
@@ -332,6 +332,10 @@ public class CustomTenantService extends TenantService {
   }
 }
 ```
+
+## Internationalization
+
+Translations may be performed in backend modules using the `folio-spring-i18n` library, per [this TC decision](https://wiki.folio.org/x/SqTc).  For more information, see the [folio-spring-i18n README](folio-spring-i18n/README.md).
 
 ## Additional information
 

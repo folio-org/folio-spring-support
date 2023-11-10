@@ -1,1 +1,56 @@
 # Documentation for folio-spring-i18n features
+
+Translations may be performed in backend modules using this library, per [this TC decision](https://wiki.folio.org/x/SqTc). These translations work the same as UI modules:
+
+- Translations are stored in JSON files within the module's path, with a structure like `/translations/mod-foo/locale.json` (`/translations/` may be customized with `folio.translation-directory` property)
+- Each JSON file is named for a locale and region, e.g. `en_ca.json`
+- The `en.json` file is the source of truth and fallback; other translation modules will be generated and tracked separately by Lokalise
+- Translation keys are prepended with the module name, e.g. `mod-foo.title`
+
+This library provides a number of features, including:
+
+- Support for LocalDate and LocalTime formatting (use of time zones/offsets are not supported, as there is no way for clients to provide this information)
+- Support for list formatting
+- Automatic fallbacks based on languages and server locale (`zh_CN` -> `zh` -> `en` -> server locale)
+- Full ICU token support
+
+See https://wiki.folio.org/display/I18N/How+to+Translate+FOLIO for more information on how translations are contributed and tracked.
+
+## Using translations in your code
+
+To use this library, inject an instance of `TranslationService` into your class (e.g. by autowiring). This class provides the main interface to the library. Then, the following two methods can be invoked:
+
+### `String format(String key, Object... args)`
+
+This method will format a given translation key with optional arguments. Arguments should be provided in pairs (key, value).
+
+#### Example
+
+With `/translations/mod-foo/en.json` as follows:
+
+```json
+{
+  "simple": "Hello, world!",
+  "complex": "Hello, {name}! You have {count, plural, one {# item} other {# items}}."
+}
+```
+
+The `TranslationService` will produce:
+
+```java
+translationService.format("mod-foo.simple"); // "Hello, world!"
+translationService.format("mod-foo.complex", "name", "Bob", "count", 1); // "Hello, Bob! You have 1 item."
+translationService.format("mod-foo.complex", "name", "Bob", "count", 2); // "Hello, Bob! You have 2 items."
+```
+
+### `String formatList(Collection<?> list)`
+
+This method will format a list of items in the current locale.
+
+#### Example
+
+```java
+translationService.formatList("A"); // A"
+translationService.formatList("A", "B"); // "A and B"
+translationService.formatList("A", "B", "C"); // "A, B, and C"
+```
