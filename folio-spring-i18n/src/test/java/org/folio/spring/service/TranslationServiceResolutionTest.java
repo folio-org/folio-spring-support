@@ -124,11 +124,16 @@ class TranslationServiceResolutionTest {
     );
     assertThat(
       service.getBestTranslation(Arrays.asList(Locale.CHINESE)).getLocale(),
-      is(Locale.ENGLISH) // server default
+      is(Locale.ENGLISH) // test default (Locale.ENGLISH above)
     );
     assertThat(
       service.getBestTranslation(Arrays.asList()).getLocale(),
-      is(Locale.ENGLISH) // server default
+      is(Locale.ENGLISH) // test default (Locale.ENGLISH above)
+    );
+
+    assertThat(
+      service.format("mod-foo.foo"),
+      is("[mod-foo] en {test}") // en is test default (Locale.ENGLISH above)
     );
   }
 }
