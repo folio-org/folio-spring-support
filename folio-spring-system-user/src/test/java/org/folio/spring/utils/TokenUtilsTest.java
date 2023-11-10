@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.folio.spring.client.AuthnClient;
 import org.folio.spring.model.UserToken;
@@ -17,19 +18,21 @@ class TokenUtilsTest {
 
   @Test
   void parseUserTokenFromCookies_positive() {
-    var accessExp = Instant.now();
-    var refreshExp = Instant.now();
+    var tokenTtlMinutes = 10;
+    var accessExp = Instant.now().plus(tokenTtlMinutes, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.MINUTES);
     var authResponse = new AuthnClient.LoginResponse(accessExp.toString());
     var accessToken = "acc";
     var cookies = List.of(new DefaultCookie(FOLIO_ACCESS_TOKEN, accessToken).toString());
     var expected = UserToken.builder()
         .accessToken(accessToken)
-        .accessTokenExpiration(accessExp)
+        .accessTokenExpiration(accessExp.minus(tokenTtlMinutes / 2, ChronoUnit.MINUTES))
         .build();
 
     var result = TokenUtils.parseUserTokenFromCookies(cookies, authResponse);
-    assertThat(result)
-        .isEqualTo(expected);
+    assertThat(result.accessToken())
+        .isEqualTo(expected.accessToken());
+    assertThat(result.accessTokenExpiration().truncatedTo(ChronoUnit.MINUTES))
+        .isEqualTo(expected.accessTokenExpiration());
   }
 
   @ParameterizedTest
