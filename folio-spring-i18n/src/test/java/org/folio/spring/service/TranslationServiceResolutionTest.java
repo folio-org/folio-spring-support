@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Arrays;
 import java.util.Locale;
 import org.folio.spring.config.TranslationConfiguration;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -169,5 +170,10 @@ class TranslationServiceResolutionTest {
       service.format("mod-foo.foo"),
       is("[mod-foo] fr_fr {test}") // en is test default (Locale.ENGLISH above)
     );
+  }
+
+  @AfterEach
+  public void cleanup() {
+    RequestContextHolder.resetRequestAttributes();
   }
 }
