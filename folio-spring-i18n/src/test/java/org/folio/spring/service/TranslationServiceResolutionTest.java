@@ -1,6 +1,7 @@
 package org.folio.spring.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -165,10 +166,42 @@ class TranslationServiceResolutionTest {
       new ServletRequestAttributes(request)
     );
 
-    // chinese is not provided
+    assertThat(
+      service.getCurrentLocales(),
+      contains(Locale.CHINESE, Locale.FRANCE, Locale.US)
+    );
+    assertThat(service.getCurrentLocale(), is(Locale.CHINESE));
+    // chinese is not provided in translation files, so we fallback
     assertThat(
       service.format("mod-foo.foo"),
       is("[mod-foo] fr_fr {test}") // en is test default (Locale.ENGLISH above)
+    );
+  }
+
+  @Test
+  void testListFormat() {
+    TranslationService service = getService("multiple");
+
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setPreferredLocales(Arrays.asList(Locale.US));
+    RequestContextHolder.setRequestAttributes(
+      new ServletRequestAttributes(request)
+    );
+
+    assertThat(
+      service.formatList(Arrays.asList("A", "B", "C")),
+      is("A, B, and C")
+    );
+
+    request = new MockHttpServletRequest();
+    request.setPreferredLocales(Arrays.asList(Locale.FRENCH));
+    RequestContextHolder.setRequestAttributes(
+      new ServletRequestAttributes(request)
+    );
+
+    assertThat(
+      service.formatList(Arrays.asList("A", "B", "C")),
+      is("A, B et C")
     );
   }
 

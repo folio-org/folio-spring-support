@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import java.util.Locale;
@@ -100,5 +101,15 @@ class TranslationServiceGetFilesTest {
 
     // not present
     assertThat(map, not(hasKey("zz")));
+  }
+
+  @Test
+  void testExceptional() {
+    TranslationService service = getService("nonexistent");
+    assertThrows(
+      IllegalStateException.class,
+      () -> service.getAvailableTranslationFiles(),
+      "Nonexistent folder should result in an error"
+    );
   }
 }
