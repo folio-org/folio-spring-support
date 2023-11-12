@@ -10,6 +10,7 @@
 
   <name>folio-spring-system-user</name>
   <artifactId>folio-spring-system-user</artifactId>
+  <version>7.3.0-folspringb-128</version>
   <description />
 
   <properties>
