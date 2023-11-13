@@ -120,14 +120,19 @@ public class TranslationMap {
    *   </ol>
    */
   public String get(String key) {
-    if (this.patterns.containsKey(key)) {
-      return this.patterns.get(key);
-    } else if (this.fallback != null) {
-      return this.fallback.get(key);
-    } else {
-      log.error("Could not resolve key {} in any translation", key);
-      return key;
+    String pattern = this.patterns.get(key);
+
+    if (pattern == null) {
+      pattern = this.fallback.get(key);
     }
+
+    if (pattern == null) {
+      log.error("Could not resolve key {} in any translation", key);
+      // fallback to translation key itself
+      pattern = key;
+    }
+
+    return pattern;
   }
 
   /**
