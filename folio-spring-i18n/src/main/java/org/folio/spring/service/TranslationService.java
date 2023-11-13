@@ -173,9 +173,9 @@ public class TranslationService {
       !this.localeTranslations.containsKey(configuration.getDefaultLocale())
     ) {
       this.localeTranslations.put(
-          configuration.getDefaultLocale(),
-          this.resolveDefaultLocale()
-        );
+        configuration.getDefaultLocale(),
+        this.resolveDefaultLocale()
+      );
     }
     return this.localeTranslations.get(configuration.getDefaultLocale());
   }

@@ -59,7 +59,9 @@ public class TranslationFile {
           .getFileName()
           .toString();
 
-        moduleMap.forEach((key, value) -> result.put(moduleName + "." + key, value));
+        moduleMap.forEach((key, value) ->
+          result.put(moduleName + "." + key, value)
+        );
       } catch (IOException e) {
         log.error(
           "Could not open/read translation file {}; will use fallback instead",
@@ -139,5 +141,5 @@ public class TranslationFile {
   }
 
   @With
-  public static record LanguageRegionPair(String language, String region) {}
+  public record LanguageRegionPair(String language, String region) {}
 }
