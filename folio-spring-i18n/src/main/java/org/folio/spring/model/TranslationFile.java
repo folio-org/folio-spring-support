@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Value;
+import lombok.With;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.Resource;
 
@@ -58,7 +59,8 @@ public class TranslationFile {
           .getFileName()
           .toString();
 
-        moduleMap.forEach((key, value) -> map.put(moduleName + "." + key, value));
+        moduleMap.forEach((key, value) -> map.put(moduleName + "." + key, value)
+        );
       } catch (IOException e) {
         log.error(
           "Could not open/read translation file {}; will use fallback instead",
@@ -76,23 +78,27 @@ public class TranslationFile {
    *
    * <p>If one (or either) is unknown, {@code UNKNOWN_PART} will be returned.</p>
    *
-   * @return [language, country]
+   * @return LanguageRegionPair
    */
-  public String[] getParts() {
+  public LanguageRegionPair getParts() {
     // Spring's getFilename returns only the last part, so no need to split the path
     return getParts(resources.get(0).getFilename());
   }
 
   /**
    * Get the parts of a filename as an array of two elements: [language, country].
+   * These will be converted to lowercase, if applicable.
    *
    * <p>If one (or either) is unknown, {@code UNKNOWN_PART} will be returned.</p>
    *
    * @param filename the filename to parse
-   * @return [language, country]
+   * @return LanguageRegionPair
    */
-  public static String[] getParts(String filename) {
-    String[] result = { UNKNOWN_PART, UNKNOWN_PART };
+  public static LanguageRegionPair getParts(String filename) {
+    LanguageRegionPair result = new LanguageRegionPair(
+      UNKNOWN_PART,
+      UNKNOWN_PART
+    );
 
     if (filename == null) {
       return result;
@@ -119,7 +125,7 @@ public class TranslationFile {
     }
 
     if (!parts[0].isEmpty()) {
-      result[0] = parts[0].toLowerCase();
+      result = result.withLanguage(parts[0].toLowerCase());
     }
 
     if (parts.length == 1) {
@@ -127,9 +133,12 @@ public class TranslationFile {
     }
 
     if (!parts[1].isEmpty()) {
-      result[1] = parts[1].toLowerCase();
+      result = result.withRegion(parts[1].toLowerCase());
     }
 
     return result;
   }
+
+  @With
+  public static record LanguageRegionPair(String language, String region) {}
 }

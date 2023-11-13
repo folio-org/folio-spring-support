@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.config.TranslationConfiguration;
 import org.folio.spring.model.TranslationFile;
+import org.folio.spring.model.TranslationFile.LanguageRegionPair;
 import org.folio.spring.model.TranslationMap;
 import org.folio.spring.model.TranslationMatchQuality;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -172,9 +173,9 @@ public class TranslationService {
       !this.localeTranslations.containsKey(configuration.getDefaultLocale())
     ) {
       this.localeTranslations.put(
-        configuration.getDefaultLocale(),
-        this.resolveDefaultLocale()
-      );
+          configuration.getDefaultLocale(),
+          this.resolveDefaultLocale()
+        );
     }
     return this.localeTranslations.get(configuration.getDefaultLocale());
   }
@@ -326,16 +327,19 @@ public class TranslationService {
 
     getAvailableTranslationFiles()
       .forEach((TranslationFile file) -> {
-        String[] parts = file.getParts();
+        LanguageRegionPair parts = file.getParts();
         map
           .computeIfAbsent(
-            parts[0],
+            parts.language(),
             key -> new HashMap<String, TranslationFile>()
           )
-          .put(parts[1], file);
+          .put(parts.region(), file);
+
         // fill in default, e.g. en-us.json being the only en file will set en-* = en-us
         // if en.json exists later, it will be replaced above
-        map.get(parts[0]).putIfAbsent(TranslationFile.UNKNOWN_PART, file);
+        map
+          .get(parts.language())
+          .putIfAbsent(TranslationFile.UNKNOWN_PART, file);
       });
 
     return map;
