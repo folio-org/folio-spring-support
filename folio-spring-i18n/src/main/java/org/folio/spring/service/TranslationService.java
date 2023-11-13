@@ -87,7 +87,7 @@ public class TranslationService {
    * @param locale the locale to find a TranslationMap for
    * @param base the default translation that should be used as a fallback; can be null when
    *   creating the default translation
-   * @return the best translation available for the current locale, potentially null if not
+   * @return the best translation available for the current locale, potentially null if the
    *   default is null.  It checks for match of language and country, then language, then returns
    *   default if neither are available
    */
@@ -98,22 +98,31 @@ public class TranslationService {
   ) {
     return localeTranslations.computeIfAbsent(
       locale,
-      (Locale l) -> {
-        log.info("Cache miss on " + locale);
+      (Locale missingLocale) -> {
+        log.info("Cache miss on {}", missingLocale);
 
-        if (this.getFileMap().containsKey(locale.getLanguage().toLowerCase())) {
+        if (
+          this.getFileMap()
+            .containsKey(missingLocale.getLanguage().toLowerCase())
+        ) {
           Map<String, TranslationFile> languageMap =
-            this.getFileMap().get(locale.getLanguage().toLowerCase());
+            this.getFileMap().get(missingLocale.getLanguage().toLowerCase());
 
           TranslationFile baseFile = languageMap.get(
             TranslationFile.UNKNOWN_PART
           );
-          TranslationMap baseMap = new TranslationMap(locale, baseFile, base);
+          TranslationMap baseMap = new TranslationMap(
+            missingLocale,
+            baseFile,
+            base
+          );
 
-          if (languageMap.containsKey(locale.getCountry().toLowerCase())) {
+          if (
+            languageMap.containsKey(missingLocale.getCountry().toLowerCase())
+          ) {
             return new TranslationMap(
-              locale,
-              languageMap.get(locale.getCountry().toLowerCase()),
+              missingLocale,
+              languageMap.get(missingLocale.getCountry().toLowerCase()),
               baseMap
             );
           }
@@ -237,14 +246,14 @@ public class TranslationService {
    * @param locales the ordered list of locales to consider
    * @return the best TranslationMap
    */
-  public TranslationMap getBestTranslation(Iterable<Locale> locales) {
+  public TranslationMap getBestTranslation(Collection<Locale> locales) {
     // return the first one that is a good match
-   return locales.stream()
-                 .map(this::getTranslation)
-                 .filter(m -> m.getQuality() != TranslationMatchQuality.NO_MATCH)
-                 .findFirst()
-                 .orElseGet(this::getDefaultTranslation);
-
+    return locales
+      .stream()
+      .map(this::getTranslation)
+      .filter(m -> m.getQuality() != TranslationMatchQuality.NO_MATCH)
+      .findFirst()
+      .orElseGet(this::getDefaultTranslation);
   }
 
   /**
@@ -297,6 +306,7 @@ public class TranslationService {
 
       List<TranslationFile> files = localeGroups
         .values()
+        .stream()
         .map(TranslationFile::new)
         .toList();
 
