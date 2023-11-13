@@ -58,9 +58,7 @@ public class TranslationFile {
           .getFileName()
           .toString();
 
-        for (Map.Entry<String, String> entry : moduleMap.entrySet()) {
-          map.put(moduleName + "." + entry.getKey(), entry.getValue());
-        }
+        moduleMap.forEach((key, value) -> map.put(moduleName + "." + key, value));
       } catch (IOException e) {
         log.error(
           "Could not open/read translation file {}; will use fallback instead",
