@@ -173,13 +173,13 @@ public final class TranslationMap {
    * @throws IllegalArgumentException if an odd number of parameters is passed
    */
   private static Map<String, Object> buildMap(Object... args) {
-    Map<String, Object> map = new HashMap<>();
-
     if (args.length % 2 != 0) {
       throw new IllegalArgumentException(
         "An odd number of parameters were passed to buildMap; even amounts are needed to construct key-value pairs"
       );
     }
+
+    Map<String, Object> map = new HashMap<>();
 
     for (int i = 0; i < args.length; i += 2) {
       map.put(args[i].toString(), args[i + 1]);
