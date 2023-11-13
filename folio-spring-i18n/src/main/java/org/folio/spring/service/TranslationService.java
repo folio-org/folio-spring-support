@@ -239,14 +239,12 @@ public class TranslationService {
    */
   public TranslationMap getBestTranslation(Iterable<Locale> locales) {
     // return the first one that is a good match
-    for (Locale locale : locales) {
-      TranslationMap correspondingMap = this.getTranslation(locale);
-      if (correspondingMap.getQuality() != TranslationMatchQuality.NO_MATCH) {
-        return correspondingMap;
-      }
-    }
+   return locales.stream()
+                 .map(this::getTranslation)
+                 .filter(m -> m.getQuality() != TranslationMatchQuality.NO_MATCH)
+                 .findFirst()
+                 .orElseGet(this::getDefaultTranslation);
 
-    return this.getDefaultTranslation();
   }
 
   /**
