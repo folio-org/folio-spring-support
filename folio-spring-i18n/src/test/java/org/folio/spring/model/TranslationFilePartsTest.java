@@ -5,77 +5,62 @@ import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.Arrays;
+import java.util.List;
+import org.apache.tomcat.util.buf.StringUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.io.FileSystemResource;
 
 class TranslationFilePartsTest {
 
-  @Test
-  void testFullPartsExtraction() {
-    assertThat(
-      "en_us.json parses to [en, us]",
-      TranslationFile.getParts("en_us.json"),
-      is(arrayContaining("en", "us"))
-    );
-    assertThat(
-      "en_us parses to [en, us]",
-      TranslationFile.getParts("en_us"),
-      is(arrayContaining("en", "us"))
-    );
-    assertThat(
-      "EN_US parses to [en, us]",
-      TranslationFile.getParts("EN_US"),
-      is(arrayContaining("en", "us"))
+  static List<Arguments> fullPartsExtractionCases() {
+    return Arrays.asList(
+      arguments("en_us.json", new String[] { "en", "us" }),
+      arguments("en_us", new String[] { "en", "us" }),
+      arguments("EN_US", new String[] { "en", "us" }),
+      arguments("es_419", new String[] { "es", "419" }),
+      arguments("es_419.json", new String[] { "es", "419" })
     );
   }
 
-  @Test
-  void testPartialPartsExtraction() {
-    assertThat(
-      "en.json parses to [en, *]",
-      TranslationFile.getParts("en.json"),
-      is(arrayContaining("en", "*"))
-    );
-    assertThat(
-      "en_us_extra parses to [en, us]",
-      TranslationFile.getParts("en_us_extra"),
-      is(arrayContaining("en", "us"))
-    );
-    assertThat(
-      "en_ parses to [en, *]",
-      TranslationFile.getParts("en_"),
-      is(arrayContaining("en", "*"))
-    );
-    assertThat(
-      "en__foo parses to [en, *]",
-      TranslationFile.getParts("en__foo"),
-      is(arrayContaining("en", "*"))
-    );
-    assertThat(
-      "_us parses to [*, us]",
-      TranslationFile.getParts("_us"),
-      is(arrayContaining("*", "us"))
+  static List<Arguments> partialPartsExtractionCases() {
+    return Arrays.asList(
+      arguments("en.json", new String[] { "en", "*" }),
+      arguments("en_us_extra", new String[] { "en", "us" }),
+      arguments("en_", new String[] { "en", "*" }),
+      arguments("en__foo", new String[] { "en", "*" }),
+      arguments("_us", new String[] { "*", "us" }),
+      arguments("ber", new String[] { "ber", "*" }),
+      arguments("ber.json", new String[] { "ber", "*" })
     );
   }
 
-  @Test
-  void testEmptyPartsExtraction() {
-    assertThat(
-      "\"\" parses to [*, *]",
-      TranslationFile.getParts(""),
-      is(arrayContaining("*", "*"))
+  static List<Arguments> emptyPartsExtractionCases() {
+    return Arrays.asList(
+      arguments("", new String[] { "*", "*" }),
+      arguments("_", new String[] { "*", "*" }),
+      arguments(null, new String[] { "*", "*" })
     );
+  }
+
+  @ParameterizedTest
+  @MethodSource(
+    {
+      "fullPartsExtractionCases",
+      "partialPartsExtractionCases",
+      "emptyPartsExtractionCases",
+    }
+  )
+  void testPartsExtraction(String filename, String[] expectedParts) {
     assertThat(
-      "_ parses to [*, *]",
-      TranslationFile.getParts("_"),
-      is(arrayContaining("*", "*"))
-    );
-    assertThat(
-      "null parses to [*, *]",
-      TranslationFile.getParts(null),
-      is(arrayContaining("*", "*"))
+      filename + " parses to {" + StringUtils.join(expectedParts) + "}",
+      TranslationFile.getParts(filename),
+      is(arrayContaining(expectedParts))
     );
   }
 

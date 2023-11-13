@@ -2,10 +2,14 @@ package org.folio.spring.model;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.io.FileSystemResource;
 
 class TranslationMatchQualityTest {
@@ -25,51 +29,39 @@ class TranslationMatchQualityTest {
   protected static Locale LOCALE_EN_CA = Locale.CANADA;
   protected static Locale LOCALE_FR_FR = Locale.FRANCE;
 
-  @Test
-  void testMismatchedLanguageBase() {
-    assertThat(
-      TranslationMatchQuality.getQuality(LOCALE_EN_US, FILE_NO_NAME),
-      is(TranslationMatchQuality.NO_MATCH)
-    );
-    assertThat(
-      TranslationMatchQuality.getQuality(LOCALE_EN, FILE_NO_NAME),
-      is(TranslationMatchQuality.NO_MATCH)
-    );
-    assertThat(
-      TranslationMatchQuality.getQuality(LOCALE_FR_FR, FILE_EN),
-      is(TranslationMatchQuality.NO_MATCH)
-    );
-    assertThat(
-      TranslationMatchQuality.getQuality(LOCALE_FR_FR, FILE_EN_US),
-      is(TranslationMatchQuality.NO_MATCH)
+  static List<Arguments> mismatchedBaseCases() {
+    return Arrays.asList(
+      arguments(LOCALE_EN_US, FILE_NO_NAME, TranslationMatchQuality.NO_MATCH),
+      arguments(LOCALE_EN, FILE_NO_NAME, TranslationMatchQuality.NO_MATCH),
+      arguments(LOCALE_FR_FR, FILE_EN, TranslationMatchQuality.NO_MATCH),
+      arguments(LOCALE_FR_FR, FILE_EN_US, TranslationMatchQuality.NO_MATCH)
     );
   }
 
-  @Test
-  void testLanguageOnlyFile() {
-    assertThat(
-      TranslationMatchQuality.getQuality(LOCALE_EN, FILE_EN),
-      is(TranslationMatchQuality.PERFECT_MATCH)
-    );
-    assertThat(
-      TranslationMatchQuality.getQuality(LOCALE_EN_US, FILE_EN),
-      is(TranslationMatchQuality.LANG_ONLY)
+  static List<Arguments> languageOnlyCases() {
+    return Arrays.asList(
+      arguments(LOCALE_EN, FILE_EN, TranslationMatchQuality.PERFECT_MATCH),
+      arguments(LOCALE_EN_US, FILE_EN, TranslationMatchQuality.LANG_ONLY),
+      arguments(LOCALE_EN, FILE_EN_US, TranslationMatchQuality.LANG_ONLY)
     );
   }
 
-  @Test
-  void testFullFilename() {
-    assertThat(
-      TranslationMatchQuality.getQuality(LOCALE_EN, FILE_EN_US),
-      is(TranslationMatchQuality.LANG_ONLY)
+  static List<Arguments> languageAndRegionCases() {
+    return Arrays.asList(
+      arguments(LOCALE_EN_CA, FILE_EN_US, TranslationMatchQuality.LANG_ONLY),
+      arguments(LOCALE_EN_US, FILE_EN_US, TranslationMatchQuality.PERFECT_MATCH)
     );
-    assertThat(
-      TranslationMatchQuality.getQuality(LOCALE_EN_CA, FILE_EN_US),
-      is(TranslationMatchQuality.LANG_ONLY)
-    );
-    assertThat(
-      TranslationMatchQuality.getQuality(LOCALE_EN_US, FILE_EN_US),
-      is(TranslationMatchQuality.PERFECT_MATCH)
-    );
+  }
+
+  @ParameterizedTest
+  @MethodSource(
+    { "mismatchedBaseCases", "languageOnlyCases", "languageAndRegionCases" }
+  )
+  void testMatchQuality(
+    Locale locale,
+    TranslationFile file,
+    TranslationMatchQuality expected
+  ) {
+    assertThat(TranslationMatchQuality.getQuality(locale, file), is(expected));
   }
 }
