@@ -12,11 +12,10 @@
 
   <name>folio-spring-i18n</name>
   <artifactId>folio-spring-i18n</artifactId>
-  <description />
+  <description>Translation support for FOLIO backend modules</description>
 
   <properties>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <dependencies>

@@ -43,14 +43,14 @@ public class TranslationFile {
    */
   public Map<String, String> getMap() {
     Map<String, String> map = new HashMap<>();
+    ObjectMapper objectMapper = new ObjectMapper();
 
     for (Resource resource : resources) {
       try {
-        Map<String, String> moduleMap = new ObjectMapper()
-          .readValue(
-            resource.getInputStream(),
-            new TypeReference<Map<String, String>>() {}
-          );
+        Map<String, String> moduleMap = objectMapper.readValue(
+          resource.getInputStream(),
+          new TypeReference<Map<String, String>>() {}
+        );
 
         String moduleName = Path
           .of(resource.getURL().getPath())
