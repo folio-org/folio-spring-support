@@ -122,7 +122,7 @@ public class TranslationMap {
   public String get(String key) {
     String pattern = this.patterns.get(key);
 
-    if (pattern == null) {
+    if (pattern == null && this.fallback != null) {
       pattern = this.fallback.get(key);
     }
 
