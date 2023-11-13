@@ -296,9 +296,8 @@ public class TranslationService {
         .collect(Collectors.groupingBy(Resource::getFilename));
 
       List<TranslationFile> files = localeGroups
-        .entrySet()
-        .stream()
-        .map(entry -> new TranslationFile(entry.getValue()))
+        .values()
+        .map(TranslationFile::new)
         .toList();
 
       log.info("Got translation files: " + files);
