@@ -296,7 +296,7 @@ public class TranslationService {
   public List<TranslationFile> getAvailableTranslationFiles() {
     try {
       Map<String, List<Resource>> localeGroups = Arrays
-        .asList(
+        .stream(
           resourceResolver.getResources(
             String.format(
               TRANSLATIONS_CLASSPATH,
@@ -304,7 +304,6 @@ public class TranslationService {
             )
           )
         )
-        .stream()
         .filter(Resource::isReadable)
         .collect(Collectors.groupingBy(Resource::getFilename));
 
@@ -318,10 +317,8 @@ public class TranslationService {
 
       return files;
     } catch (IOException e) {
-      log.error("Could not retrieve translation files:", e);
-      throw new IllegalStateException(
-        "Could not retrieve translation files",
-        e
+      throw log.throwing(
+        new IllegalStateException("Could not retrieve translation files", e)
       );
     }
   }
