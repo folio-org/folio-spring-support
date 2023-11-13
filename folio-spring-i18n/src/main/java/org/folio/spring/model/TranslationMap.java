@@ -166,7 +166,7 @@ public class TranslationMap {
   }
 
   /**
-   * Get a Map&lt;String, Object&gt; from a set of String -&gt; Object pairs.
+   * Get a translation map from a set of (String, Object) pairs.
    *
    * @param args pairs of elements, e.g. key1, value1, key2, value2, ...
    * @return the map of each key =&gt; value
