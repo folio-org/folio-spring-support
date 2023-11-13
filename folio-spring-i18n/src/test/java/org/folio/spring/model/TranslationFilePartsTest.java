@@ -77,7 +77,7 @@ class TranslationFilePartsTest {
   void testEmptyGetMap() {
     assertThat(
       new TranslationFile(Arrays.asList(new FileSystemResource("invalid.json")))
-        .getMap()
+        .getPatterns()
         .values(),
       is(empty())
     );

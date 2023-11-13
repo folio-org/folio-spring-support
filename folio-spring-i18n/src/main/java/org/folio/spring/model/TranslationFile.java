@@ -42,7 +42,7 @@ public class TranslationFile {
    *
    * @return the map of patterns -&gt; ICU format strings
    */
-  public Map<String, String> getMap() {
+  public Map<String, String> getPatterns() {
     Map<String, String> result = new HashMap<>();
     ObjectMapper objectMapper = new ObjectMapper();
 

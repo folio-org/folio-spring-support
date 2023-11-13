@@ -74,7 +74,7 @@ public class TranslationMap {
     TranslationFile file,
     @Nullable TranslationMap fallback
   ) {
-    this(locale, file, file.getMap(), fallback);
+    this(locale, file, file.getPatterns(), fallback);
   }
 
   /**

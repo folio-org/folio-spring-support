@@ -43,7 +43,7 @@ class TranslationServiceGetFilesTest {
       hasSize(1)
     );
 
-    Map<String, String> map = files.get(0).getMap();
+    Map<String, String> map = files.get(0).getPatterns();
 
     assertThat(map, hasEntry("mod-foo.whoami", "foo"));
     assertThat(map, hasEntry("mod-bar.whoami", "bar"));
