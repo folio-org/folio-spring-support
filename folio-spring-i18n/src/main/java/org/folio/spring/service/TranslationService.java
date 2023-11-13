@@ -52,15 +52,16 @@ public class TranslationService {
    * <p>This can be null - if this is the case, the map has not been constructed yet.</p>
    * <p>You should call getFileMap instead of accessing this directly.</p>
    *
-   * <p>Language code {@code *} will be used if one is not denoted</p>
+   * <p>
+   *  Language code ({@link TranslationFile#UNKNOWN_PART TranslationFile#UNKNOWN_PART}) will be used if unknown
+   * </p>
    */
   @Nullable
   protected Map<String, Map<String, TranslationFile>> translationFileFromLanguageCountryMap =
     null;
 
   /**
-   * A map from locale -&gt; key -&gt; ICU format string, filled in on-demand
-   * as locales are presented.
+   * A map from locales to translations, filled in on-demand as locales are presented.
    */
   protected Map<Locale, TranslationMap> localeTranslations = new HashMap<>();
 
@@ -68,9 +69,11 @@ public class TranslationService {
   private final TranslationConfiguration configuration;
 
   /**
-   * Get a map from language -&gt; country -&gt; pattern resource based on the classpath contents.
+   * Get a map from language -&gt; country -&gt; {@link TranslationFile TranslationFile}.
+   * The files are pulled from the filesystem based on the provided
+   * {@link TranslationConfiguration TranslationConfiguration}.
    *
-   * @return the map of languages to countries to pattern resources
+   * @return the map of languages to countries to {@link TranslationFile TranslationFile}s
    */
   @Nonnull
   public Map<String, Map<String, TranslationFile>> getFileMap() {
@@ -85,7 +88,7 @@ public class TranslationService {
    * Get the best {@link TranslationMap TranslationMap} associated with the current locale.
    *
    * @param locale the locale to find a TranslationMap for
-   * @param base the default translation that should be used as a fallback; can be null when
+   * @param fallback the default translation that should be used as a fallback; can be null when
    *   creating the default translation
    * @return the best translation available for the current locale, potentially null if the
    *   default is null.  It checks for match of language and country, then language, then returns
@@ -94,12 +97,12 @@ public class TranslationService {
   @Nullable
   public TranslationMap getTranslation(
     Locale locale,
-    @Nullable TranslationMap base
+    @Nullable TranslationMap fallback
   ) {
     return localeTranslations.computeIfAbsent(
       locale,
       (Locale missingLocale) -> {
-        log.info("Cache miss on {}", missingLocale);
+        log.info("Cache miss on {}; loading map", missingLocale);
 
         if (
           this.getFileMap()
@@ -114,7 +117,7 @@ public class TranslationService {
           TranslationMap baseMap = new TranslationMap(
             missingLocale,
             baseFile,
-            base
+            fallback
           );
 
           if (
@@ -130,7 +133,7 @@ public class TranslationService {
           return baseMap;
         }
 
-        return base;
+        return fallback;
       }
     );
   }
@@ -197,7 +200,6 @@ public class TranslationService {
    *   with empty string/fields or, in some cases, the server's current Locale.
    * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language">MDN docs</a>
    */
-  @SuppressWarnings("java:S1166")
   public List<Locale> getCurrentLocales() {
     try {
       return Collections.list(
@@ -207,6 +209,10 @@ public class TranslationService {
           .getLocales()
       );
     } catch (IllegalStateException e) {
+      log.warn(
+        "The current request contains no locale information: {}",
+        e.getMessage()
+      );
       return new ArrayList<>();
     }
   }
@@ -214,17 +220,15 @@ public class TranslationService {
   /**
    * Get the best single locale.  Either the first from the request or the server's default.
    *
-   * @return a single Locale object.  Invalid and wildcard Locales sent to the server will likely
+   * @return a single Locale object.  Invalid. missing, and wildcard Locales sent to the server will likely
    *   return a Locale with empty string/fields or, in some cases, the server's current Locale.
    * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language">MDN docs</a>
    */
-  @SuppressWarnings("java:S1166")
   public Locale getCurrentLocale() {
-    try {
-      return getCurrentLocales().get(0);
-    } catch (RuntimeException e) {
-      return configuration.getDefaultLocale();
-    }
+    return getCurrentLocales()
+      .stream()
+      .findFirst()
+      .orElse(configuration.getDefaultLocale());
   }
 
   /**
@@ -323,11 +327,13 @@ public class TranslationService {
   }
 
   /**
-   * Build the map of language -&gt; country -&gt; pattern resource based on the classpath contents.
+   * Build the map of language -&gt; country -&gt; {@link TranslationFile TranslationFile}.
+   * The files are pulled from the filesystem based on the provided
+   * {@link TranslationConfiguration TranslationConfiguration}.
    *
-   * @return the map of languages to countries to pattern resources
+   * @return the map of languages to countries to {@link TranslationFile TranslationFile}s
    */
-  public Map<String, Map<String, TranslationFile>> buildLanguageCountryPatternMap() {
+  protected Map<String, Map<String, TranslationFile>> buildLanguageCountryPatternMap() {
     log.info("Building translation file map");
 
     Map<String, Map<String, TranslationFile>> languageCountryPatternMap = new HashMap<>();

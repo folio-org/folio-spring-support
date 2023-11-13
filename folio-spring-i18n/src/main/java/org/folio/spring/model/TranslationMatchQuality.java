@@ -11,7 +11,10 @@ public enum TranslationMatchQuality {
   PERFECT_MATCH,
   /** If the paired translation is a match for language only and not country (or not applicable to country). */
   LANG_ONLY,
-  /** If the paired translation is not a match for language or country (should be the server's default locale). */
+  /**
+   * If the paired translation is not a match for language or country
+   * (for global fallbacks English and the server's default locale).
+   */
   NO_MATCH;
 
   /**
