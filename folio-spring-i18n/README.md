@@ -12,10 +12,10 @@
 
 Translations may be performed in backend modules using this library, per [this TC decision](https://wiki.folio.org/x/SqTc). These translations work the same as UI modules:
 
-- Translations are stored in JSON files within the module's path, with a structure like `/translations/mod-foo/locale.json` (`/translations/` may be customized with `folio.translation-directory` property)
-- Each JSON file is named for a locale and region, e.g. `en_ca.json`
-- The `en.json` file is the source of truth and fallback; other translation modules will be generated and tracked separately by Lokalise
-- Translation keys are prepended with the module name, e.g. `mod-foo.title`
+- Translations are stored in JSON files within the module's path, with a structure like `/translations/mod-foo/locale.json` (`/translations/` may be customized by altering the POM's mapping below, however, this is not recommended as Lokalise will not pick it up).
+- Each JSON file is named for a locale and region, e.g. `en_ca.json`.
+- The `en.json` file is the source of truth and fallback; other translation modules will be generated and tracked separately by Lokalise.
+- Translation keys are prepended with the module name, e.g. `mod-foo.title`.
 
 This library provides a number of features, including:
 

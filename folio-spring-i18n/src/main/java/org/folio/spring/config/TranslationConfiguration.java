@@ -22,9 +22,7 @@ public class TranslationConfiguration {
 
   @Autowired
   public TranslationConfiguration(
-    @Value(
-      "${folio.translation-directory:/translations/}"
-    ) String translationDirectory,
+    @Value("/translations/") String translationDirectory,
     @Value("#{T(java.util.Locale).getDefault()}") Locale defaultLocale
   ) {
     this.translationDirectory = translationDirectory;
