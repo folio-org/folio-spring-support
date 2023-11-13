@@ -45,7 +45,7 @@ public class TranslationService {
   public static final String TRANSLATIONS_CLASSPATH = "classpath:%s*/*.json";
 
   /**
-   * A map from language code -&gt; country -&gt; JSON resource containing {key -&gt; ICU format string}.
+   * A map from language code to a map from country to the JSON resource containing {key to ICU format string mappings}.
    * Will be populated the first time any translation is requested.
    * Note that files are not read here, only enumerated.  Look at the other maps for that information
    *
