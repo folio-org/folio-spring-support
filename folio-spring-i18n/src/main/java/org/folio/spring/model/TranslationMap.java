@@ -24,22 +24,22 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @ToString
 @EqualsAndHashCode
-public class TranslationMap {
+public final class TranslationMap {
 
   @Getter
-  protected final Locale locale;
+  private final Locale locale;
 
   @Getter
-  protected final TranslationMatchQuality quality;
+  private final TranslationMatchQuality quality;
 
   @Getter
-  protected final TranslationFile file;
+  private final TranslationFile file;
 
-  protected final Map<String, String> patterns;
+  private final Map<String, String> patterns;
 
   @Getter
   @Nullable
-  protected final TranslationMap fallback;
+  private final TranslationMap fallback;
 
   /**
    * Create a TranslationMap for a given locale based off of a file with contents and a given fallback.
@@ -49,7 +49,7 @@ public class TranslationMap {
    * @param patterns the patterns to use
    * @param fallback the TranslationMap to search if a given translation cannot be found
    */
-  protected TranslationMap(
+  private TranslationMap(
     Locale locale,
     TranslationFile file,
     Map<String, String> patterns,

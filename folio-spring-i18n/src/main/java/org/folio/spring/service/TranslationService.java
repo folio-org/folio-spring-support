@@ -42,7 +42,7 @@ public class TranslationService {
    * The location of all translations in the classpath. Allows for format matching UI modules:
    *  /translations/{module-name}/{locale}.json
    */
-  public static final String TRANSLATIONS_CLASSPATH = "classpath:%s*/*.json";
+  private static final String TRANSLATIONS_CLASSPATH = "classpath:%s*/*.json";
 
   /**
    * A map from language code to a map from country to the JSON resource containing {key to ICU format string mappings}.
@@ -323,25 +323,22 @@ public class TranslationService {
   public Map<String, Map<String, TranslationFile>> buildLanguageCountryPatternMap() {
     log.info("Building translation file map");
 
-    Map<String, Map<String, TranslationFile>> map = new HashMap<>();
+    Map<String, Map<String, TranslationFile>> languageCountryPatternMap = new HashMap<>();
 
     getAvailableTranslationFiles()
       .forEach((TranslationFile file) -> {
         LanguageRegionPair parts = file.getParts();
-        map
-          .computeIfAbsent(
-            parts.language(),
-            key -> new HashMap<String, TranslationFile>()
-          )
-          .put(parts.region(), file);
+        Map<String, TranslationFile> regionMap = languageCountryPatternMap.computeIfAbsent(
+          parts.language(),
+          key -> new HashMap<String, TranslationFile>()
+        );
+        regionMap.put(parts.region(), file);
 
         // fill in default, e.g. en-us.json being the only en file will set en-* = en-us
         // if en.json exists later, it will be replaced above
-        map
-          .get(parts.language())
-          .putIfAbsent(TranslationFile.UNKNOWN_PART, file);
+        regionMap.putIfAbsent(TranslationFile.UNKNOWN_PART, file);
       });
 
-    return map;
+    return languageCountryPatternMap;
   }
 }
