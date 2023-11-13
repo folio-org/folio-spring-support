@@ -43,7 +43,7 @@ public class TranslationFile {
    * @return the map of patterns -&gt; ICU format strings
    */
   public Map<String, String> getMap() {
-    Map<String, String> map = new HashMap<>();
+    Map<String, String> result = new HashMap<>();
     ObjectMapper objectMapper = new ObjectMapper();
 
     for (Resource resource : resources) {
@@ -59,8 +59,7 @@ public class TranslationFile {
           .getFileName()
           .toString();
 
-        moduleMap.forEach((key, value) -> map.put(moduleName + "." + key, value)
-        );
+        moduleMap.forEach((key, value) -> result.put(moduleName + "." + key, value));
       } catch (IOException e) {
         log.error(
           "Could not open/read translation file {}; will use fallback instead",
@@ -70,7 +69,7 @@ public class TranslationFile {
       }
     }
 
-    return map;
+    return result;
   }
 
   /**
