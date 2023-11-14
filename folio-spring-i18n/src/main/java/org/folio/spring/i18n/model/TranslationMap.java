@@ -1,4 +1,4 @@
-package org.folio.spring.model;
+package org.folio.spring.i18n.model;
 
 import com.ibm.icu.text.MessageFormat;
 import jakarta.annotation.Nullable;

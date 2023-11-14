@@ -1,4 +1,4 @@
-package org.folio.spring.config;
+package org.folio.spring.i18n.config;
 
 import java.util.Locale;
 import lombok.Getter;

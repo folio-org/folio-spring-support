@@ -1,4 +1,4 @@
-package org.folio.spring.model;
+package org.folio.spring.i18n.model;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

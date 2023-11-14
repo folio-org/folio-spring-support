@@ -1,4 +1,4 @@
-package org.folio.spring.service;
+package org.folio.spring.i18n.service;
 
 import com.ibm.icu.text.ListFormatter;
 import jakarta.annotation.Nonnull;
@@ -15,11 +15,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.folio.spring.config.TranslationConfiguration;
-import org.folio.spring.model.TranslationFile;
-import org.folio.spring.model.TranslationFile.LanguageRegionPair;
-import org.folio.spring.model.TranslationMap;
-import org.folio.spring.model.TranslationMatchQuality;
+import org.folio.spring.i18n.config.TranslationConfiguration;
+import org.folio.spring.i18n.model.TranslationFile;
+import org.folio.spring.i18n.model.TranslationFile.LanguageRegionPair;
+import org.folio.spring.i18n.model.TranslationMap;
+import org.folio.spring.i18n.model.TranslationMatchQuality;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;

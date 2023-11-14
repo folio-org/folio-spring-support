@@ -1,7 +1,7 @@
-package org.folio.spring.model;
+package org.folio.spring.i18n.model;
 
 import java.util.Locale;
-import org.folio.spring.model.TranslationFile.LanguageRegionPair;
+import org.folio.spring.i18n.model.TranslationFile.LanguageRegionPair;
 
 /**
  * How good a {@link TranslationMap TranslationMap} relates to a given {@link java.util.Locale Locale}.

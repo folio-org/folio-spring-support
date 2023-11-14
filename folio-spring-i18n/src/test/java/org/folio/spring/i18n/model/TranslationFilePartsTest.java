@@ -1,4 +1,4 @@
-package org.folio.spring.model;
+package org.folio.spring.i18n.model;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -9,7 +9,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.Arrays;
 import java.util.List;
-import org.folio.spring.model.TranslationFile.LanguageRegionPair;
+import org.folio.spring.i18n.model.TranslationFile.LanguageRegionPair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

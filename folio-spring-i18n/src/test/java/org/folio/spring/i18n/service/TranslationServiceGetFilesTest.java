@@ -1,4 +1,4 @@
-package org.folio.spring.service;
+package org.folio.spring.i18n.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.folio.spring.config.TranslationConfiguration;
-import org.folio.spring.model.TranslationFile;
+import org.folio.spring.i18n.config.TranslationConfiguration;
+import org.folio.spring.i18n.model.TranslationFile;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 

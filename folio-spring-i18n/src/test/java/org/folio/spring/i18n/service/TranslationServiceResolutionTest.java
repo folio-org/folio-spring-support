@@ -1,4 +1,4 @@
-package org.folio.spring.service;
+package org.folio.spring.i18n.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -10,7 +10,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import org.folio.spring.config.TranslationConfiguration;
+import org.folio.spring.i18n.config.TranslationConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
