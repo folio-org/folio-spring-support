@@ -32,7 +32,9 @@ class TranslationFilePartsTest {
     return Arrays.asList(
       arguments("en.json", new LanguageRegionPair("en", "*")),
       arguments("en_", new LanguageRegionPair("en", "*")),
+      arguments("en_ ", new LanguageRegionPair("en", "*")),
       arguments("_us", new LanguageRegionPair("*", "us")),
+      arguments(" _us", new LanguageRegionPair("*", "us")),
       arguments("ber", new LanguageRegionPair("ber", "*")),
       arguments("ber.json", new LanguageRegionPair("ber", "*"))
     );

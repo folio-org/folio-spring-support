@@ -128,7 +128,7 @@ public final class TranslationFile {
       return result;
     }
 
-    if (!parts[0].isEmpty()) {
+    if (!parts[0].isBlank()) {
       result = result.withLanguage(parts[0].toLowerCase());
     }
 
@@ -136,7 +136,7 @@ public final class TranslationFile {
       return result;
     }
 
-    if (!parts[1].isEmpty()) {
+    if (!parts[1].isBlank()) {
       result = result.withRegion(parts[1].toLowerCase());
     }
 
