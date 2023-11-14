@@ -139,7 +139,7 @@ public class TranslationService {
   }
 
   /**
-   * Get the best {@link TranslationMap TranslationMap} associated with the current locale.
+   * Get the best {@link TranslationMap TranslationMap} associated with the given locale.
    *
    * @param locale the locale to find a TranslationMap for
    * @return the best translation available for the current locale, including the server's default

@@ -5,12 +5,17 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import org.folio.spring.config.TranslationConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -30,40 +35,34 @@ class TranslationServiceResolutionTest {
     );
   }
 
-  @Test
-  void testGetTranslationPresent() {
+  static List<Arguments> getTranslationCases() {
+    return Arrays.asList(
+      arguments(Locale.CANADA, "mod-foo.en_base_only", "[mod-foo] In en base!"),
+      arguments(Locale.CANADA, "mod-foo.en_ca_only", "[mod-foo] In en_ca!"),
+      arguments(Locale.CANADA, "mod-foo.en_only", "[mod-foo] In en_ca!"),
+      // fallback to best matching language
+      arguments(
+        new Locale("es", "sp"),
+        "mod-foo.es_only",
+        "[mod-foo] In es base!"
+      ),
+      arguments(Locale.UK, "mod-foo.en_base_only", "[mod-foo] In en base!"),
+      arguments(Locale.UK, "mod-foo.en_ca_only", "mod-foo.en_ca_only")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("getTranslationCases")
+  void testGetTranslationPresent(Locale locale, String key, String expected) {
     TranslationService service = getService("multiple");
 
+    assertThat(service.getTranslation(locale, null).get(key), is(expected));
+  }
+
+  @Test
+  void testGetTranslationMissing() {
+    TranslationService service = getService("multiple");
     assertThat(service.getTranslation(Locale.CHINA, null), is(nullValue()));
-
-    assertThat(
-      service.getTranslation(Locale.CANADA, null).get("mod-foo.en_base_only"),
-      is("[mod-foo] In en base!")
-    );
-    assertThat(
-      service.getTranslation(Locale.CANADA, null).get("mod-foo.en_ca_only"),
-      is("[mod-foo] In en_ca!")
-    );
-    assertThat(
-      service.getTranslation(Locale.CANADA, null).get("mod-foo.en_only"),
-      is("[mod-foo] In en_ca!")
-    );
-
-    assertThat(
-      service
-        .getTranslation(new Locale("es", "sp"), null)
-        .get("mod-foo.es_only"),
-      is("[mod-foo] In es base!")
-    );
-
-    assertThat(
-      service.getTranslation(Locale.UK, null).get("mod-foo.en_base_only"),
-      is("[mod-foo] In en base!")
-    );
-    assertThat(
-      service.getTranslation(Locale.UK, null).get("mod-foo.en_ca_only"),
-      is("mod-foo.en_ca_only")
-    );
   }
 
   @Test
@@ -105,41 +104,43 @@ class TranslationServiceResolutionTest {
     );
   }
 
-  @Test
-  void testBestTranslation() {
+  static List<Arguments> bestTranslationCases() {
+    return Arrays.asList(
+      arguments(Arrays.asList(Locale.US, Locale.FRANCE), Locale.US),
+      arguments(Arrays.asList(Locale.FRANCE, Locale.US), Locale.FRANCE),
+      arguments(Arrays.asList(Locale.CHINESE, Locale.US), Locale.US),
+      // we don't have en_test, but we'd rather pick the user's first requested language
+      // over a better fitting secondary language
+      arguments(
+        Arrays.asList(new Locale("en", "test"), Locale.FRANCE),
+        new Locale("en", "test")
+      ),
+      // test default (Locale.ENGLISH in TranslationConfiguration)
+      arguments(Arrays.asList(Locale.CHINESE), Locale.ENGLISH),
+      arguments(Arrays.asList(), Locale.ENGLISH)
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("bestTranslationCases")
+  void testBestTranslation(
+    List<Locale> desiredLocales,
+    Locale expectedResolution
+  ) {
     TranslationService service = getService("multiple");
 
     assertThat(
-      service
-        .getBestTranslation(Arrays.asList(Locale.US, Locale.FRANCE))
-        .getLocale(),
-      is(Locale.US)
+      service.getBestTranslation(desiredLocales).getLocale(),
+      is(expectedResolution)
     );
-    assertThat(
-      service
-        .getBestTranslation(Arrays.asList(Locale.FRANCE, Locale.US))
-        .getLocale(),
-      is(Locale.FRANCE)
-    );
-    assertThat(
-      service
-        .getBestTranslation(Arrays.asList(Locale.CHINESE, Locale.US))
-        .getLocale(),
-      is(Locale.US)
-    );
-    assertThat(
-      service.getBestTranslation(Arrays.asList(Locale.CHINESE)).getLocale(),
-      is(Locale.ENGLISH) // test default (Locale.ENGLISH above)
-    );
-    assertThat(
-      service.getBestTranslation(Arrays.asList()).getLocale(),
-      is(Locale.ENGLISH) // test default (Locale.ENGLISH above)
-    );
+  }
 
-    assertThat(
-      service.format("mod-foo.foo"),
-      is("[mod-foo] en {test}") // en is test default (Locale.ENGLISH above)
-    );
+  @Test
+  void testDefaultFormat() {
+    TranslationService service = getService("multiple");
+
+    // en (Locale.ENGLISH) is test default from TranslationConfiguration
+    assertThat(service.format("mod-foo.foo"), is("[mod-foo] en {test}"));
   }
 
   @Test
