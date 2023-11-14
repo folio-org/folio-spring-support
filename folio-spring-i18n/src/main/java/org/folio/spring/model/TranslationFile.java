@@ -76,7 +76,7 @@ public final class TranslationFile {
   }
 
   /**
-   * Get the parts of this filename as a {@link LanguageRegionPair LanguageRegionPair}
+   * Get the parts of this filename as a {@link LanguageRegionPair LanguageRegionPair}.
    *
    * <p>If one (or either) is unknown, {@code UNKNOWN_PART} will be returned.</p>
    *
@@ -88,7 +88,7 @@ public final class TranslationFile {
   }
 
   /**
-   * Get the parts of a filename as an array of two elements: {@link LanguageRegionPair LanguageRegionPair}
+   * Get the parts of a filename as an array of two elements: {@link LanguageRegionPair LanguageRegionPair}.
    * These will be converted to lowercase, if applicable.
    *
    * <p>If one (or either) is unknown, {@code UNKNOWN_PART} will be returned.</p>
