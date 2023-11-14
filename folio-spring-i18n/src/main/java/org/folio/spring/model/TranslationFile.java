@@ -76,11 +76,11 @@ public final class TranslationFile {
   }
 
   /**
-   * Get the parts of this filename as an array of two elements: [language, country].
+   * Get the parts of this filename as a {@link LanguageRegionPair LanguageRegionPair}
    *
    * <p>If one (or either) is unknown, {@code UNKNOWN_PART} will be returned.</p>
    *
-   * @return LanguageRegionPair
+   * @return a {@link LanguageRegionPair LanguageRegionPair}
    */
   public LanguageRegionPair getParts() {
     // Spring's getFilename returns only the last part, so no need to split the path
@@ -88,13 +88,13 @@ public final class TranslationFile {
   }
 
   /**
-   * Get the parts of a filename as an array of two elements: [language, country].
+   * Get the parts of a filename as an array of two elements: {@link LanguageRegionPair LanguageRegionPair}
    * These will be converted to lowercase, if applicable.
    *
    * <p>If one (or either) is unknown, {@code UNKNOWN_PART} will be returned.</p>
    *
    * @param filename the filename to parse
-   * @return LanguageRegionPair
+   * @return a {@link LanguageRegionPair LanguageRegionPair}
    */
   public static LanguageRegionPair getParts(String filename) {
     LanguageRegionPair result = new LanguageRegionPair(
