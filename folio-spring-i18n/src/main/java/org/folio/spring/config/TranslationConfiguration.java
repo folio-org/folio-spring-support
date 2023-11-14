@@ -8,9 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * An {@link org.springframework.context.annotation.Configuration Configuration} bean to hold the
- * location of the current translation directory.  By default, this is set from the application
- * property {@code folio.translation=directory} in your {@code application.properties} or
- * {@code application.yaml} file.  Note that the proceeding and trailing slashes are required.
+ * location of the current translation directory and default fallback locale.
  */
 @Getter
 @Configuration
@@ -18,14 +16,14 @@ public class TranslationConfiguration {
 
   private String translationDirectory;
 
-  private Locale defaultLocale;
+  private Locale fallbackLocale;
 
   @Autowired
   public TranslationConfiguration(
     @Value("/translations/") String translationDirectory,
-    @Value("#{T(java.util.Locale).getDefault()}") Locale defaultLocale
+    @Value("#{T(java.util.Locale).ENGLISH}") Locale fallbackLocale
   ) {
     this.translationDirectory = translationDirectory;
-    this.defaultLocale = defaultLocale;
+    this.fallbackLocale = fallbackLocale;
   }
 }

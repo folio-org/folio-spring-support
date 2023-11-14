@@ -89,7 +89,7 @@ public class TranslationService {
    *
    * @param locale the locale to find a TranslationMap for
    * @param fallback the default translation that should be used as a fallback; can be null when
-   *   creating the default translation
+   *   creating the primary fallback translation
    * @return the best translation available for the current locale, potentially null if the
    *   default is null.  It checks for match of language and country, then language, then returns
    *   default if neither are available
@@ -142,32 +142,29 @@ public class TranslationService {
    * Get the best {@link TranslationMap TranslationMap} associated with the given locale.
    *
    * @param locale the locale to find a TranslationMap for
-   * @return the best translation available for the current locale, including the server's default
+   * @return the best translation available for the current locale(s), including the fallback locale
+   *   from {@link TranslationConfiguration TranslationConfiguration}, if necessary
    */
   public TranslationMap getTranslation(Locale locale) {
-    return getTranslation(locale, getDefaultTranslation().withLocale(locale));
+    return getTranslation(locale, getFallbackTranslation().withLocale(locale));
   }
 
   /**
-   * Find a TranslationMap for the default locale -- used to initialize for {@code getDefaultTranslations}.
+   * Find a TranslationMap for the fallback locale -- used to initialize for {@code getDefaultTranslation}.
    *
    * @return the best applicable translation
    * @throws IllegalStateException if no translation can be found
    */
-  protected TranslationMap resolveDefaultLocale() {
+  protected TranslationMap resolveFallbackTranslation() {
     TranslationMap foundDefault = getTranslation(
-      configuration.getDefaultLocale(),
+      configuration.getFallbackLocale(),
       null
     );
     if (foundDefault == null) {
-      foundDefault = getTranslation(Locale.ENGLISH, null);
-    }
-    if (foundDefault == null) {
       throw new IllegalStateException(
         String.format(
-          "No translations are sufficient for the server's default locale (%s) nor %s",
-          configuration.getDefaultLocale(),
-          Locale.ENGLISH
+          "No translations are sufficient for the default locale (%s)",
+          configuration.getFallbackLocale()
         )
       );
     }
@@ -179,17 +176,17 @@ public class TranslationService {
    *
    * @return the default locale's translation map
    */
-  public TranslationMap getDefaultTranslation() {
+  public TranslationMap getFallbackTranslation() {
     // computeIfAbsent does not work due to the resolver potentially filling multiple keys
     if (
-      !this.localeTranslations.containsKey(configuration.getDefaultLocale())
+      !this.localeTranslations.containsKey(configuration.getFallbackLocale())
     ) {
       this.localeTranslations.put(
-        configuration.getDefaultLocale(),
-        this.resolveDefaultLocale()
+        configuration.getFallbackLocale(),
+        this.resolveFallbackTranslation()
       );
     }
-    return this.localeTranslations.get(configuration.getDefaultLocale());
+    return this.localeTranslations.get(configuration.getFallbackLocale());
   }
 
   /**
@@ -197,7 +194,8 @@ public class TranslationService {
    * and quality values, as applicable, with highest quality first.
    *
    * @return a List of all Locale objects.  Invalid and wildcard Locales will likely return a Locale
-   *   with empty string/fields or, in some cases, the server's current Locale.
+   *   with empty string/fields or, in some cases, the fallback Locale
+   *   (from {@link TranslationConfiguration TranslationConfiguration}).
    * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language">MDN docs</a>
    */
   public List<Locale> getCurrentLocales() {
@@ -218,17 +216,18 @@ public class TranslationService {
   }
 
   /**
-   * Get the best single locale.  Either the first from the request or the server's default.
+   * Get the best single locale.  Either the first from the request or the default.
    *
    * @return a single Locale object.  Invalid. missing, and wildcard Locales sent to the server will likely
-   *   return a Locale with empty string/fields or, in some cases, the server's current Locale.
+   *   return a Locale with empty string/fields or, in some cases, the fallback Locale
+   *   (from {@link TranslationConfiguration TranslationConfiguration})
    * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language">MDN docs</a>
    */
   public Locale getCurrentLocale() {
     return getCurrentLocales()
       .stream()
       .findFirst()
-      .orElse(configuration.getDefaultLocale());
+      .orElse(configuration.getFallbackLocale());
   }
 
   /**
@@ -245,7 +244,7 @@ public class TranslationService {
   /**
    * Get the best {@link TranslationMap TranslationMap} for the provides list of Locales.
    * This will return the first one that matches on at least language or, if none match,
-   * the default TranslationMap.
+   * the fallback/default TranslationMap.
    *
    * @param locales the ordered list of locales to consider
    * @return the best TranslationMap
@@ -257,7 +256,7 @@ public class TranslationService {
       .map(this::getTranslation)
       .filter(m -> m.getQuality() != TranslationMatchQuality.NO_MATCH)
       .findFirst()
-      .orElseGet(this::getDefaultTranslation);
+      .orElseGet(this::getFallbackTranslation);
   }
 
   /**

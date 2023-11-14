@@ -78,7 +78,7 @@ class TranslationServiceResolutionTest {
     assertThat(service.getCurrentLocale(), is(new Locale("test", "")));
 
     assertThat(
-      service.getDefaultTranslation().getLocale(),
+      service.getFallbackTranslation().getLocale(),
       is(new Locale("test", ""))
     );
   }
@@ -88,7 +88,10 @@ class TranslationServiceResolutionTest {
     TranslationService service = getService("multiple");
 
     Locale.setDefault(new Locale("test", ""));
-    assertThat(service.getDefaultTranslation().getLocale(), is(Locale.ENGLISH));
+    assertThat(
+      service.getFallbackTranslation().getLocale(),
+      is(Locale.ENGLISH)
+    );
   }
 
   @Test
@@ -99,7 +102,7 @@ class TranslationServiceResolutionTest {
     Locale.setDefault(Locale.FRANCE);
     assertThrows(
       IllegalStateException.class,
-      () -> service.getDefaultTranslation(),
+      () -> service.getFallbackTranslation(),
       "No available translations causes an IllegalStateException"
     );
   }
