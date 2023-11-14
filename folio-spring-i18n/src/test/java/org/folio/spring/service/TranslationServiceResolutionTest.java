@@ -109,6 +109,9 @@ class TranslationServiceResolutionTest {
       arguments(Arrays.asList(Locale.US, Locale.FRANCE), Locale.US),
       arguments(Arrays.asList(Locale.FRANCE, Locale.US), Locale.FRANCE),
       arguments(Arrays.asList(Locale.CHINESE, Locale.US), Locale.US),
+      // region is preferred when possible
+      arguments(Arrays.asList(Locale.CANADA, Locale.US), Locale.CANADA),
+      arguments(Arrays.asList(Locale.US, Locale.CANADA), Locale.US),
       // we don't have en_test, but we'd rather pick the user's first requested language
       // over a better fitting secondary language
       arguments(
