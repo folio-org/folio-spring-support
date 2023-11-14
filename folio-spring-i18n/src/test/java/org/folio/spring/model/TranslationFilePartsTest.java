@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.Arrays;
@@ -30,9 +31,7 @@ class TranslationFilePartsTest {
   static List<Arguments> partialPartsExtractionCases() {
     return Arrays.asList(
       arguments("en.json", new LanguageRegionPair("en", "*")),
-      arguments("en_us_extra", new LanguageRegionPair("en", "us")),
       arguments("en_", new LanguageRegionPair("en", "*")),
-      arguments("en__foo", new LanguageRegionPair("en", "*")),
       arguments("_us", new LanguageRegionPair("*", "us")),
       arguments("ber", new LanguageRegionPair("ber", "*")),
       arguments("ber.json", new LanguageRegionPair("ber", "*"))
@@ -60,6 +59,25 @@ class TranslationFilePartsTest {
       filename + " parses to " + expectedPair,
       TranslationFile.getParts(filename),
       is(expectedPair)
+    );
+  }
+
+  static List<Arguments> invalidExtractionCases() {
+    return Arrays.asList(
+      arguments("en_us_extra.json"),
+      arguments("en__foo.json"),
+      arguments("en_us_extra"),
+      arguments("en__foo")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("invalidExtractionCases")
+  void testInvalidPartsExtraction(String filename) {
+    assertThrows(
+      IllegalArgumentException.class,
+      () -> TranslationFile.getParts(filename),
+      "Filenames with more than two components are invalid"
     );
   }
 

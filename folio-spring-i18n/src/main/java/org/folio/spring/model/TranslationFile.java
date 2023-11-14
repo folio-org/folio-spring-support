@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,11 +113,13 @@ public final class TranslationFile {
     String[] parts = filename.split("_");
 
     if (parts.length > MAX_FILENAME_PARTS) {
-      log.warn(
-        String.format(
-          "Potentially incorrect parsing of translation filename %s into %s: ",
-          filename,
-          Arrays.asList(parts)
+      throw log.throwing(
+        new IllegalArgumentException(
+          String.format(
+            "Filename %s was split into more than %d parts",
+            filename,
+            MAX_FILENAME_PARTS
+          )
         )
       );
     }
