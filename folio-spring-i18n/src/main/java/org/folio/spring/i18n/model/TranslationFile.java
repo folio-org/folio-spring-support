@@ -23,7 +23,7 @@ import org.springframework.core.io.Resource;
 @Value
 @Log4j2
 @AllArgsConstructor
-public final class TranslationFile {
+public class TranslationFile {
 
   /**
    * The String denoting that a language or country is unknown from {@link getParts}.
