@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.i18n.config.TranslationConfiguration;
+import org.folio.spring.i18n.model.LanguageRegionPair;
 import org.folio.spring.i18n.model.TranslationFile;
-import org.folio.spring.i18n.model.TranslationFile.LanguageRegionPair;
 import org.folio.spring.i18n.model.TranslationMap;
 import org.folio.spring.i18n.model.TranslationMatchQuality;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -335,7 +335,7 @@ public class TranslationService {
 
     getAvailableTranslationFiles()
       .forEach((TranslationFile file) -> {
-        LanguageRegionPair parts = file.getParts();
+        LanguageRegionPair parts = file.getLanguageRegion();
         Map<String, TranslationFile> regionMap = languageCountryPatternMap.computeIfAbsent(
           parts.language(),
           key -> new HashMap<>()

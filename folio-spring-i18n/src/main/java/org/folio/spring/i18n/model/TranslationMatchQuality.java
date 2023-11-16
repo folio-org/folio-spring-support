@@ -1,7 +1,6 @@
 package org.folio.spring.i18n.model;
 
 import java.util.Locale;
-import org.folio.spring.i18n.model.TranslationFile.LanguageRegionPair;
 
 /**
  * How good a {@link TranslationMap TranslationMap} relates to a given {@link java.util.Locale Locale}.
@@ -37,7 +36,7 @@ public enum TranslationMatchQuality {
     Locale locale,
     TranslationFile file
   ) {
-    LanguageRegionPair parts = file.getParts();
+    LanguageRegionPair parts = file.getLanguageRegion();
 
     // language mismatch (also handles empty filename)
     if (!locale.getLanguage().equalsIgnoreCase(parts.language())) {

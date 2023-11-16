@@ -9,16 +9,15 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.Arrays;
 import java.util.List;
-import org.folio.spring.i18n.model.TranslationFile.LanguageRegionPair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.io.FileSystemResource;
 
-class TranslationFilePartsTest {
+class TranslationFileNameExtractionTest {
 
-  static List<Arguments> fullPartsExtractionCases() {
+  static List<Arguments> fullExtractionCases() {
     return Arrays.asList(
       arguments("en_us.json", new LanguageRegionPair("en", "us")),
       arguments("en_us", new LanguageRegionPair("en", "us")),
@@ -28,7 +27,7 @@ class TranslationFilePartsTest {
     );
   }
 
-  static List<Arguments> partialPartsExtractionCases() {
+  static List<Arguments> partialExtractionCases() {
     return Arrays.asList(
       arguments("en.json", new LanguageRegionPair("en", "*")),
       arguments("en_", new LanguageRegionPair("en", "*")),
@@ -40,7 +39,7 @@ class TranslationFilePartsTest {
     );
   }
 
-  static List<Arguments> emptyPartsExtractionCases() {
+  static List<Arguments> emptyExtractionCases() {
     return Arrays.asList(
       arguments("", new LanguageRegionPair("*", "*")),
       arguments("_", new LanguageRegionPair("*", "*")),
@@ -50,16 +49,12 @@ class TranslationFilePartsTest {
 
   @ParameterizedTest
   @MethodSource(
-    {
-      "fullPartsExtractionCases",
-      "partialPartsExtractionCases",
-      "emptyPartsExtractionCases",
-    }
+    { "fullExtractionCases", "partialExtractionCases", "emptyExtractionCases" }
   )
   void testPartsExtraction(String filename, LanguageRegionPair expectedPair) {
     assertThat(
       filename + " parses to " + expectedPair,
-      TranslationFile.getParts(filename),
+      TranslationFile.getLanguageRegion(filename),
       is(expectedPair)
     );
   }
@@ -78,7 +73,7 @@ class TranslationFilePartsTest {
   void testInvalidPartsExtraction(String filename) {
     assertThrows(
       IllegalArgumentException.class,
-      () -> TranslationFile.getParts(filename),
+      () -> TranslationFile.getLanguageRegion(filename),
       "Filenames with more than two components are invalid"
     );
   }
@@ -88,8 +83,8 @@ class TranslationFilePartsTest {
     assertThat(
       "Regular en_us.json parses as an instance the same as statically",
       new TranslationFile(Arrays.asList(new FileSystemResource("en_us.json")))
-        .getParts(),
-      is(equalTo(TranslationFile.getParts("en_us.json")))
+        .getLanguageRegion(),
+      is(equalTo(TranslationFile.getLanguageRegion("en_us.json")))
     );
   }
 

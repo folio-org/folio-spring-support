@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.With;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.Resource;
 
@@ -21,7 +20,7 @@ import org.springframework.core.io.Resource;
 @Log4j2
 public record TranslationFile(List<Resource> resources) {
   /**
-   * The String denoting that a language or country is unknown from {@link TranslationFile#getParts()}.
+   * The String denoting that a language or country is unknown from {@link TranslationFile#getLanguageRegion()}.
    */
   public static final String UNKNOWN_PART = "*";
 
@@ -72,13 +71,13 @@ public record TranslationFile(List<Resource> resources) {
    *
    * @return a {@link LanguageRegionPair LanguageRegionPair}
    */
-  public LanguageRegionPair getParts() {
+  public LanguageRegionPair getLanguageRegion() {
     // Spring's getFilename returns only the last part, so no need to split the path
-    return getParts(resources.get(0).getFilename());
+    return getLanguageRegion(resources.get(0).getFilename());
   }
 
   /**
-   * Get the parts of a filename as an array of two elements: {@link LanguageRegionPair LanguageRegionPair}.
+   * Get the parts of a filename as a {@link LanguageRegionPair LanguageRegionPair}.
    * These will be converted to lowercase, if applicable.
    *
    * <p>If one (or either) is unknown, {@code UNKNOWN_PART} will be returned.</p>
@@ -86,7 +85,7 @@ public record TranslationFile(List<Resource> resources) {
    * @param filename the filename to parse
    * @return a {@link LanguageRegionPair LanguageRegionPair}
    */
-  public static LanguageRegionPair getParts(String filename) {
+  public static LanguageRegionPair getLanguageRegion(String filename) {
     LanguageRegionPair result = new LanguageRegionPair(
       UNKNOWN_PART,
       UNKNOWN_PART
@@ -132,7 +131,4 @@ public record TranslationFile(List<Resource> resources) {
 
     return result;
   }
-
-  @With
-  public record LanguageRegionPair(String language, String region) {}
 }
