@@ -38,7 +38,12 @@ class TranslationFileNameExtractionTest {
   }
 
   static List<Arguments> emptyExtractionCases() {
-    return Arrays.asList(arguments(null, new LanguageRegionPair("*", "*")));
+    return Arrays.asList(
+      arguments("", new LanguageRegionPair("*", "*")),
+      arguments(" ", new LanguageRegionPair("*", "*")),
+      arguments(" _", new LanguageRegionPair("*", "*")),
+      arguments(null, new LanguageRegionPair("*", "*"))
+    );
   }
 
   @ParameterizedTest

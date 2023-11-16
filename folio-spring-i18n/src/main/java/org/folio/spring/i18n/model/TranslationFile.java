@@ -125,7 +125,9 @@ public record TranslationFile(List<Resource> resources) {
       );
     }
 
-    result = result.withLanguage(parts[0].toLowerCase());
+    if (!parts[0].isBlank()) {
+      result = result.withLanguage(parts[0].toLowerCase());
+    }
 
     if (parts.length == 1) {
       return result;
