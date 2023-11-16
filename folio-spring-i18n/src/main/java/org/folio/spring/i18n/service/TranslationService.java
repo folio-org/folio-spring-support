@@ -184,9 +184,9 @@ public class TranslationService {
       !this.localeTranslations.containsKey(configuration.getFallbackLocale())
     ) {
       this.localeTranslations.put(
-          configuration.getFallbackLocale(),
-          this.resolveFallbackTranslation()
-        );
+        configuration.getFallbackLocale(),
+        this.resolveFallbackTranslation()
+      );
     }
     return this.localeTranslations.get(configuration.getFallbackLocale());
   }
