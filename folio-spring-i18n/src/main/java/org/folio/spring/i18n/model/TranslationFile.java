@@ -120,9 +120,7 @@ public record TranslationFile(List<Resource> resources) {
     if (parts[0].isBlank() && parts.length > 1) {
       throw log.throwing(
         new IllegalArgumentException(
-          "TranslationFile filename " +
-          filename +
-          " has a region but no language"
+          "TranslationFile filename " + filename + " has a region but no language"
         )
       );
     }
