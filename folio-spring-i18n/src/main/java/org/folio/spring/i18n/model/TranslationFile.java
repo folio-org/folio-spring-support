@@ -117,9 +117,17 @@ public record TranslationFile(List<Resource> resources) {
       return result;
     }
 
-    if (!parts[0].isBlank()) {
-      result = result.withLanguage(parts[0].toLowerCase());
+    if (parts[0].isBlank() && parts.length > 1) {
+      throw log.throwing(
+        new IllegalArgumentException(
+          "TranslationFile filename " +
+          filename +
+          " has a region but no language"
+        )
+      );
     }
+
+    result = result.withLanguage(parts[0].toLowerCase());
 
     if (parts.length == 1) {
       return result;

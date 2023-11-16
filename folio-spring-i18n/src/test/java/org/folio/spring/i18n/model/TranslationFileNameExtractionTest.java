@@ -32,19 +32,13 @@ class TranslationFileNameExtractionTest {
       arguments("en.json", new LanguageRegionPair("en", "*")),
       arguments("en_", new LanguageRegionPair("en", "*")),
       arguments("en_ ", new LanguageRegionPair("en", "*")),
-      arguments("_us", new LanguageRegionPair("*", "us")),
-      arguments(" _us", new LanguageRegionPair("*", "us")),
       arguments("ber", new LanguageRegionPair("ber", "*")),
       arguments("ber.json", new LanguageRegionPair("ber", "*"))
     );
   }
 
   static List<Arguments> emptyExtractionCases() {
-    return Arrays.asList(
-      arguments("", new LanguageRegionPair("*", "*")),
-      arguments("_", new LanguageRegionPair("*", "*")),
-      arguments(null, new LanguageRegionPair("*", "*"))
-    );
+    return Arrays.asList(arguments(null, new LanguageRegionPair("*", "*")));
   }
 
   @ParameterizedTest
@@ -64,7 +58,9 @@ class TranslationFileNameExtractionTest {
       arguments("en_us_extra.json"),
       arguments("en__foo.json"),
       arguments("en_us_extra"),
-      arguments("en__foo")
+      arguments("en__foo"),
+      arguments("_us"),
+      arguments(" _us")
     );
   }
 
