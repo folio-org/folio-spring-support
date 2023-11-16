@@ -45,8 +45,8 @@ public enum TranslationMatchQuality {
     }
 
     // no country from file
-    if (TranslationFile.UNKNOWN_PART.equalsIgnoreCase(parts.region())) {
-      if ("".equals(locale.getCountry())) {
+    if (TranslationFile.UNKNOWN_PART.equals(parts.region())) {
+      if (locale.getCountry().isEmpty()) {
         return PERFECT_MATCH;
       } else {
         return LANG_ONLY;

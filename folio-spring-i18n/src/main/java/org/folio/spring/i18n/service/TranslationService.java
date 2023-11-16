@@ -266,8 +266,7 @@ public class TranslationService {
    * <p>Format an ICU format string (found by its key), supplying a series of named arguments as key
    * value pairs.  For example: {@code format("Hello {name}", "name", parameterValue)}</p>
    *
-   * @param key the key of the format string.  You likely want to use a constant from
-   *   {@link TranslationKey TranslationKey} rather than hard-coding a string.
+   * @param key the key of the format string
    * @param args pairs of keys and values to interpolate
    * @return the formatted string
    */
@@ -339,7 +338,7 @@ public class TranslationService {
         LanguageRegionPair parts = file.getParts();
         Map<String, TranslationFile> regionMap = languageCountryPatternMap.computeIfAbsent(
           parts.language(),
-          key -> new HashMap<String, TranslationFile>()
+          key -> new HashMap<>()
         );
         regionMap.put(parts.region(), file);
 

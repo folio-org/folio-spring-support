@@ -7,8 +7,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.AllArgsConstructor;
-import lombok.Value;
 import lombok.With;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.Resource;
@@ -20,23 +18,15 @@ import org.springframework.core.io.Resource;
  * <p>This class also contains several utility methods for parsing filenames and aggregating
  * {@code TranslationFile} objects.</p>
  */
-@Value
 @Log4j2
-@AllArgsConstructor
-public class TranslationFile {
-
+public record TranslationFile(List<Resource> resources) {
   /**
-   * The String denoting that a language or country is unknown from {@link getParts}.
+   * The String denoting that a language or country is unknown from {@link TranslationFile#getParts()}.
    */
   public static final String UNKNOWN_PART = "*";
 
   private static final int MAX_FILENAME_PARTS = 2;
   private static final String JSON_FILE_SUFFIX = ".json";
-
-  /**
-   * The resources backing the translation files.
-   */
-  private List<Resource> resources;
 
   /**
    * Get the map of patterns from this file.
@@ -51,7 +41,7 @@ public class TranslationFile {
       try {
         Map<String, String> moduleMap = objectMapper.readValue(
           resource.getInputStream(),
-          new TypeReference<Map<String, String>>() {}
+          new TypeReference<>() {}
         );
 
         String moduleName = Path
