@@ -21,7 +21,6 @@ import org.folio.spring.i18n.model.TranslationFile.LanguageRegionPair;
 import org.folio.spring.i18n.model.TranslationMap;
 import org.folio.spring.i18n.model.TranslationMatchQuality;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
@@ -36,7 +35,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @Log4j2
 @Service
-@ComponentScan
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class TranslationService {
 
