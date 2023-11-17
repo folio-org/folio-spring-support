@@ -3,7 +3,6 @@ package org.folio.spring.i18n.model;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,13 +42,9 @@ public record TranslationFile(List<Resource> resources) {
           new TypeReference<>() {}
         );
 
-        log.info("-------------------------");
-        log.info("URL {}", resource.getURL());
-        log.info("URL path {}", resource.getURL().getPath());
-        log.info("Path.of(URL parent) {}", Path.of(resource.getURL().getPath()));
-
-        String moduleName = Path
-          .of(resource.getURL().getPath())
+        String moduleName = resource
+          .getFile()
+          .toPath()
           .getParent()
           .getFileName()
           .toString();
