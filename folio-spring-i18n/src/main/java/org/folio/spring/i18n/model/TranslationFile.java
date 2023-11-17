@@ -43,6 +43,11 @@ public record TranslationFile(List<Resource> resources) {
           new TypeReference<>() {}
         );
 
+        log.info("-------------------------");
+        log.info("URL {}", resource.getURL());
+        log.info("URL path {}", resource.getURL().getPath());
+        log.info("Path.of(URL parent) {}", Path.of(resource.getURL().getPath()));
+
         String moduleName = Path
           .of(resource.getURL().getPath())
           .getParent()
