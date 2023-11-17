@@ -240,7 +240,7 @@ public class TranslationService {
   }
 
   /**
-   * Get the best {@link TranslationMap TranslationMap} for the provides list of Locales.
+   * Get the best {@link TranslationMap TranslationMap} for the provided list of Locales.
    * This will return the first one that matches on at least language or, if none match,
    * the fallback/default TranslationMap.
    *
