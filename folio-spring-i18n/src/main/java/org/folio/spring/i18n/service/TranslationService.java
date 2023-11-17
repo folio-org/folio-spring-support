@@ -57,8 +57,7 @@ public class TranslationService {
    * </p>
    */
   @Nullable
-  protected Map<String, Map<String, TranslationFile>> translationFileFromLanguageCountryMap =
-    null;
+  protected Map<String, Map<String, TranslationFile>> translationFileFromLanguageCountryMap = null;
 
   /**
    * A map from locales to translations, filled in on-demand as locales are presented.
@@ -67,127 +66,6 @@ public class TranslationService {
 
   private final ResourcePatternResolver resourceResolver;
   private final TranslationConfiguration configuration;
-
-  /**
-   * Get a map from language -&gt; country -&gt; {@link TranslationFile TranslationFile}.
-   * The files are pulled from the filesystem based on the provided
-   * {@link TranslationConfiguration TranslationConfiguration}.
-   *
-   * @return the map of languages to countries to {@link TranslationFile TranslationFile}s
-   */
-  @Nonnull
-  public Map<String, Map<String, TranslationFile>> getFileMap() {
-    if (this.translationFileFromLanguageCountryMap == null) {
-      this.translationFileFromLanguageCountryMap =
-        buildLanguageCountryPatternMap();
-    }
-    return this.translationFileFromLanguageCountryMap;
-  }
-
-  /**
-   * Get the best {@link TranslationMap TranslationMap} associated with the current locale.
-   *
-   * @param locale the locale to find a TranslationMap for
-   * @param fallback the default translation that should be used as a fallback; can be null when
-   *   creating the primary fallback translation
-   * @return the best translation available for the current locale, potentially null if the
-   *   default is null.  It checks for match of language and country, then language, then returns
-   *   default if neither are available
-   */
-  @Nullable
-  public TranslationMap getTranslation(
-    Locale locale,
-    @Nullable TranslationMap fallback
-  ) {
-    return localeTranslations.computeIfAbsent(
-      locale,
-      (Locale missingLocale) -> {
-        log.info("Cache miss on {}; loading map", missingLocale);
-
-        if (
-          this.getFileMap()
-            .containsKey(missingLocale.getLanguage().toLowerCase())
-        ) {
-          Map<String, TranslationFile> languageMap =
-            this.getFileMap().get(missingLocale.getLanguage().toLowerCase());
-
-          TranslationFile baseFile = languageMap.get(
-            TranslationFile.UNKNOWN_PART
-          );
-          TranslationMap baseMap = new TranslationMap(
-            missingLocale,
-            baseFile,
-            fallback
-          );
-
-          if (
-            languageMap.containsKey(missingLocale.getCountry().toLowerCase())
-          ) {
-            return new TranslationMap(
-              missingLocale,
-              languageMap.get(missingLocale.getCountry().toLowerCase()),
-              baseMap
-            );
-          }
-
-          return baseMap;
-        }
-
-        return fallback;
-      }
-    );
-  }
-
-  /**
-   * Get the best {@link TranslationMap TranslationMap} associated with the given locale.
-   *
-   * @param locale the locale to find a TranslationMap for
-   * @return the best translation available for the current locale(s), including the fallback locale
-   *   from {@link TranslationConfiguration TranslationConfiguration}, if necessary
-   */
-  public TranslationMap getTranslation(Locale locale) {
-    return getTranslation(locale, getFallbackTranslation().withLocale(locale));
-  }
-
-  /**
-   * Find a TranslationMap for the fallback locale -- used to initialize for {@code getDefaultTranslation}.
-   *
-   * @return the best applicable translation
-   * @throws IllegalStateException if no translation can be found
-   */
-  protected TranslationMap resolveFallbackTranslation() {
-    TranslationMap foundDefault = getTranslation(
-      configuration.getFallbackLocale(),
-      null
-    );
-    if (foundDefault == null) {
-      throw new IllegalStateException(
-        String.format(
-          "No translations are sufficient for the default locale (%s)",
-          configuration.getFallbackLocale()
-        )
-      );
-    }
-    return foundDefault;
-  }
-
-  /**
-   * Get the translation map for the default locale (or en-us, if that is not possible).
-   *
-   * @return the default locale's translation map
-   */
-  public TranslationMap getFallbackTranslation() {
-    // computeIfAbsent does not work due to the resolver potentially filling multiple keys
-    if (
-      !this.localeTranslations.containsKey(configuration.getFallbackLocale())
-    ) {
-      this.localeTranslations.put(
-        configuration.getFallbackLocale(),
-        this.resolveFallbackTranslation()
-      );
-    }
-    return this.localeTranslations.get(configuration.getFallbackLocale());
-  }
 
   /**
    * Get all of the locales for the current request.  This will respect the Accept-Language header
@@ -201,16 +79,12 @@ public class TranslationService {
   public List<Locale> getCurrentLocales() {
     try {
       return Collections.list(
-        (
-          (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()
-        ).getRequest()
+        ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+          .getRequest()
           .getLocales()
       );
     } catch (IllegalStateException e) {
-      log.warn(
-        "The current request contains no locale information: {}",
-        e.getMessage()
-      );
+      log.warn("The current request contains no locale information: {}", e.getMessage());
       return new ArrayList<>();
     }
   }
@@ -228,35 +102,6 @@ public class TranslationService {
       .stream()
       .findFirst()
       .orElse(configuration.getFallbackLocale());
-  }
-
-  /**
-   * Get the best {@link TranslationMap TranslationMap} for the current language(s).
-   * This will respect the Accept-Language header and quality values, as applicable.
-   *
-   * @return the best TranslationMap
-   * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language"> MDN docs</a>
-   */
-  public TranslationMap getCurrentTranslation() {
-    return this.getBestTranslation(this.getCurrentLocales());
-  }
-
-  /**
-   * Get the best {@link TranslationMap TranslationMap} for the provides list of Locales.
-   * This will return the first one that matches on at least language or, if none match,
-   * the fallback/default TranslationMap.
-   *
-   * @param locales the ordered list of locales to consider
-   * @return the best TranslationMap
-   */
-  public TranslationMap getBestTranslation(Collection<Locale> locales) {
-    // return the first one that is a good match
-    return locales
-      .stream()
-      .map(this::getTranslation)
-      .filter(m -> m.getQuality() != TranslationMatchQuality.NO_MATCH)
-      .findFirst()
-      .orElseGet(this::getFallbackTranslation);
   }
 
   /**
@@ -286,22 +131,147 @@ public class TranslationService {
   }
 
   /**
+   * Get a map from language -&gt; country -&gt; {@link TranslationFile TranslationFile}.
+   * The files are pulled from the filesystem based on the provided
+   * {@link TranslationConfiguration TranslationConfiguration}.
+   *
+   * @return the map of languages to countries to {@link TranslationFile TranslationFile}s
+   */
+  @Nonnull
+  protected Map<String, Map<String, TranslationFile>> getFileMap() {
+    if (this.translationFileFromLanguageCountryMap == null) {
+      this.translationFileFromLanguageCountryMap = buildLanguageCountryPatternMap();
+    }
+    return this.translationFileFromLanguageCountryMap;
+  }
+
+  /**
+   * Get the best {@link TranslationMap TranslationMap} associated with the current locale.
+   *
+   * @param locale the locale to find a TranslationMap for
+   * @param fallback the default translation that should be used as a fallback; can be null when
+   *   creating the primary fallback translation
+   * @return the best translation available for the current locale, potentially null if the
+   *   default is null.  It checks for match of language and country, then language, then returns
+   *   default if neither are available
+   */
+  @Nullable
+  protected TranslationMap getTranslation(
+    Locale locale,
+    @Nullable TranslationMap fallback
+  ) {
+    return localeTranslations.computeIfAbsent(
+      locale,
+      (Locale missingLocale) -> {
+        log.info("Cache miss on {}; loading map", missingLocale);
+
+        if (this.getFileMap().containsKey(missingLocale.getLanguage().toLowerCase())) {
+          Map<String, TranslationFile> languageMap = this.getFileMap().get(missingLocale.getLanguage().toLowerCase());
+
+          TranslationFile baseFile = languageMap.get(TranslationFile.UNKNOWN_PART);
+          TranslationMap baseMap = new TranslationMap(missingLocale, baseFile, fallback);
+
+          if (languageMap.containsKey(missingLocale.getCountry().toLowerCase())) {
+            return new TranslationMap(
+              missingLocale,
+              languageMap.get(missingLocale.getCountry().toLowerCase()),
+              baseMap
+            );
+          }
+
+          return baseMap;
+        }
+
+        return fallback;
+      }
+    );
+  }
+
+  /**
+   * Get the best {@link TranslationMap TranslationMap} associated with the given locale.
+   *
+   * @param locale the locale to find a TranslationMap for
+   * @return the best translation available for the current locale(s), including the fallback locale
+   *   from {@link TranslationConfiguration TranslationConfiguration}, if necessary
+   */
+  protected TranslationMap getTranslation(Locale locale) {
+    return getTranslation(locale, getFallbackTranslation().withLocale(locale));
+  }
+
+  /**
+   * Find a TranslationMap for the fallback locale -- used to initialize for {@code getDefaultTranslation}.
+   *
+   * @return the best applicable translation
+   * @throws IllegalStateException if no translation can be found
+   */
+  protected TranslationMap resolveFallbackTranslation() {
+    TranslationMap foundDefault = getTranslation(configuration.getFallbackLocale(), null);
+    if (foundDefault == null) {
+      throw new IllegalStateException(String.format(
+        "No translations are sufficient for the default locale (%s)",
+        configuration.getFallbackLocale()
+      ));
+    }
+    return foundDefault;
+  }
+
+  /**
+   * Get the translation map for the default locale (or en-us, if that is not possible).
+   *
+   * @return the default locale's translation map
+   */
+  protected TranslationMap getFallbackTranslation() {
+    // computeIfAbsent does not work due to the resolver potentially filling multiple keys
+    if (!this.localeTranslations.containsKey(configuration.getFallbackLocale())) {
+      this.localeTranslations.put(configuration.getFallbackLocale(), this.resolveFallbackTranslation());
+    }
+    return this.localeTranslations.get(configuration.getFallbackLocale());
+  }
+
+  /**
+   * Get the best {@link TranslationMap TranslationMap} for the current language(s).
+   * This will respect the Accept-Language header and quality values, as applicable.
+   *
+   * @return the best TranslationMap
+   * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language"> MDN docs</a>
+   */
+  protected TranslationMap getCurrentTranslation() {
+    return this.getBestTranslation(this.getCurrentLocales());
+  }
+
+  /**
+   * Get the best {@link TranslationMap TranslationMap} for the provides list of Locales.
+   * This will return the first one that matches on at least language or, if none match,
+   * the fallback/default TranslationMap.
+   *
+   * @param locales the ordered list of locales to consider
+   * @return the best TranslationMap
+   */
+  protected TranslationMap getBestTranslation(Collection<Locale> locales) {
+    // return the first one that is a good match
+    return locales
+      .stream()
+      .map(this::getTranslation)
+      .filter(m -> m.getQuality() != TranslationMatchQuality.NO_MATCH)
+      .findFirst()
+      .orElseGet(this::getFallbackTranslation);
+  }
+
+  /**
    * Get all available translations in the classpath.
    *
    * @return a list of available translation files
    * @throws IllegalStateException if the translation files cannot be found
    */
-  public List<TranslationFile> getAvailableTranslationFiles() {
+  protected List<TranslationFile> getAvailableTranslationFiles() {
     try {
       Map<String, List<Resource>> localeGroups = Arrays
-        .stream(
-          resourceResolver.getResources(
-            String.format(
-              TRANSLATIONS_CLASSPATH,
-              configuration.getTranslationDirectory()
-            )
+        .stream(resourceResolver.getResources(
+          String.format(
+            TRANSLATIONS_CLASSPATH,
+            configuration.getTranslationDirectory()
           )
-        )
+        ))
         .filter(Resource::isReadable)
         .collect(Collectors.groupingBy(Resource::getFilename));
 
@@ -315,9 +285,7 @@ public class TranslationService {
 
       return files;
     } catch (IOException e) {
-      throw log.throwing(
-        new IllegalStateException("Could not retrieve translation files", e)
-      );
+      throw log.throwing(new IllegalStateException("Could not retrieve translation files", e));
     }
   }
 
