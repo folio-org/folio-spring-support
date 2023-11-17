@@ -12,9 +12,10 @@
 
 Translations may be performed in backend modules using this library, per [this TC decision](https://wiki.folio.org/x/SqTc). These translations work the same as UI modules:
 
-- Translations are stored in JSON files within the module's path, with a structure like `/translations/mod-foo/locale.json` (`/translations/` may be customized by altering the POM's mapping below, however, this is not recommended as Lokalise will not pick it up).
+- Translations are stored in JSON files like `/translations/mod-foo/en_ca.json` in the code repository. The path is required for the automated exchange of translation files to and from FOLIO's translation tool [Lokalise](https://lokalise.org/).
+- This `/translations/` directory must be loaded as a resource and packaged with the application. The path is required by folio-spring-i18n.
 - Each JSON file is named for a locale and region, e.g. `en_ca.json`.
-- The `en.json` file is the source of truth and fallback; other translation modules will be generated and tracked separately by Lokalise.
+- The `en.json` file is the source of truth and fallback; other translation files will be generated and tracked separately by Lokalise.
 - Translation keys are prepended with the module name, e.g. `mod-foo.title`.
 
 This library provides a number of features, including:
@@ -50,15 +51,6 @@ Then, add the following to your `pom.xml` in `<build>`:
       <targetPath>translations</targetPath>
     </resource>
   </resources>
-  <testResources>
-    <testResource>
-      <directory>src/test/resources</directory>
-    </testResource>
-    <testResource>
-      <directory>${project.basedir}/translations</directory>
-      <targetPath>translations</targetPath>
-    </testResource>
-  </testResources>
 ```
 
 Now, create a folder `/translations/mod-name-here` and you're good to go!
