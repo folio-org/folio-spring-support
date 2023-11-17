@@ -116,7 +116,7 @@ public class TranslationService {
    * @return the formatted string
    */
   public String format(String key, Object... args) {
-    return this.getCurrentTranslation().format(key, args);
+    return getCurrentTranslation().format(key, args);
   }
 
   /**
@@ -166,7 +166,7 @@ public class TranslationService {
         log.info("Cache miss on {}; loading map", missingLocale);
 
         if (this.getFileMap().containsKey(missingLocale.getLanguage().toLowerCase())) {
-          Map<String, TranslationFile> languageMap = this.getFileMap().get(missingLocale.getLanguage().toLowerCase());
+          Map<String, TranslationFile> languageMap = getFileMap().get(missingLocale.getLanguage().toLowerCase());
 
           TranslationFile baseFile = languageMap.get(TranslationFile.UNKNOWN_PART);
           TranslationMap baseMap = new TranslationMap(missingLocale, baseFile, fallback);
@@ -223,7 +223,7 @@ public class TranslationService {
   protected TranslationMap getFallbackTranslation() {
     // computeIfAbsent does not work due to the resolver potentially filling multiple keys
     if (!this.localeTranslations.containsKey(configuration.getFallbackLocale())) {
-      this.localeTranslations.put(configuration.getFallbackLocale(), this.resolveFallbackTranslation());
+      this.localeTranslations.put(configuration.getFallbackLocale(), resolveFallbackTranslation());
     }
     return this.localeTranslations.get(configuration.getFallbackLocale());
   }
@@ -236,7 +236,7 @@ public class TranslationService {
    * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language"> MDN docs</a>
    */
   protected TranslationMap getCurrentTranslation() {
-    return this.getBestTranslation(this.getCurrentLocales());
+    return getBestTranslation(getCurrentLocales());
   }
 
   /**
