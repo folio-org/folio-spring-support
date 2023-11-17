@@ -12,7 +12,7 @@
 
 Translations may be performed in backend modules using this library, per [this TC decision](https://wiki.folio.org/x/SqTc). These translations work the same as UI modules:
 
-- Translations are stored in JSON files like `/translations/mod-foo/en_ca.json` in the code repository. The path is required for the automated exchange of translation files to and from FOLIO's translation tool [Lokalise](https://lokalise.org/).
+- Translations are stored in JSON files like `/translations/mod-foo/en_ca.json` in the code repository. The path is required for the automated exchange of translation files to and from FOLIO's translation tool [Lokalise](https://lokalise.com/).
 - This `/translations/` directory must be loaded as a resource and packaged with the application. The path is required by folio-spring-i18n.
 - Each JSON file is named for a locale and region, e.g. `en_ca.json`.
 - The `en.json` file is the source of truth and fallback; other translation files will be generated and tracked separately by Lokalise.
