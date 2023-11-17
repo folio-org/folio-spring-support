@@ -165,24 +165,24 @@ public class TranslationService {
       (Locale missingLocale) -> {
         log.info("Cache miss on {}; loading map", missingLocale);
 
-        if (this.getFileMap().containsKey(missingLocale.getLanguage().toLowerCase())) {
-          Map<String, TranslationFile> languageMap = getFileMap().get(missingLocale.getLanguage().toLowerCase());
+        Map<String, TranslationFile> languageMap = getFileMap().get(missingLocale.getLanguage().toLowerCase());
 
-          TranslationFile baseFile = languageMap.get(TranslationFile.UNKNOWN_PART);
-          TranslationMap baseMap = new TranslationMap(missingLocale, baseFile, fallback);
-
-          if (languageMap.containsKey(missingLocale.getCountry().toLowerCase())) {
-            return new TranslationMap(
-              missingLocale,
-              languageMap.get(missingLocale.getCountry().toLowerCase()),
-              baseMap
-            );
-          }
-
-          return baseMap;
+        if (languageMap == null) {
+          return fallback;
         }
 
-        return fallback;
+        TranslationFile baseFile = languageMap.get(TranslationFile.UNKNOWN_PART);
+        TranslationMap baseMap = new TranslationMap(missingLocale, baseFile, fallback);
+
+        if (languageMap.containsKey(missingLocale.getCountry().toLowerCase())) {
+          return new TranslationMap(
+            missingLocale,
+            languageMap.get(missingLocale.getCountry().toLowerCase()),
+            baseMap
+          );
+        }
+
+        return baseMap;
       }
     );
   }
