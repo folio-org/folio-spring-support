@@ -22,22 +22,19 @@ import lombok.extern.log4j.Log4j2;
  * seamless support for missing translations.
  */
 @Log4j2
+@Getter
 @ToString
 @EqualsAndHashCode
 public final class TranslationMap {
 
-  @Getter
   private final Locale locale;
 
-  @Getter
   private final TranslationMatchQuality quality;
 
-  @Getter
   private final TranslationFile file;
 
   private final Map<String, String> patterns;
 
-  @Getter
   @Nullable
   private final TranslationMap fallback;
 
