@@ -1,0 +1,4 @@
+{
+  "foo": "[mod-bar] fr_fr {test}",
+  "fr_only": "[mod-bar] In fr_fr!"
+}

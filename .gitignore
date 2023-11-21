@@ -31,3 +31,5 @@ target/
 .settings/
 .classpath
 /bin/
+#VS Code
+.vscode

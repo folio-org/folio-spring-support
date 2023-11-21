@@ -1,0 +1,5 @@
+{
+  "foo": "[mod-foo] en_ca {test}",
+  "en_ca_only": "[mod-foo] In en_ca!",
+  "en_only": "[mod-foo] In en_ca!"
+}
