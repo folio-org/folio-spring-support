@@ -30,7 +30,7 @@ public record TranslationFile(List<Resource> resources) {
 
   // accepts form of {something}[{something}/]{moduleName}/{anything}]{optional trailing}
   private static final Pattern MODULE_NAME_FROM_DESCRIPTION_PATTERN = Pattern.compile(
-    ".*\\[(?:.*[\\/\\\\])?(?<moduleName>[^\\/\\\\]+)[\\/\\\\].*\\].*"
+    "^.*\\[(?:.*[\\/\\\\])?(?<moduleName>[^\\/\\\\]+)[\\/\\\\].*\\].*$"
   );
 
   /**
