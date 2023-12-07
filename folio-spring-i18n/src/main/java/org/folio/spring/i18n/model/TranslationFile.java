@@ -28,7 +28,11 @@ public record TranslationFile(List<Resource> resources) {
   private static final int MAX_FILENAME_PARTS = 2;
   private static final String JSON_FILE_SUFFIX = ".json";
 
+  // 125 -> sonar insists the below line is code
+  // 5852 -> sonar detected the regex as potentially vulnerable to ReDoS (backtracking)
+  //         this is not an issue as the regex is only used on known input from the module's classpath
   // accepts form of {something}[{something}/]{moduleName}/{anything}]{optional trailing}
+  @SuppressWarnings({"java:S125", "java:S5852"})
   private static final Pattern MODULE_NAME_FROM_DESCRIPTION_PATTERN = Pattern.compile(
     "^.*\\[(?:.*[\\/\\\\])?(?<moduleName>[^\\/\\\\]+)[\\/\\\\].*\\].*$"
   );
@@ -124,7 +128,9 @@ public record TranslationFile(List<Resource> resources) {
     if (parts[0].isBlank() && parts.length > 1) {
       throw log.throwing(
         new IllegalArgumentException(
-          "TranslationFile filename " + filename + " has a region but no language"
+          "TranslationFile filename " +
+          filename +
+          " has a region but no language"
         )
       );
     }
@@ -163,7 +169,8 @@ public record TranslationFile(List<Resource> resources) {
     if (!matcher.matches()) {
       throw log.throwing(
         new IllegalArgumentException(
-          "Could not extract module name from resource description " + description
+          "Could not extract module name from resource description " +
+          description
         )
       );
     }
