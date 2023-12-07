@@ -37,6 +37,11 @@ public record TranslationFile(List<Resource> resources) {
 
     for (Resource resource : resources) {
       try {
+        log.info("resource.getFilename(): {}", resource.getFilename());
+        log.info("resource.getDescription(): {}", resource.getDescription());
+        log.info("resource.getUri(): {}", resource.getURI());
+        log.info("resource.getUrl(): {}", resource.getURL());
+
         Map<String, String> moduleMap = objectMapper.readValue(
           resource.getInputStream(),
           new TypeReference<>() {}
