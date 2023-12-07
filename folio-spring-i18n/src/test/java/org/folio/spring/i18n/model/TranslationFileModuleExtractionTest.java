@@ -24,7 +24,15 @@ class TranslationFileModuleExtractionTest {
         "class path resource [mod-foo/mod-bar/mod-test/mod-other]",
         "mod-test"
       ),
-      arguments("file [C:/Test/translations/mod-test/mod-other]", "mod-test")
+      arguments("file [C:/Test/translations/mod-test/mod-other]", "mod-test"),
+      arguments(
+        "file [C:\\Test\\translations\\mod-test\\mod-other]",
+        "mod-test"
+      ),
+      arguments(
+        "class path resource [translations\\mod-test\\mod-other]",
+        "mod-test"
+      )
     );
   }
 
