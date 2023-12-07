@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.Resource;
 
@@ -26,6 +28,11 @@ public record TranslationFile(List<Resource> resources) {
   private static final int MAX_FILENAME_PARTS = 2;
   private static final String JSON_FILE_SUFFIX = ".json";
 
+  // accepts form of {something}[{something}/]{moduleName}/{anything}]{optional trailing}
+  private static final Pattern MODULE_NAME_FROM_DESCRIPTION_PATTERN = Pattern.compile(
+    ".*\\[(?:.*\\/)?(?<moduleName>[^\\/]+)\\/.*\\].*"
+  );
+
   /**
    * Get the map of patterns from this file.
    *
@@ -37,22 +44,14 @@ public record TranslationFile(List<Resource> resources) {
 
     for (Resource resource : resources) {
       try {
-        log.info("resource.getFilename(): {}", resource.getFilename());
-        log.info("resource.getDescription(): {}", resource.getDescription());
-        log.info("resource.getUri(): {}", resource.getURI());
-        log.info("resource.getUrl(): {}", resource.getURL());
+        String moduleName = getModuleNameFromResourceDescription(
+          resource.getDescription()
+        );
 
         Map<String, String> moduleMap = objectMapper.readValue(
           resource.getInputStream(),
           new TypeReference<>() {}
         );
-
-        String moduleName = resource
-          .getFile()
-          .toPath()
-          .getParent()
-          .getFileName()
-          .toString();
 
         moduleMap.forEach((key, value) ->
           result.put(moduleName + "." + key, value)
@@ -143,5 +142,31 @@ public record TranslationFile(List<Resource> resources) {
     }
 
     return result;
+  }
+
+  /**
+   * Extract the module name from a Spring Resource's description.
+   * These descriptions take the form of "file [/foo/bar/translations/mod-modulename/en.json]"
+   * or "class path resource [translations/mod-modulename/something.json]".  From this we extract "mod-modulename".
+   *
+   * @param description the resource description
+   * @return the module name
+   */
+  public static String getModuleNameFromResourceDescription(
+    String description
+  ) {
+    // description is of the form "file [/foo/bar/translations/mod-modulename/en.json]"
+    // or of the form "class path resource [translations/mod-modulename/something.json]"
+    // extract mod-modulename via regex
+
+    Matcher matcher = MODULE_NAME_FROM_DESCRIPTION_PATTERN.matcher(description);
+    if (!matcher.matches()) {
+      throw log.throwing(
+        new IllegalArgumentException(
+          "Could not extract module name from resource description " + description
+        )
+      );
+    }
+    return matcher.group("moduleName");
   }
 }
