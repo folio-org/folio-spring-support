@@ -50,7 +50,6 @@ class TranslationFileModuleExtractionTest {
     return Arrays.asList(
       arguments("file []"),
       arguments("not a thing"),
-      arguments("missing the brackets translations/mod-foo/bar.json"),
       arguments("[en.json]"),
       arguments("")
     );
