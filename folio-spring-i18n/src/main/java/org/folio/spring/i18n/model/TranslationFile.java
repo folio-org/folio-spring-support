@@ -29,8 +29,10 @@ public record TranslationFile(List<Resource> resources) {
   private static final String JSON_FILE_SUFFIX = ".json";
 
   // 125 -> sonar insists the comment is code
+  // 5852 -> sonar detected the regex as potentially vulnerable to ReDoS (backtracking)
+  //         this is not an issue as the regex is only used on known input from the module's classpath
   // accepts form of {something}[{something}/]{moduleName}/{anything}]{optional trailing}
-  @SuppressWarnings({ "java:S125" })
+  @SuppressWarnings({ "java:S125", "java:S5852" })
   private static final Pattern MODULE_NAME_FROM_DESCRIPTION_PATTERN = Pattern.compile(
     ".*[\\[/\\\\](?<moduleName>[^/\\\\]+)[/\\\\].*"
   );
