@@ -55,8 +55,8 @@ public class FolioExecutionContextSetter implements AutoCloseable {
    *
    * @param httpHeaders where to take the tenant id from
    */
-  public FolioExecutionContextSetter(
-      FolioModuleMetadata folioModuleMetadata, Map<String, Collection<String>> httpHeaders) {
+  public FolioExecutionContextSetter(FolioModuleMetadata folioModuleMetadata,
+                                     Map<String, Collection<String>> httpHeaders) {
     this(new DefaultFolioExecutionContext(folioModuleMetadata, httpHeaders));
   }
 

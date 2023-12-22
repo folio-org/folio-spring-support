@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.folio.spring.testing.type.UnitTest;
 import org.jeasy.random.randomizers.collection.ListRandomizer;
 import org.jeasy.random.randomizers.collection.MapRandomizer;
 import org.jeasy.random.randomizers.text.StringRandomizer;
@@ -28,6 +29,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class RequestUtilsTest {
 

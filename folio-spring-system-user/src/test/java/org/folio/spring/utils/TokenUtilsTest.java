@@ -10,10 +10,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.folio.spring.client.AuthnClient;
 import org.folio.spring.model.UserToken;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+@UnitTest
 class TokenUtilsTest {
 
   @Test

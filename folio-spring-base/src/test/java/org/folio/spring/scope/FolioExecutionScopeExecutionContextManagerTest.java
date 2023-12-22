@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+@UnitTest
 @SpringBootTest(classes = {
   FolioExecutionScopeExecutionContextManagerTest.TestConfiguration.class,
   FolioExecutionScopeConfig.class},

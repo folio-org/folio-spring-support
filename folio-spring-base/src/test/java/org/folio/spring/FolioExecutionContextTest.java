@@ -11,8 +11,10 @@ import java.util.Map;
 import org.assertj.core.api.AbstractStringAssert;
 import org.folio.spring.scope.EmptyFolioExecutionContextHolder;
 import org.folio.spring.scope.FolioExecutionScopeConfig;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
+@UnitTest
 class FolioExecutionContextTest {
 
   private final FolioExecutionContext context = new FolioExecutionContext() {};

@@ -13,8 +13,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
+@UnitTest
 class DefaultFolioExecutionContextTest {
 
   private final FolioModuleMetadata moduleMetadata = new FolioModuleMetadata() {

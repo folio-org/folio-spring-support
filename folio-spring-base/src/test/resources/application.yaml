@@ -22,6 +22,3 @@ folio:
     feign:
       enabled: true
       level: basic
-logging:
-  level:
-    io.zonky.test.db.postgres: FATAL

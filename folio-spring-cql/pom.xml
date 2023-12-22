@@ -64,28 +64,26 @@
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>folio-spring-testing</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <!-- spring-boot-starter-parent provides an old org.postgresql:postgresql version,
+           we need the fix that closes the socket and the fix for hanging ssl connections:
+           https://jdbc.postgresql.org/changelogs/2023-01-31-42.5.2-release/#fixed
+      -->
+      <version>${postgresql.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.jeasy</groupId>
       <artifactId>easy-random-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>io.zonky.test</groupId>
-      <artifactId>embedded-database-spring-test</artifactId>
-      <version>${embedded-database-spring-test.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>io.zonky.test</groupId>
-      <artifactId>embedded-postgres</artifactId>
-      <version>${embedded-postgres.version}</version>
       <scope>test</scope>
     </dependency>
 

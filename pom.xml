@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.1.5</version> <!-- also change spring-boot.version -->
+    <version>3.2.0</version> <!-- also change spring-boot.version -->
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
 
@@ -24,23 +24,24 @@
     <module>folio-spring-base</module>
     <module>folio-spring-system-user</module>
     <module>folio-spring-i18n</module>
+    <module>folio-spring-common</module>
+    <module>folio-spring-testing</module>
   </modules>
 
   <properties>
     <java.version>17</java.version>
-    <spring-boot.version>3.1.5</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
-    <spring-cloud-starter-openfeign.version>4.0.4</spring-cloud-starter-openfeign.version>
-    <snakeyaml.version>2.0</snakeyaml.version>
-    <commons-lang3.version>3.12.0</commons-lang3.version>
+    <spring-boot.version>3.2.0</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
+    <spring-cloud-starter-openfeign.version>4.1.0</spring-cloud-starter-openfeign.version>
+    <snakeyaml.version>2.2</snakeyaml.version>
+    <commons-lang3.version>3.14.0</commons-lang3.version>
     <maven-compat.version>3.9.2</maven-compat.version>
     <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
     <swagger-annotations.version>2.2.10</swagger-annotations.version>
     <feign-okhttp.version>12.3</feign-okhttp.version>
-    <lombok.version>1.18.28</lombok.version>
+    <lombok.version>1.18.30</lombok.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
     <cql2pgjson.version>35.1.0</cql2pgjson.version>
-    <postgresql.version>42.6.0</postgresql.version>
-    <liquibase-core.version>4.22.0</liquibase-core.version>
+    <postgresql.version>42.7.1</postgresql.version>
     <rhino.version>1.7.14</rhino.version>
     <icu4j.version>74.1</icu4j.version>
 
@@ -51,18 +52,18 @@
     <mockito-inline.version>5.2.0</mockito-inline.version>
 
     <!-- Plugins versions -->
-    <versions-maven-plugin.version>2.15.0</versions-maven-plugin.version>
-    <maven-enforcer-plugin.version>3.3.0</maven-enforcer-plugin.version>
-    <build-helper-maven-plugin.version>3.4.0</build-helper-maven-plugin.version>
+    <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
+    <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
+    <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
     <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-    <maven-checkstyle-plugin.version>3.2.2</maven-checkstyle-plugin.version>
-    <openapi-generator.version>6.6.0</openapi-generator.version>
+    <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
+    <openapi-generator.version>7.1.0</openapi-generator.version>
     <guava.version>32.1.1-jre</guava.version>  <!-- remove when openapi-generator ships with non-vulnerable guava >= 32.0.0 -->
-    <maven-failsafe-plugin.version>3.1.0</maven-failsafe-plugin.version>
-    <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
-    <maven-surefire-plugin.version>3.1.0</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.2.2</maven-failsafe-plugin.version>
+    <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
+    <maven-surefire-plugin.version>3.2.2</maven-surefire-plugin.version>
     <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
-    <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>3.6.2</maven-javadoc-plugin.version>
     <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
   </properties>
 
@@ -219,7 +220,8 @@
             <violationSeverity>warning</violationSeverity>
             <failOnViolation>true</failOnViolation>
             <logViolationsToConsole>true</logViolationsToConsole>
-            <configLocation>${main.basedir}/checkstyle/checkstyle.xml</configLocation>
+            <!--suppress UnresolvedMavenProperty -->
+            <configLocation>checkstyle/checkstyle.xml</configLocation>
             <cacheFile>${project.build.directory}/cachefile</cacheFile>
           </configuration>
         </plugin>
@@ -244,8 +246,29 @@
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+          <configuration>
+            <useSystemClassLoader>false</useSystemClassLoader>
+            <groups>unit</groups>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>${maven-failsafe-plugin.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <groups>integration</groups>
+          </configuration>
         </plugin>
 
         <plugin>
@@ -308,6 +331,7 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
       </plugin>
 
@@ -317,30 +341,37 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
       </plugin>
     </plugins>
