@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.jdbc.JdbcTestUtils;
 
 /**
  * JUnit 5 extension for database cleanup after test execution.
@@ -31,6 +30,7 @@ public class DatabaseCleanupExtension implements AfterEachCallback {
       .ifPresent(annotation -> clearTables(annotation.tables(), annotation.tenants(), context));
   }
 
+  @SuppressWarnings("java:S2077")
   private void clearTables(String[] tableNames, String[] tenants, ExtensionContext context) {
     var applicationContext = SpringExtension.getApplicationContext(context);
     var jdbcTemplate = applicationContext.getBean(JdbcTemplate.class);
@@ -43,7 +43,9 @@ public class DatabaseCleanupExtension implements AfterEachCallback {
       tenants = existedTenants.toArray(new String[0]);
     }
     var fullTableNames = getFullTableNames(tableNames, tenants, folioModuleMetadata);
-    JdbcTestUtils.deleteFromTables(jdbcTemplate, fullTableNames);
+    for (String fullTableName : fullTableNames) {
+      jdbcTemplate.execute("delete from " + fullTableName + ";");
+    }
   }
 
   @NotNull

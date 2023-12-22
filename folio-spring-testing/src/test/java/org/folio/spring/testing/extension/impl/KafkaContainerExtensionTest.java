@@ -2,10 +2,10 @@ package org.folio.spring.testing.extension.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.folio.spring.testing.type.IntegrationTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
-@IntegrationTest
+@UnitTest
 class KafkaContainerExtensionTest {
 
   private final KafkaContainerExtension extension = new KafkaContainerExtension();

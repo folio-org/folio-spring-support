@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.folio.spring.testing.type.IntegrationTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-@IntegrationTest
+@UnitTest
 class OkapiExtensionTest {
 
   private final OkapiExtension extension = new OkapiExtension();

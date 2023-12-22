@@ -2,10 +2,10 @@ package org.folio.spring.testing.extension.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.folio.spring.testing.type.IntegrationTest;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
-@IntegrationTest
+@UnitTest
 class OkapiConfigurationTest {
 
   @Test
