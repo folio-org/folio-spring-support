@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 import java.sql.ResultSet;
 import liquibase.exception.LiquibaseException;
+import liquibase.exception.UnexpectedLiquibaseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
@@ -48,7 +49,7 @@ public class TenantService {
 
       try {
         folioSpringLiquibase.performLiquibaseUpdate();
-      } catch (LiquibaseException e) {
+      } catch (LiquibaseException | UnexpectedLiquibaseException e) {
         throw new TenantUpgradeException(e);
       }
 
