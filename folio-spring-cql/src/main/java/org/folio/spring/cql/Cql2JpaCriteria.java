@@ -15,6 +15,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -380,7 +381,7 @@ public class Cql2JpaCriteria<E> {
       term = UUID.fromString((String) term);
     } else if (Boolean.class.equals(javaType)) {
       term = Boolean.valueOf((String) term);
-    } else if (Date.class.equals(javaType)) {
+    } else if (Date.class.equals(javaType) || Timestamp.class.equals(javaType)) {
       var value = (String) term;
       if (isDatesRange(value)) {
         return toFilterByDatesPredicate(field, value, cb);
