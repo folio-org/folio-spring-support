@@ -138,7 +138,8 @@ class JpaCqlRepositoryIT {
     "3, 0, -1"
   })
   void testSelectAllRecordsWithSortAndPagination(int pageNumber, int size, int age) {
-    var page = personRepository.findByCql("(cql.allRecords=1)sortby age/sort.descending", PageRequest.of(pageNumber, 1));
+    var page = personRepository.findByCql("(cql.allRecords=1)sortby age/sort.descending",
+      PageRequest.of(pageNumber, 1));
 
     if (size == 0) {
       assertThat(page)
