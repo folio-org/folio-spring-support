@@ -381,7 +381,7 @@ public class Cql2JpaCriteria<E> {
       term = UUID.fromString((String) term);
     } else if (Boolean.class.equals(javaType)) {
       term = Boolean.valueOf((String) term);
-    } else if (Date.class.equals(javaType)) {
+    } else if (Date.class.equals(javaType) || Timestamp.class.equals(javaType)) {
       var value = (String) term;
       if (isDatesRange(value)) {
         return toFilterByDatesPredicate(field, value, cb);
