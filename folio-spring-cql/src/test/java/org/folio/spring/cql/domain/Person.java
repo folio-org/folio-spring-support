@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
@@ -27,6 +28,7 @@ public class Person {
   private Date dateBorn;
   private LocalDateTime localDate;
   private boolean deleted = false;
+  private Timestamp createdDate;
 
   @ManyToOne
   @JoinColumn(name = "city_id")
