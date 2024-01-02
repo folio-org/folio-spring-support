@@ -44,8 +44,6 @@
 
     <!-- Test dependencies versions -->
     <easy-random.version>5.0.0</easy-random.version>
-    <embedded-database-spring-test.version>2.4.0</embedded-database-spring-test.version>
-    <embedded-postgres.version>2.0.6</embedded-postgres.version>
     <mockito-inline.version>5.2.0</mockito-inline.version>
 
     <!-- Plugins versions -->

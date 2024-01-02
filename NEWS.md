@@ -1,4 +1,4 @@
-## 8.0.0 In progress
+## 7.3.0 In progress
 * [FOLSPRINGB-140](https://issues.folio.org/browse/FOLSPRINGB-115) Add Testing Submodule for Test Management
 * Upgrade to spring-boot 3.2.0
 

@@ -396,13 +396,6 @@ public class Cql2JpaCriteria<E> {
       } else {
         term = LocalDateTime.parse(value);
       }
-    } else if (Timestamp.class.equals(javaType)) {
-      var value = (String) term;
-      if (isDatesRange(value)) {
-        return toFilterByDatesPredicate(field, value, cb);
-      } else {
-        term = Timestamp.valueOf(LocalDateTime.parse(value));
-      }
     } else if (javaType.isEnum()) {
       field = field.as(String.class);
     }

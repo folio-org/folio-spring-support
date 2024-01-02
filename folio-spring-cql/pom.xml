@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.folio</groupId>
     <artifactId>folio-spring-support</artifactId>
-    <version>8.0.0-SNAPSHOT</version>
+    <version>7.3.0-SNAPSHOT</version>
   </parent>
 
   <name>folio-spring-cql</name>
@@ -73,11 +73,6 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <!-- spring-boot-starter-parent provides an old org.postgresql:postgresql version,
-           we need the fix that closes the socket and the fix for hanging ssl connections:
-           https://jdbc.postgresql.org/changelogs/2023-01-31-42.5.2-release/#fixed
-      -->
-      <version>${postgresql.version}</version>
       <scope>test</scope>
     </dependency>
 
