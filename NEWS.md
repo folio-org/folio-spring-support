@@ -1,3 +1,7 @@
+## 7.3.0 In progress
+* [FOLSPRINGB-140](https://issues.folio.org/browse/FOLSPRINGB-115) Add Testing Submodule for Test Management
+* Upgrade to spring-boot 3.2.0
+
 ## 7.2.0 2023-10-03
 * [FOLSPRINGB-115](https://issues.folio.org/browse/FOLSPRINGB-115) Add submodule for creating and utilizing system-user
 * [FOLSPRINGB-118](https://issues.folio.org/browse/FOLSPRINGB-118) Implement refresh token rotation method for edge module

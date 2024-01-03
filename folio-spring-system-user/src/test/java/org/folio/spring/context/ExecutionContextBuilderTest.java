@@ -6,8 +6,10 @@ import static org.mockito.Mockito.mock;
 
 import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
+@UnitTest
 class ExecutionContextBuilderTest {
 
   private final ExecutionContextBuilder builder =

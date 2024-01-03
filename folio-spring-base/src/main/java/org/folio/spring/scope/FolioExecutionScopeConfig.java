@@ -41,7 +41,7 @@ public class FolioExecutionScopeConfig {
   @Scope(value = FOLIO_EXECUTION, proxyMode = ScopedProxyMode.INTERFACES)
   public FolioExecutionContext folioExecutionContext() {
     var folioExecutionContext = getFolioExecutionContext();
-    
+
     return folioExecutionContext != null
       ? folioExecutionContext
       : emptyFolioExecutionContextHolder.getEmptyFolioExecutionContext();

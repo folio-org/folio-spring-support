@@ -8,12 +8,14 @@ import static org.mockito.Mockito.doThrow;
 
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class FolioPostgresDatabaseTest {
 

@@ -19,6 +19,7 @@ import org.folio.spring.client.UsersClient.User.Personal;
 import org.folio.spring.model.ResultList;
 import org.folio.spring.service.PrepareSystemUserService;
 import org.folio.spring.service.SystemUserProperties;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -26,6 +27,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class PrepareSystemUserServiceTest {
 

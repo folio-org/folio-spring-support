@@ -1,8 +1,11 @@
-package org.folio.junit.extension;
+package org.folio.spring.testing.extension.impl;
 
 import static org.junit.platform.commons.support.AnnotationSupport.isAnnotated;
 
 import java.lang.reflect.Parameter;
+import org.folio.spring.testing.extension.Random;
+import org.folio.spring.testing.extension.RandomInt;
+import org.folio.spring.testing.extension.RandomLong;
 import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
 import org.jeasy.random.randomizers.range.IntegerRangeRandomizer;
@@ -12,6 +15,10 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
+/**
+ * JUnit 5 extension for resolving parameters annotated with 'Random', 'RandomInt', or 'RandomLong'
+ * by generating appropriate random values.
+ */
 public class RandomParametersExtension implements ParameterResolver {
 
   private final EasyRandom easyRandom;

@@ -2,9 +2,6 @@ package org.folio.spring.cql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseProvider;
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseType;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -16,6 +13,8 @@ import org.folio.spring.cql.domain.Str;
 import org.folio.spring.cql.repo.CityRepository;
 import org.folio.spring.cql.repo.PersonRepository;
 import org.folio.spring.cql.repo.StrRepository;
+import org.folio.spring.testing.extension.EnablePostgres;
+import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -23,17 +22,16 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 
+@IntegrationTest
 @SpringBootTest
-@AutoConfigureEmbeddedDatabase(beanName = "dataSource", type = DatabaseType.POSTGRES, provider = DatabaseProvider.ZONKY)
+@EnablePostgres
 @ContextConfiguration(classes = JpaCqlConfiguration.class)
-@EnableAutoConfiguration(exclude = FlywayAutoConfiguration.class)
+@EnableAutoConfiguration
 @Sql({"/sql/jpa-cql-general-it-schema.sql", "/sql/jpa-cql-general-test-data.sql"})
 class JpaCqlRepositoryIT {
 
@@ -327,7 +325,4 @@ class JpaCqlRepositoryIT {
       .containsExactlyInAnyOrderElementsOf(expected);
   }
 
-  @Configuration
-  static class TestConfiguration {
-  }
 }
