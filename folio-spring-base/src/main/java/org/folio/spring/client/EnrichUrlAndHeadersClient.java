@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
+import org.springframework.http.HttpHeaders;
 
 @Log4j2
 public class EnrichUrlAndHeadersClient implements Client {
@@ -68,10 +69,10 @@ public class EnrichUrlAndHeadersClient implements Client {
 
     // add accept-language header, if one exists
     context.getAllHeaders().keySet().stream()
-      .filter("Accept-Language"::equalsIgnoreCase)
+      .filter(HttpHeaders.ACCEPT_LANGUAGE::equalsIgnoreCase)
       .findFirst()
       .map(key -> context.getAllHeaders().get(key))
-      .ifPresent(values -> allHeaders.put("Accept-Language", values));
+      .ifPresent(values -> allHeaders.put(HttpHeaders.ACCEPT_LANGUAGE, values));
 
     return allHeaders;
   }
