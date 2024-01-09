@@ -68,7 +68,7 @@ public class EnrichUrlAndHeadersClient implements Client {
 
     // add accept-language header, if one exists
     context.getAllHeaders().keySet().stream()
-      .filter(key -> "Accept-Language".equalsIgnoreCase(key))
+      .filter("Accept-Language"::equalsIgnoreCase)
       .findFirst()
       .map(key -> context.getAllHeaders().get(key))
       .ifPresent(values -> allHeaders.put("Accept-Language", values));
