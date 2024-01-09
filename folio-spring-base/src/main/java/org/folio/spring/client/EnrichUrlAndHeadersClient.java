@@ -48,7 +48,7 @@ public class EnrichUrlAndHeadersClient implements Client {
     return delegate.execute(requestWithUrl, options);
   }
 
-  protected static String prepareUrl(String requestUrl, FolioExecutionContext context) {
+  static String prepareUrl(String requestUrl, FolioExecutionContext context) {
     String okapiUrl = context.getOkapiUrl();
 
     if (okapiUrl == null) {
@@ -62,7 +62,7 @@ public class EnrichUrlAndHeadersClient implements Client {
     return requestUrl.replace("http://", okapiUrl);
   }
 
-  protected static Map<String, Collection<String>> prepareHeaders(Request request, FolioExecutionContext context) {
+  static Map<String, Collection<String>> prepareHeaders(Request request, FolioExecutionContext context) {
     Map<String, Collection<String>> allHeaders = new HashMap<>(request.headers());
     allHeaders.putAll(context.getOkapiHeaders());
 

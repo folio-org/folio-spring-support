@@ -17,7 +17,6 @@ import feign.Request;
 import feign.Response;
 import feign.okhttp.OkHttpClient;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.folio.spring.FolioExecutionContext;
@@ -33,7 +32,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 class EnrichUrlAndHeadersClientTest {
 
   static List<Arguments> urlPreparationCases() {
-    return Arrays.asList(
+    return List.of(
       arguments("http://test-url", null, "http://test-url"),
       arguments("http://test-url", "http://okapi", "http://okapi/test-url"),
       arguments("http://test-url", "http://okapi/", "http://okapi/test-url")
