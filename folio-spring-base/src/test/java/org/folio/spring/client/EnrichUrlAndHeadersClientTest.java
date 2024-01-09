@@ -134,7 +134,7 @@ class EnrichUrlAndHeadersClientTest {
 
   @Test
   void testRequestExecution() throws IOException {
-    Request request = Request.create(
+    final Request request = Request.create(
       Request.HttpMethod.GET,
       "http://test-url",
       Map.of("a", List.of("a-val")),
@@ -142,7 +142,7 @@ class EnrichUrlAndHeadersClientTest {
       null
     );
 
-    FolioExecutionContext context = mock(FolioExecutionContext.class);
+    final FolioExecutionContext context = mock(FolioExecutionContext.class);
     when(context.getOkapiUrl()).thenReturn("http://okapi");
     when(context.getOkapiHeaders()).thenReturn(Map.of("z", List.of("z-val")));
     when(context.getAllHeaders())
@@ -157,15 +157,15 @@ class EnrichUrlAndHeadersClientTest {
         )
       );
 
-    Request.Options options = new Request.Options();
+    final Request.Options options = new Request.Options();
 
-    EnrichUrlAndHeadersClient client = new EnrichUrlAndHeadersClient(
+    final EnrichUrlAndHeadersClient client = new EnrichUrlAndHeadersClient(
       context,
       null
     );
 
     // best way to check for this without having to do a bunch of feign/okhttp logic
-    OkHttpClient mockedDelegate = mock(OkHttpClient.class);
+    final OkHttpClient mockedDelegate = mock(OkHttpClient.class);
     ReflectionTestUtils.setField(client, "delegate", mockedDelegate);
 
     when(mockedDelegate.execute(any(Request.class), eq(options)))
