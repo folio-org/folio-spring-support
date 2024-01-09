@@ -13,6 +13,7 @@ import org.folio.spring.FolioExecutionContext;
 
 @Log4j2
 public class EnrichUrlAndHeadersClient implements Client {
+
   private final OkHttpClient delegate;
   private final FolioExecutionContext folioExecutionContext;
 
@@ -23,26 +24,55 @@ public class EnrichUrlAndHeadersClient implements Client {
 
   @Override
   public Response execute(Request request, Request.Options options) throws IOException {
-    String url;
+    String url = prepareUrl(request.url(), folioExecutionContext);
 
-    var okapiUrl = folioExecutionContext.getOkapiUrl();
-    if (okapiUrl != null) {
-      if (!okapiUrl.endsWith("/")) {
-        okapiUrl += "/";
-      }
-      url = request.url().replace("http://", okapiUrl);
-    } else {
-      url = request.url();
+    Map<String, Collection<String>> allHeaders = prepareHeaders(request, folioExecutionContext);
+
+    Request requestWithUrl = Request.create(
+      request.httpMethod(),
+      url,
+      allHeaders,
+      request.body(),
+      request.charset(),
+      request.requestTemplate()
+    );
+
+    log.debug(
+      "FolioExecutionContext: {};\nPrepared the Feign Client Request: {} with headers {};\nCurrent thread: {}",
+      folioExecutionContext,
+      requestWithUrl,
+      allHeaders,
+      Thread.currentThread().getName()
+    );
+
+    return delegate.execute(requestWithUrl, options);
+  }
+
+  protected static String prepareUrl(String requestUrl, FolioExecutionContext context) {
+    String okapiUrl = context.getOkapiUrl();
+
+    if (okapiUrl == null) {
+      return requestUrl;
     }
 
+    if (!okapiUrl.endsWith("/")) {
+      okapiUrl += "/";
+    }
+
+    return requestUrl.replace("http://", okapiUrl);
+  }
+
+  protected static Map<String, Collection<String>> prepareHeaders(Request request, FolioExecutionContext context) {
     Map<String, Collection<String>> allHeaders = new HashMap<>(request.headers());
-    allHeaders.putAll(folioExecutionContext.getOkapiHeaders());
+    allHeaders.putAll(context.getOkapiHeaders());
 
-    var requestWithUrl = Request.create(request.httpMethod(), url, allHeaders, request.body(), request.charset(),
-      request.requestTemplate());
+    // add accept-language header, if one exists
+    context.getAllHeaders().keySet().stream()
+      .filter(key -> "Accept-Language".equalsIgnoreCase(key))
+      .findFirst()
+      .map(key -> context.getAllHeaders().get(key))
+      .ifPresent(values -> allHeaders.put("Accept-Language", values));
 
-    log.debug("FolioExecutionContext: {};\nPrepared the Feign Client Request: {} with headers {};\nCurrent thread: {}",
-      folioExecutionContext, requestWithUrl, allHeaders, Thread.currentThread().getName());
-    return delegate.execute(requestWithUrl, options);
+    return allHeaders;
   }
 }
