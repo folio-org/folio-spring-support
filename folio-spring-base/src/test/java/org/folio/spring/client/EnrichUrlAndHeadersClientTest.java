@@ -58,12 +58,9 @@ class EnrichUrlAndHeadersClientTest {
     when(request.headers())
       .thenReturn(
         Map.of(
-          "a",
-          List.of("a-val"),
-          "b",
-          List.of("b-val"),
-          "c",
-          List.of("c-val")
+          "a", List.of("a-val"),
+          "b", List.of("b-val"),
+          "c", List.of("c-val")
         )
       );
 
@@ -94,12 +91,9 @@ class EnrichUrlAndHeadersClientTest {
     when(request.headers())
       .thenReturn(
         Map.of(
-          "a",
-          List.of("a-val"),
-          "b",
-          List.of("b-val"),
-          "c",
-          List.of("c-val")
+          "a", List.of("a-val"),
+          "b", List.of("b-val"),
+          "c", List.of("c-val")
         )
       );
 
@@ -108,12 +102,9 @@ class EnrichUrlAndHeadersClientTest {
     when(context.getAllHeaders())
       .thenReturn(
         Map.of(
-          "misc-1",
-          List.of("misc-1-val"),
-          "accept-language",
-          List.of("en-US,en;q=0.9"),
-          "misc-2",
-          List.of("misc-2-val")
+          "misc-1", List.of("misc-1-val"),
+          "accept-language", List.of("en-US,en;q=0.9"),
+          "misc-2", List.of("misc-2-val")
         )
       );
 
@@ -148,12 +139,9 @@ class EnrichUrlAndHeadersClientTest {
     when(context.getAllHeaders())
       .thenReturn(
         Map.of(
-          "misc-1",
-          List.of("misc-1-val"),
-          "accept-language",
-          List.of("en-US,en;q=0.9"),
-          "misc-2",
-          List.of("misc-2-val")
+          "misc-1", List.of("misc-1-val"),
+          "accept-language", List.of("en-US,en;q=0.9"),
+          "misc-2", List.of("misc-2-val")
         )
       );
 
