@@ -45,10 +45,7 @@ class EnrichUrlAndHeadersClientTest {
     FolioExecutionContext context = mock(FolioExecutionContext.class);
 
     when(context.getOkapiUrl()).thenReturn(okapiUrl);
-    assertThat(
-      EnrichUrlAndHeadersClient.prepareUrl(requestUrl, context),
-      is(expected)
-    );
+    assertThat(EnrichUrlAndHeadersClient.prepareUrl(requestUrl, context), is(expected));
   }
 
   @Test
@@ -65,10 +62,7 @@ class EnrichUrlAndHeadersClientTest {
 
     FolioExecutionContext context = mock(FolioExecutionContext.class);
     when(context.getOkapiHeaders()).thenReturn(Map.of("z", List.of("z-val")));
-    when(context.getAllHeaders())
-      .thenReturn(
-        Map.of("misc-1", List.of("misc-1-val"), "misc-2", List.of("misc-2-val"))
-      );
+    when(context.getAllHeaders()).thenReturn(Map.of("misc-1", List.of("misc-1-val"), "misc-2", List.of("misc-2-val")));
 
     assertThat(
       EnrichUrlAndHeadersClient.prepareHeaders(request, context),
@@ -146,10 +140,7 @@ class EnrichUrlAndHeadersClientTest {
 
     final Request.Options options = new Request.Options();
 
-    final EnrichUrlAndHeadersClient client = new EnrichUrlAndHeadersClient(
-      context,
-      null
-    );
+    final EnrichUrlAndHeadersClient client = new EnrichUrlAndHeadersClient(context, null);
 
     // best way to check for this without having to do a bunch of feign/okhttp logic
     final OkHttpClient mockedDelegate = mock(OkHttpClient.class);
@@ -162,16 +153,10 @@ class EnrichUrlAndHeadersClientTest {
     assertThat(client.execute(request, options).status(), is(299));
 
     // verify that the correct request was sent with the correct options
-    ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(
-      Request.class
-    );
-    verify(mockedDelegate, times(1))
-      .execute(requestCaptor.capture(), eq(options));
+    ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
+    verify(mockedDelegate, times(1)).execute(requestCaptor.capture(), eq(options));
 
-    assertThat(
-      requestCaptor.getValue().httpMethod(),
-      is(Request.HttpMethod.GET)
-    );
+    assertThat(requestCaptor.getValue().httpMethod(), is(Request.HttpMethod.GET));
     assertThat(requestCaptor.getValue().url(), is("http://okapi/test-url"));
     assertThat(
       requestCaptor.getValue().headers(),
