@@ -12,8 +12,10 @@ import java.util.Enumeration;
 import java.util.List;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
+@UnitTest
 class FolioExecutionContextSetterTest {
 
   @Test

@@ -36,7 +36,7 @@ public class FolioSpringConfiguration {
        * @param tenantId - tenant name
        * @return schema name
        */
-      
+
       @Override
       public String getDBSchemaName(String tenantId) {
         if (StringUtils.isBlank(tenantId)) {

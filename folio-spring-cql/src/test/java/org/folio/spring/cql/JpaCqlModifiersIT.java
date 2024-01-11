@@ -2,11 +2,9 @@ package org.folio.spring.cql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseProvider;
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseType;
 import org.folio.spring.cql.domain.User;
 import org.folio.spring.cql.repo.UserRepository;
+import org.folio.spring.testing.extension.EnablePostgres;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 
 @SpringBootTest
-@AutoConfigureEmbeddedDatabase(beanName = "dataSource", type = DatabaseType.POSTGRES, provider = DatabaseProvider.ZONKY)
+@EnablePostgres
 @ContextConfiguration(classes = JpaCqlConfiguration.class)
 @EnableAutoConfiguration(exclude = FlywayAutoConfiguration.class)
 @Sql({"/sql/jpa-cql-modifiers-it-schema.sql", "/sql/jpa-cql-modifiers-test-data.sql"})

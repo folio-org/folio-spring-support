@@ -1,0 +1,4 @@
+{
+  "foo": "[mod-foo] es {test}",
+  "es_only": "[mod-foo] In es base!"
+}

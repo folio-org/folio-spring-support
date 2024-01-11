@@ -2,9 +2,6 @@ package org.folio.spring.cql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseProvider;
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseType;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -16,23 +13,25 @@ import org.folio.spring.cql.domain.Str;
 import org.folio.spring.cql.repo.CityRepository;
 import org.folio.spring.cql.repo.PersonRepository;
 import org.folio.spring.cql.repo.StrRepository;
+import org.folio.spring.testing.extension.EnablePostgres;
+import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 
+@IntegrationTest
 @SpringBootTest
-@AutoConfigureEmbeddedDatabase(beanName = "dataSource", type = DatabaseType.POSTGRES, provider = DatabaseProvider.ZONKY)
+@EnablePostgres
 @ContextConfiguration(classes = JpaCqlConfiguration.class)
-@EnableAutoConfiguration(exclude = FlywayAutoConfiguration.class)
+@EnableAutoConfiguration
 @Sql({"/sql/jpa-cql-general-it-schema.sql", "/sql/jpa-cql-general-test-data.sql"})
 class JpaCqlRepositoryIT {
 
@@ -100,6 +99,26 @@ class JpaCqlRepositoryIT {
   }
 
   @Test
+  @Sql({
+    "/sql/jpa-cql-general-it-schema.sql",
+    "/sql/jpa-cql-general-test-data.sql"
+  })
+  void testSelectWithFilterByCreatedDate() {
+    var page = personRepository.findByCqlAndDeletedFalse("createdDate<=2021-12-26T12:00:00.0", PageRequest.of(0, 4));
+    assertThat(page)
+      .hasSize(2)
+      .extracting(Person::getName)
+      .contains("Jane", "John");
+
+    page = personRepository.findByCqlAndDeletedFalse(
+      "createdDate>2021-12-24T12:00:00.0 and createdDate<=2021-12-31T12:00:00.0", PageRequest.of(0, 4));
+    assertThat(page)
+      .hasSize(2)
+      .extracting(Person::getName)
+      .contains("John");
+  }
+
+  @Test
   void testSelectAllRecordsWithAsterisks() {
     var page = personRepository.findByCql("name=* sortby age/sort.ascending", PageRequest.of(0, 10));
     assertThat(page)
@@ -109,25 +128,27 @@ class JpaCqlRepositoryIT {
       .endsWith(40);
   }
 
-  @Test
-  void testSelectAllRecordsWithSortAndPagination() {
-    var page1 = personRepository.findByCql("(cql.allRecords=1)sortby age/sort.descending", PageRequest.of(0, 1));
-    var page2 = personRepository.findByCql("(cql.allRecords=1)sortby age/sort.descending", PageRequest.of(1, 1));
-    var page3 = personRepository.findByCql("(cql.allRecords=1)sortby age/sort.descending", PageRequest.of(2, 1));
-    var page4 = personRepository.findByCql("(cql.allRecords=1)sortby age/sort.descending", PageRequest.of(3, 1));
-    assertThat(page1)
-      .hasSize(1)
+  @ParameterizedTest
+  @CsvSource({
+    "0, 1, 40",
+    "1, 1, 22",
+    "2, 1, 20",
+    "3, 0, -1"
+  })
+  void testSelectAllRecordsWithSortAndPagination(int pageNumber, int size, int age) {
+    var page = personRepository.findByCql("(cql.allRecords=1)sortby age/sort.descending",
+      PageRequest.of(pageNumber, 1));
+
+    if (size == 0) {
+      assertThat(page)
+        .isEmpty();
+      return;
+    }
+
+    assertThat(page)
+      .hasSize(size)
       .extracting(Person::getAge)
-      .contains(40);
-    assertThat(page2)
-      .hasSize(1)
-      .extracting(Person::getAge)
-      .contains(22);
-    assertThat(page3)
-      .hasSize(1)
-      .extracting(Person::getAge)
-      .contains(20);
-    assertThat(page4).isEmpty();
+      .contains(age);
   }
 
   @Test
@@ -304,7 +325,4 @@ class JpaCqlRepositoryIT {
       .containsExactlyInAnyOrderElementsOf(expected);
   }
 
-  @Configuration
-  static class TestConfiguration {
-  }
 }

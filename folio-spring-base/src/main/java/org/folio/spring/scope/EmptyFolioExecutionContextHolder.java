@@ -3,7 +3,6 @@ package org.folio.spring.scope;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 
-
 public class EmptyFolioExecutionContextHolder {
 
   private final EmptyFolioExecutionContext emptyFolioExecutionContext;

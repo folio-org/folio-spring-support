@@ -19,6 +19,12 @@
   <dependencies>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>folio-spring-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-properties-migrator</artifactId>
       <scope>runtime</scope>
@@ -53,7 +59,6 @@
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-openfeign</artifactId>
-      <version>${spring-cloud-starter-openfeign.version}</version>
     </dependency>
 
     <dependency>
@@ -70,33 +75,18 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <!-- spring-boot-starter-parent provides an old org.postgresql:postgresql version,
-           we need the fix that closes the socket and the fix for hanging ssl connections:
-           https://jdbc.postgresql.org/changelogs/2023-01-31-42.5.2-release/#fixed
-      -->
-      <version>${postgresql.version}</version>
       <scope>runtime</scope>
     </dependency>
 
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
-      <version>${liquibase-core.version}</version>
     </dependency>
 
     <dependency>
       <groupId>io.github.openfeign</groupId>
       <artifactId>feign-okhttp</artifactId>
       <version>${feign-okhttp.version}</version>
-    </dependency>
-
-    <!-- fixes https://nvd.nist.gov/vuln/detail/CVE-2023-3635
-         remove when okhttp ships with okio-jvm >= 3.4.0 -->
-    <dependency>
-      <groupId>com.squareup.okio</groupId>
-      <artifactId>okio-jvm</artifactId>
-      <version>3.4.0</version>
-      <scope>runtime</scope>
     </dependency>
 
     <!-- OAS generation -->
@@ -110,13 +100,6 @@
           <artifactId>slf4j-simple</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-
-    <dependency>
-      <!-- Needed as long as openapi-generator ships with a vulnerable guava version (< 32.0.0-jre) https://nvd.nist.gov/vuln/detail/CVE-2023-2976 -->
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
     </dependency>
 
     <dependency>
@@ -172,8 +155,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jeasy</groupId>
-      <artifactId>easy-random-core</artifactId>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>folio-spring-testing</artifactId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -181,38 +165,6 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-inline</artifactId>
       <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>io.zonky.test</groupId>
-      <artifactId>embedded-database-spring-test</artifactId>
-      <version>${embedded-database-spring-test.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>io.zonky.test</groupId>
-      <artifactId>embedded-postgres</artifactId>
-      <version>${embedded-postgres.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.hibernate.orm</groupId>
-      <artifactId>hibernate-testing</artifactId>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.annotation</groupId>
-          <artifactId>javax.annotation-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>

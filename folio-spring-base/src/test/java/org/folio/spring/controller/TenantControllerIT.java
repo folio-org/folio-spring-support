@@ -1,7 +1,5 @@
 package org.folio.spring.controller;
 
-import static io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseProvider.ZONKY;
-import static io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseType.POSTGRES;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
@@ -15,29 +13,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import java.util.List;
 import lombok.SneakyThrows;
+import org.folio.spring.config.FolioSpringConfiguration;
 import org.folio.spring.exception.TenantUpgradeException;
 import org.folio.spring.filter.TenantOkapiHeaderValidationFilter;
+import org.folio.spring.liquibase.FolioLiquibaseConfiguration;
+import org.folio.spring.scope.FolioExecutionScopeConfig;
+import org.folio.spring.testing.extension.EnablePostgres;
+import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest(
+  classes = {FolioExecutionScopeConfig.class, FolioSpringConfiguration.class, FolioLiquibaseConfiguration.class},
   properties = {
     "header.validation.x-okapi-tenant.exclude.base-paths=/admin,/swagger-ui"
   })
-@AutoConfigureEmbeddedDatabase(beanName = "dataSource", type = POSTGRES, provider = ZONKY)
-@EnableAutoConfiguration(exclude = {FlywayAutoConfiguration.class})
+@IntegrationTest
+@EnablePostgres
+@EnableAutoConfiguration
 @AutoConfigureMockMvc
 class TenantControllerIT {
 
@@ -138,7 +140,4 @@ class TenantControllerIT {
     return OBJECT_MAPPER.writeValueAsString(obj);
   }
 
-  @Configuration
-  static class DbConfiguration {
-  }
 }

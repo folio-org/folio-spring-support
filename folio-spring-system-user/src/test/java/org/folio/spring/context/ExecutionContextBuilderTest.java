@@ -10,6 +10,7 @@ import org.folio.spring.config.properties.FolioEnvironment;
 import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
 import org.junit.jupiter.api.AfterEach;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
+@UnitTest
 class ExecutionContextBuilderTest {
 
   @InjectMocks private ExecutionContextBuilder builder;

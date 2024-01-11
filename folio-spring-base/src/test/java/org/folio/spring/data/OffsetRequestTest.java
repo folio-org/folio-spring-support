@@ -7,9 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.folio.junit.extension.RandomInt;
-import org.folio.junit.extension.RandomLong;
-import org.folio.junit.extension.RandomParametersExtension;
+import org.folio.spring.testing.extension.RandomInt;
+import org.folio.spring.testing.extension.RandomLong;
+import org.folio.spring.testing.extension.impl.RandomParametersExtension;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,6 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+@UnitTest
 @ExtendWith(RandomParametersExtension.class)
 class OffsetRequestTest {
 

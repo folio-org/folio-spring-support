@@ -14,7 +14,9 @@ import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.folio.spring.testing.type.UnitTest;
 
+@UnitTest
 @Plugin(name = "TestAppender", category = "Core", elementType = "appender", printObject = true)
 public class TestAppender extends AbstractAppender {
 

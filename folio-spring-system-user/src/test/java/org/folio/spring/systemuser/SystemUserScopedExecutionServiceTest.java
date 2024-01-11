@@ -16,12 +16,14 @@ import org.folio.spring.model.SystemUser;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.service.SystemUserService;
 import org.junit.jupiter.api.BeforeEach;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class SystemUserScopedExecutionServiceTest {
 
