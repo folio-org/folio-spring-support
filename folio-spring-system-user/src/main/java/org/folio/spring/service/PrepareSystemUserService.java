@@ -18,6 +18,7 @@ import org.folio.spring.client.PermissionsClient.Permission;
 import org.folio.spring.client.PermissionsClient.Permissions;
 import org.folio.spring.client.UsersClient;
 import org.folio.spring.client.UsersClient.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -28,12 +29,18 @@ public class PrepareSystemUserService {
 
   public static final String SYSTEM_USER_TYPE = "system";
 
-  private final UsersClient usersClient;
-  private final AuthnClient authnClient;
-  private final PermissionsClient permissionsClient;
   private final SystemUserProperties systemUserProperties;
 
+  private UsersClient usersClient;
+  private AuthnClient authnClient;
+  private PermissionsClient permissionsClient;
+
   public void setupSystemUser() {
+    if (!systemUserProperties.isEnabled()) {
+      log.info("System user is disabled, skipping setup operation");
+      return;
+    }
+
     log.info("Preparing system user...");
     var folioUser = getFolioUser(systemUserProperties.username());
     var userId = folioUser.map(User::id)
@@ -112,5 +119,20 @@ public class PrepareSystemUserService {
   private List<String> getResourceLines(String permissionsFilePath) {
     var resource = new ClassPathResource(permissionsFilePath);
     return IOUtils.readLines(resource.getInputStream(), StandardCharsets.UTF_8);
+  }
+
+  @Autowired(required = false)
+  public void setUsersClient(UsersClient usersClient) {
+    this.usersClient = usersClient;
+  }
+
+  @Autowired(required = false)
+  public void setAuthnClient(AuthnClient authnClient) {
+    this.authnClient = authnClient;
+  }
+
+  @Autowired(required = false)
+  public void setPermissionsClient(PermissionsClient permissionsClient) {
+    this.permissionsClient = permissionsClient;
   }
 }

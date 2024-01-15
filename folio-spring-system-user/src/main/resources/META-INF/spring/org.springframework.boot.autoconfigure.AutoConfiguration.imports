@@ -1,1 +1,2 @@
 org.folio.spring.config.SystemUserConfig
+org.folio.spring.config.OptionalSystemUserConfig

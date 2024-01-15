@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
+import org.folio.spring.config.properties.FolioEnvironment;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.model.SystemUser;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ExecutionContextBuilder {
 
+  private final FolioEnvironment folioEnvironment;
   private final FolioModuleMetadata moduleMetadata;
 
   public FolioExecutionContext forSystemUser(SystemUser systemUser) {
@@ -27,6 +29,11 @@ public class ExecutionContextBuilder {
     var userId = systemUser.userId();
 
     return buildContext(okapiUrl, tenantId, token, userId, null);
+  }
+
+  public FolioExecutionContext buildContext(String tenantId) {
+    var okapiUrl = folioEnvironment.getOkapiUrl();
+    return buildContext(okapiUrl, tenantId, null, null, null);
   }
 
   private FolioExecutionContext buildContext(String okapiUrl, String tenantId, String token, String userId,
