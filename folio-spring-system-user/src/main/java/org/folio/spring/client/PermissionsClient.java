@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "folio-spring-base-permissions-client", value = "perms/users")
+@FeignClient(name = "folio-spring-base-permissions-client", url = "perms/users")
 public interface PermissionsClient {
 
   @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
