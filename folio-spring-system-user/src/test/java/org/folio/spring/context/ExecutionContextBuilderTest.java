@@ -2,18 +2,33 @@ package org.folio.spring.context;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import org.folio.spring.FolioModuleMetadata;
+import org.folio.spring.config.properties.FolioEnvironment;
 import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
 import org.folio.spring.testing.type.UnitTest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 @UnitTest
 class ExecutionContextBuilderTest {
 
-  private final ExecutionContextBuilder builder =
-      new ExecutionContextBuilder(mock(org.folio.spring.FolioModuleMetadata.class));
+  @InjectMocks private ExecutionContextBuilder builder;
+  @Mock private FolioModuleMetadata folioModuleMetadata;
+  @Mock private FolioEnvironment folioEnvironment;
+
+  @AfterEach
+  void tearDown() {
+    verifyNoMoreInteractions(folioModuleMetadata, folioEnvironment);
+  }
 
   @Test
   void canCreateSystemUserContextForSystemUser() {
@@ -52,5 +67,22 @@ class ExecutionContextBuilderTest {
     assertThat(context.getAllHeaders()).isNotNull();
     assertThat(context.getOkapiHeaders()).isNotNull().isEmpty();
     assertThat(context.getFolioModuleMetadata()).isNotNull();
+  }
+
+  @Test
+  void canCreateContextForDisabledSystemUser() {
+    var tenantId = "test-tenant";
+    var okapiUrl = "http://okapi:9130";
+    when(folioEnvironment.getOkapiUrl()).thenReturn(okapiUrl);
+
+    var context = builder.buildContext(tenantId);
+
+    assertThat(context.getTenantId()).isEqualTo(tenantId);
+    assertThat(context.getToken()).isEqualTo(EMPTY);
+    assertThat(context.getOkapiUrl()).isEqualTo(okapiUrl);
+
+    assertThat(context.getAllHeaders()).hasSize(2);
+    assertThat(context.getOkapiHeaders()).hasSize(2);
+    assertThat(context.getFolioModuleMetadata()).isEqualTo(folioModuleMetadata);
   }
 }

@@ -1,6 +1,20 @@
-## 7.3.0 In progress
-* [FOLSPRINGB-140](https://issues.folio.org/browse/FOLSPRINGB-115) Add Testing Submodule for Test Management
-* Upgrade to spring-boot 3.2.0
+## 8.0.0 2024-01-19
+* [FOLSPRINGB-128](https://issues.folio.org/browse/FOLSPRINGB-128) System User POC
+* [FOLSPRINGB-139](https://issues.folio.org/browse/FOLSPRINGB-139) Pass Accept-Language header in Feign clients
+* [FOLSPRINGB-140](https://issues.folio.org/browse/FOLSPRINGB-140) Add Testing Submodule for Test Management
+* [FOLSPRINGB-141](https://issues.folio.org/browse/FOLSPRINGB-141) Upgrade deps for Quesnelia
+* [FOLSPRINGB-142](https://issues.folio.org/browse/FOLSPRINGB-142) Add support for Timestamp type field in Cql query
+* [FOLSPRINGB-138](https://issues.folio.org/browse/FOLSPRINGB-138) Use more resilient method for translation module name extraction
+* [FOLSPRINGB-137](https://issues.folio.org/browse/FOLSPRINGB-137) TranslationService javadoc: cannot find symbol onConstructor_ = @Autowired
+* [FOLSPRINGB-134](https://issues.folio.org/browse/FOLSPRINGB-134) Create centralized internationalization library
+
+## 7.2.2 2023-11-09
+* [FOLSPRINGB-132](https://issues.folio.org/browse/FOLSPRINGB-132) Use half of access token expiration as user cache expiration
+
+## 7.2.1 2023-11-06
+* [FOLSPRINGB-126](https://issues.folio.org/browse/FOLSPRINGB-126) Reject empty and null system user password
+* [FOLSPRINGB-127](https://issues.folio.org/browse/FOLSPRINGB-127) Update existing system-user credentials based on provided system user environment
+* [FOLSPRINGB-130](https://issues.folio.org/browse/FOLSPRINGB-130) Dependencies update: Spring Boot 3.1.5, Spring Cloud Openfeign 4.0.4
 
 ## 7.2.0 2023-10-03
 * [FOLSPRINGB-115](https://issues.folio.org/browse/FOLSPRINGB-115) Add submodule for creating and utilizing system-user

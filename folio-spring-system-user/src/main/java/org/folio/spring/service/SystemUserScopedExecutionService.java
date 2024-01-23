@@ -6,6 +6,7 @@ import lombok.SneakyThrows;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.context.ExecutionContextBuilder;
 import org.folio.spring.scope.FolioExecutionContextSetter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ public class SystemUserScopedExecutionService {
 
   private final FolioExecutionContext executionContext;
   private final ExecutionContextBuilder contextBuilder;
-  private final SystemUserService systemUserService;
+  private SystemUserService systemUserService;
 
   /**
    * Executes given action in scope of system user.
@@ -62,6 +63,13 @@ public class SystemUserScopedExecutionService {
   }
 
   private FolioExecutionContext folioExecutionContext(String tenantId) {
-    return contextBuilder.forSystemUser(systemUserService.getAuthedSystemUser(tenantId));
+    return systemUserService != null
+      ? contextBuilder.forSystemUser(systemUserService.getAuthedSystemUser(tenantId))
+      : contextBuilder.buildContext(tenantId);
+  }
+
+  @Autowired(required = false)
+  public void setSystemUserService(SystemUserService systemUserService) {
+    this.systemUserService = systemUserService;
   }
 }

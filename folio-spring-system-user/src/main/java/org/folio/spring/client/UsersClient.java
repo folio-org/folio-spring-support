@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient("users")
+@FeignClient(name = "folio-spring-base-users-client", url = "users")
 public interface UsersClient {
   @GetMapping
   ResultList<User> query(@RequestParam("query") String query);

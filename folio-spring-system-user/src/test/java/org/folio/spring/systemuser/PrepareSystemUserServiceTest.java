@@ -41,7 +41,11 @@ class PrepareSystemUserServiceTest {
   private ArgumentCaptor<UsersClient.User> userArgumentCaptor;
 
   private static SystemUserProperties systemUserProperties() {
-    return new SystemUserProperties("username", "password", "system", "permissions/test-permissions.csv");
+    return systemUserProperties(true);
+  }
+
+  private static SystemUserProperties systemUserProperties(boolean enabled) {
+    return new SystemUserProperties(enabled, "username", "password", "system", "permissions/test-permissions.csv");
   }
 
   private static SystemUserProperties systemUserPropertiesWithoutPassword() {
@@ -129,6 +133,12 @@ class PrepareSystemUserServiceTest {
     verify(authnClient).saveCredentials(any());
   }
 
+  @Test
+  void shouldNotCreateSystemUserIfDisabled() {
+    prepareSystemUser(systemUserProperties(false));
+    verifyNoInteractions(authnClient, permissionsClient, usersClient);
+  }
+
   private ResultList<UsersClient.User> userExistsResponse() {
     return asSinglePage(new UsersClient.User("id", "username", SYSTEM_USER_TYPE, true,
       new Personal("lastName")));
@@ -139,7 +149,11 @@ class PrepareSystemUserServiceTest {
   }
 
   private PrepareSystemUserService systemUserService(SystemUserProperties properties) {
-    return new PrepareSystemUserService(usersClient, authnClient, permissionsClient, properties);
+    var prepareSystemUserService = new PrepareSystemUserService(properties);
+    prepareSystemUserService.setAuthnClient(authnClient);
+    prepareSystemUserService.setUsersClient(usersClient);
+    prepareSystemUserService.setPermissionsClient(permissionsClient);
+    return prepareSystemUserService;
   }
 
   private void prepareSystemUser(SystemUserProperties properties) {

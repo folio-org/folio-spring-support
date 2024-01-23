@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient("authn")
+@FeignClient(name = "folio-spring-base-authn-client", url = "authn")
 public interface AuthnClient {
 
   @PostMapping(value = "/login-with-expiry", consumes = APPLICATION_JSON_VALUE)
