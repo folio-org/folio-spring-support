@@ -10,7 +10,7 @@
   <artifactId>folio-spring-testing</artifactId>
 
   <properties>
-    <testcontainer.version>1.19.1</testcontainer.version>
+    <testcontainers.version>1.19.3</testcontainers.version>
     <wiremock.version>3.0.1</wiremock.version>
   </properties>
 
@@ -67,25 +67,31 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
-      <version>${testcontainer.version}</version>
+      <version>${testcontainers.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>${testcontainer.version}</version>
+      <version>${testcontainers.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>kafka</artifactId>
-      <version>${testcontainer.version}</version>
+      <version>${testcontainers.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>postgresql</artifactId>
-      <version>${testcontainer.version}</version>
+      <version>${testcontainers.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>minio</artifactId>
+      <version>${testcontainers.version}</version>
     </dependency>
 
     <dependency>
