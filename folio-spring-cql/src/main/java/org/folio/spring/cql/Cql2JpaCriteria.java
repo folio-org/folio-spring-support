@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
@@ -52,6 +51,7 @@ public class Cql2JpaCriteria<E> {
 
   private static final String NOT_EQUALS_OPERATOR = "<>";
   private static final String ASTERISKS_SIGN = "*";
+  private static final String NON_SPECIFIED_VALUE = "null";
   private static final Pattern DATES_RANGE_PATTERN = Pattern.compile("\\d{4}(-\\d{2}){2}:\\d{4}(-\\d{2}){2}");
 
   private final Class<E> domainClass;
@@ -280,8 +280,8 @@ public class Cql2JpaCriteria<E> {
       case "<" -> cb.lessThan(field, value);
       case ">=" -> cb.greaterThanOrEqualTo(field, value);
       case "<=" -> cb.lessThanOrEqualTo(field, value);
-      case "==", "=" -> cb.equal(field, value);
-      case NOT_EQUALS_OPERATOR -> cb.notEqual(field, value);
+      case "==", "=" -> !NON_SPECIFIED_VALUE.equals(value) ? cb.equal(field, value) : cb.isNull(field);
+      case NOT_EQUALS_OPERATOR -> !NON_SPECIFIED_VALUE.equals(value) ? cb.notEqual(field, value) : cb.isNotNull(field);
       default -> throw new QueryValidationException(
         "CQL: Unsupported operator '"
           + comparator
@@ -342,7 +342,7 @@ public class Cql2JpaCriteria<E> {
     var modelFields = entity.getModel().getBindableJavaType().getDeclaredFields();
     var fieldNamesForAttribute =
       Arrays.stream(modelFields).map(Field::getName)
-        .filter(name -> name.equalsIgnoreCase(typeName)).collect(Collectors.toList());
+        .filter(name -> name.equalsIgnoreCase(typeName)).toList();
     if (isEmpty(fieldNamesForAttribute) || fieldNamesForAttribute.size() > 1) {
       throw new CqlQueryValidationException(format("Query contains nonExisting field [%s]", typeName));
     }
@@ -354,10 +354,11 @@ public class Cql2JpaCriteria<E> {
    */
   private static Predicate queryByLike(Path<String> field, CQLTermNode node, String comparator,
                                 CriteriaBuilder cb) {
+    var term = node.getTerm();
     if (NOT_EQUALS_OPERATOR.equals(comparator)) {
-      return cb.notLike(field, cql2like(node.getTerm()), '\\');
+      return !NON_SPECIFIED_VALUE.equals(term) ? cb.notLike(field, cql2like(term), '\\') : cb.isNotNull(field);
     } else {
-      return cb.like(field, cql2like(node.getTerm()), '\\');
+      return !NON_SPECIFIED_VALUE.equals(term) ? cb.like(field, cql2like(term), '\\') : cb.isNull(field);
     }
   }
 
@@ -374,15 +375,20 @@ public class Cql2JpaCriteria<E> {
   @SuppressWarnings({"rawtypes", "unchecked"})
   private static Predicate queryBySql(Expression field, Comparable term, String comparator,
                                CriteriaBuilder cb) throws QueryValidationException {
+    var value = (String) term;
+    if (StringUtils.isBlank(value) || NON_SPECIFIED_VALUE.equals(value)) {
+      term = NON_SPECIFIED_VALUE;
+      return toPredicate(field, term, comparator, cb);
+    }
+
     var javaType = field.getJavaType();
     if (Number.class.equals(javaType)) {
-      term = Integer.parseInt((String) term);
+      term = Integer.parseInt(value);
     } else if (UUID.class.equals(javaType)) {
-      term = UUID.fromString((String) term);
+      term = UUID.fromString(value);
     } else if (Boolean.class.equals(javaType)) {
-      term = Boolean.valueOf((String) term);
+      term = Boolean.valueOf(value);
     } else if (Date.class.equals(javaType) || Timestamp.class.equals(javaType)) {
-      var value = (String) term;
       if (isDatesRange(value)) {
         return toFilterByDatesPredicate(field, value, cb);
       } else {
@@ -390,7 +396,6 @@ public class Cql2JpaCriteria<E> {
         term = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
       }
     } else if (LocalDateTime.class.equals(javaType)) {
-      var value = (String) term;
       if (isDatesRange(value)) {
         return toFilterByLocalDatesPredicate(field, value, cb);
       } else {

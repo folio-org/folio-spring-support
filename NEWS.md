@@ -1,3 +1,6 @@
+## 8.1.0-SNAPSHOT
+* [FOLSPRINGB-144](https://issues.folio.org/browse/FOLSPRINGB-144) Add support for filtering by non-specified attribute value indicated as 'null' in Cql query
+
 ## 8.0.0 2024-01-19
 * [FOLSPRINGB-128](https://issues.folio.org/browse/FOLSPRINGB-128) System User POC
 * [FOLSPRINGB-139](https://issues.folio.org/browse/FOLSPRINGB-139) Pass Accept-Language header in Feign clients
