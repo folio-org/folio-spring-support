@@ -106,13 +106,17 @@ class JpaCqlRepositoryIT {
   })
   @ParameterizedTest
   @CsvSource({
-    "city=null, 1, ,John2",
-    "city.id=null, 1, ,John2",
-    "city.name=null, 1, ,John2",
-    "identifier=\"\", 7, John2, Jane;John",
-    "name<>\"\", 8, ,Jane;John;John2",
-    "name<>null, 8, ,Jane;John;John2",
-    "city<>null, 7, John2, Jane;John",
+    "city=\"\", 7, John2, Jane;John",
+    "cql.allRecords=1 NOT city=\"\", 1, John, John2",
+    "city<>\"\", 1, John, John2",
+    "city.id=\"\", 7, John2, Jane;John",
+    "cql.allRecords=1 NOT city.id=\"\", 1, John, John2",
+    "city.id<>\"\", 1, John, John2",
+    "city.name=\"\", 7, John2, Jane;John",
+    "city.name<>\"\", 1, , John2",
+    "identifier=\"\", 1, , John2",
+    "name=\"\", 8, ,Jane;John;John2",
+    "name<>\"peter\", 8, ,Jane;John;John2"
   })
   void testSelectAllRecordsByNonSpecifiedField(String query, int expectedSize, String excludedName,
                                                String includedNames) {

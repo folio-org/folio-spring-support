@@ -1,5 +1,5 @@
 ## 8.1.0-SNAPSHOT
-* [FOLSPRINGB-144](https://issues.folio.org/browse/FOLSPRINGB-144) Add support for filtering by non-specified attribute value indicated as 'null' in Cql query
+* [FOLSPRINGB-144](https://issues.folio.org/browse/FOLSPRINGB-144) Add support for filtering by undefined field value
 
 ## 8.0.0 2024-01-19
 * [FOLSPRINGB-128](https://issues.folio.org/browse/FOLSPRINGB-128) System User POC
