@@ -99,7 +99,7 @@ class JpaCqlRepositoryIT {
     assertThat(personRepository.countDeletedFalse("(cql.allRecords=1)sortby age/sort.ascending"))
       .isEqualTo(5);
     assertThat(personRepository.count("(cql.allRecords=1)sortby age/sort.ascending"))
-      .isEqualTo(8);
+      .isEqualTo(9);
   }
 
   @Sql({
