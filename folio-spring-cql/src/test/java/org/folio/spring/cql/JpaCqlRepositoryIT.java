@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.folio.spring.cql.domain.City;
 import org.folio.spring.cql.domain.Person;
@@ -107,25 +108,29 @@ class JpaCqlRepositoryIT {
   @ParameterizedTest
   @CsvSource({
     "city=\"\", 7, John2, Jane;John",
-    "cql.allRecords=1 NOT city=\"\", 1, John, John2",
-    "city<>\"\", 1, John, John2",
+    "city='', 7, John2, Jane;John",
+    "cql.allRecords=1 NOT city=\"\", 1, Jane;John, John2",
+    "age>30 NOT city=\"\", 1, Jane;John, John2",
+    "name=John NOT city=\"\", 0, John2,",
     "city.id=\"\", 7, John2, Jane;John",
-    "cql.allRecords=1 NOT city.id=\"\", 1, John, John2",
-    "city.id<>\"\", 1, John, John2",
+    "cql.allRecords=1 NOT city.id=\"\", 1, Jane;John, John2",
+    "age=40 NOT city.id='', 1, Jane;John, John2",
     "city.name=\"\", 7, John2, Jane;John",
-    "city.name<>\"\", 1, , John2",
-    "identifier=\"\", 1, , John2",
-    "name=\"\", 8, ,Jane;John;John2",
-    "name<>\"peter\", 8, ,Jane;John;John2"
+    "identifier=\"\" NOT city.id=\"\", 1, Jane;John, John2",
+    "name=\"\", 8, , Jane;John;John2",
+    "name='', 8, , Jane;John;John2",
+    "name<>\"peter\", 8, , Jane;John;John2"
   })
-  void testSelectAllRecordsByNonSpecifiedField(String query, int expectedSize, String excludedName,
+  void testSelectAllRecordsByNonSpecifiedField(String query, int expectedSize, String excludedNames,
                                                String includedNames) {
+    var expectedNames = Optional.ofNullable(includedNames).map(names -> names.split(";")).orElse(new String[0]);
+    var notExpectedNames = Optional.ofNullable(excludedNames).map(names -> names.split(";")).orElse(new String[]{""});
     var page = personRepository.findByCql(query, PageRequest.of(0, 10));
     assertThat(page)
       .hasSize(expectedSize)
       .extracting(Person::getName)
-      .contains(includedNames.split(";"))
-      .doesNotContain(excludedName);
+      .contains(expectedNames)
+      .doesNotContain(notExpectedNames);
   }
 
   @Test

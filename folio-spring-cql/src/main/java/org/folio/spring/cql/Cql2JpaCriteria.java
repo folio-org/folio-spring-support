@@ -1,6 +1,7 @@
 package org.folio.spring.cql;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.equalsAny;
 import static org.folio.cql2pgjson.model.CqlTermFormat.NUMBER;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -51,7 +52,6 @@ public class Cql2JpaCriteria<E> {
 
   private static final String NOT_EQUALS_OPERATOR = "<>";
   private static final String ASTERISKS_SIGN = "*";
-  private static final String ANY_DEFINED_VALUE = "isNotNull";
   private static final Pattern DATES_RANGE_PATTERN = Pattern.compile("\\d{4}(-\\d{2}){2}:\\d{4}(-\\d{2}){2}");
 
   private final Class<E> domainClass;
@@ -280,8 +280,8 @@ public class Cql2JpaCriteria<E> {
       case "<" -> cb.lessThan(field, value);
       case ">=" -> cb.greaterThanOrEqualTo(field, value);
       case "<=" -> cb.lessThanOrEqualTo(field, value);
-      case "==", "=" -> !ANY_DEFINED_VALUE.equals(value) ? cb.equal(field, value) : cb.isNotNull(field);
-      case NOT_EQUALS_OPERATOR -> !ANY_DEFINED_VALUE.equals(value) ? cb.notEqual(field, value) : cb.isNull(field);
+      case "==", "=" -> cb.equal(field, value);
+      case NOT_EQUALS_OPERATOR -> cb.notEqual(field, value);
       default -> throw new QueryValidationException(
         "CQL: Unsupported operator '"
           + comparator
@@ -301,8 +301,8 @@ public class Cql2JpaCriteria<E> {
     var comparator = node.getRelation().getBase().toLowerCase();
     var term = node.getTerm();
 
-    if (StringUtils.isBlank(term)) {
-      term = ANY_DEFINED_VALUE;
+    if (equalsAny(comparator, "=", "==") && (StringUtils.isBlank(term) || term.equals("''"))) {
+      return definedOrDefinedAndEmptyQuery(field, comparator, cb);
     }
 
     return switch (comparator) {
@@ -313,6 +313,15 @@ public class Cql2JpaCriteria<E> {
       case "<", ">", "<=", ">=" -> queryBySql(field, node.getTerm(), comparator, cb);
       default -> throw new CQLFeatureUnsupportedException("Relation " + comparator + " not implemented yet: " + node);
     };
+  }
+
+  private Predicate definedOrDefinedAndEmptyQuery(Path<?> field, String comparator, CriteriaBuilder cb) {
+    boolean isString = String.class.equals(field.getJavaType());
+    if ("==".equals(comparator) && isString) {
+      return cb.and(cb.isNotNull(field), cb.equal(field, ""));
+    }
+
+    return cb.isNotNull(field);
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -358,9 +367,9 @@ public class Cql2JpaCriteria<E> {
   private static Predicate queryByLike(Path<String> field, String term, String comparator,
                                 CriteriaBuilder cb) {
     if (NOT_EQUALS_OPERATOR.equals(comparator)) {
-      return !ANY_DEFINED_VALUE.equals(term) ? cb.notLike(field, cql2like(term), '\\') : cb.isNull(field);
+      return cb.notLike(field, cql2like(term), '\\');
     } else {
-      return !ANY_DEFINED_VALUE.equals(term) ? cb.like(field, cql2like(term), '\\') : cb.isNotNull(field);
+      return cb.like(field, cql2like(term), '\\');
     }
   }
 
@@ -376,11 +385,8 @@ public class Cql2JpaCriteria<E> {
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   private static Predicate queryBySql(Expression field, Comparable term, String comparator,
-                               CriteriaBuilder cb) throws QueryValidationException {
+                                      CriteriaBuilder cb) throws QueryValidationException {
     var value = (String) term;
-    if (ANY_DEFINED_VALUE.equals(value)) {
-      return toPredicate(field, term, comparator, cb);
-    }
 
     var javaType = field.getJavaType();
     if (Number.class.equals(javaType)) {
