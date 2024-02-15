@@ -301,7 +301,7 @@ public class Cql2JpaCriteria<E> {
     var comparator = node.getRelation().getBase().toLowerCase();
     var term = node.getTerm();
 
-    if (equalsAny(comparator, "=", "==") && (StringUtils.isBlank(term) || term.equals("''"))) {
+    if (equalsAny(comparator, "=", "==") && StringUtils.isEmpty(term)) {
       return definedOrDefinedAndEmptyQuery(field, comparator, cb);
     }
 
