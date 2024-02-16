@@ -1,6 +1,7 @@
 package org.folio.spring.cql;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.equalsAny;
 import static org.folio.cql2pgjson.model.CqlTermFormat.NUMBER;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -26,7 +27,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
@@ -298,28 +298,40 @@ public class Cql2JpaCriteria<E> {
       return buildModifiersQuery(field, modifiers, cb);
     }
 
-    var isString = String.class.equals(field.getJavaType());
     var comparator = node.getRelation().getBase().toLowerCase();
     var term = node.getTerm();
+
+    if (equalsAny(comparator, "=", "==") && StringUtils.isEmpty(term)) {
+      return definedOrDefinedAndEmptyQuery(field, comparator, cb);
+    }
 
     return switch (comparator) {
       case "=" -> modifiers.getCqlTermFormat() == NUMBER
         ? queryBySql(field, term, comparator, cb)
-        : buildQuery(field, node, isString, comparator, cb);
-      case "adj", "all", "any", "==", NOT_EQUALS_OPERATOR -> buildQuery(field, node, isString, comparator, cb);
-      case "<", ">", "<=", ">=" -> queryBySql(field, term, comparator, cb);
+        : buildQuery(field, term, comparator, cb);
+      case "adj", "all", "any", "==", NOT_EQUALS_OPERATOR -> buildQuery(field, term, comparator, cb);
+      case "<", ">", "<=", ">=" -> queryBySql(field, node.getTerm(), comparator, cb);
       default -> throw new CQLFeatureUnsupportedException("Relation " + comparator + " not implemented yet: " + node);
     };
   }
 
-  @SuppressWarnings("unchecked")
-  private Predicate buildQuery(Path<?> field, CQLTermNode node, boolean isString, String comparator,
-                               CriteriaBuilder cb)
-    throws QueryValidationException {
+  private Predicate definedOrDefinedAndEmptyQuery(Path<?> field, String comparator, CriteriaBuilder cb) {
+    boolean isString = String.class.equals(field.getJavaType());
+    if ("==".equals(comparator) && isString) {
+      return cb.and(cb.isNotNull(field), cb.equal(field, ""));
+    }
+
+    return cb.isNotNull(field);
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private Predicate buildQuery(Path<?> field, Comparable term, String comparator,
+                               CriteriaBuilder cb) throws QueryValidationException {
+    boolean isString = String.class.equals(field.getJavaType());
     if (isString) {
-      return queryByLike((Path<String>) field, node, comparator, cb);
+      return queryByLike((Path<String>) field, (String) term, comparator, cb);
     } else {
-      return queryBySql(field, node.getTerm(), comparator, cb);
+      return queryBySql(field, term, comparator, cb);
     }
   }
 
@@ -342,7 +354,7 @@ public class Cql2JpaCriteria<E> {
     var modelFields = entity.getModel().getBindableJavaType().getDeclaredFields();
     var fieldNamesForAttribute =
       Arrays.stream(modelFields).map(Field::getName)
-        .filter(name -> name.equalsIgnoreCase(typeName)).collect(Collectors.toList());
+        .filter(name -> name.equalsIgnoreCase(typeName)).toList();
     if (isEmpty(fieldNamesForAttribute) || fieldNamesForAttribute.size() > 1) {
       throw new CqlQueryValidationException(format("Query contains nonExisting field [%s]", typeName));
     }
@@ -352,12 +364,12 @@ public class Cql2JpaCriteria<E> {
   /**
    * Create an SQL expression using LIKE query syntax.
    */
-  private static Predicate queryByLike(Path<String> field, CQLTermNode node, String comparator,
+  private static Predicate queryByLike(Path<String> field, String term, String comparator,
                                 CriteriaBuilder cb) {
     if (NOT_EQUALS_OPERATOR.equals(comparator)) {
-      return cb.notLike(field, cql2like(node.getTerm()), '\\');
+      return cb.notLike(field, cql2like(term), '\\');
     } else {
-      return cb.like(field, cql2like(node.getTerm()), '\\');
+      return cb.like(field, cql2like(term), '\\');
     }
   }
 
@@ -373,16 +385,17 @@ public class Cql2JpaCriteria<E> {
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   private static Predicate queryBySql(Expression field, Comparable term, String comparator,
-                               CriteriaBuilder cb) throws QueryValidationException {
+                                      CriteriaBuilder cb) throws QueryValidationException {
+    var value = (String) term;
+
     var javaType = field.getJavaType();
     if (Number.class.equals(javaType)) {
-      term = Integer.parseInt((String) term);
+      term = Integer.parseInt(value);
     } else if (UUID.class.equals(javaType)) {
-      term = UUID.fromString((String) term);
+      term = UUID.fromString(value);
     } else if (Boolean.class.equals(javaType)) {
-      term = Boolean.valueOf((String) term);
+      term = Boolean.valueOf(value);
     } else if (Date.class.equals(javaType) || Timestamp.class.equals(javaType)) {
-      var value = (String) term;
       if (isDatesRange(value)) {
         return toFilterByDatesPredicate(field, value, cb);
       } else {
@@ -390,7 +403,6 @@ public class Cql2JpaCriteria<E> {
         term = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
       }
     } else if (LocalDateTime.class.equals(javaType)) {
-      var value = (String) term;
       if (isDatesRange(value)) {
         return toFilterByLocalDatesPredicate(field, value, cb);
       } else {

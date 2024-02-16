@@ -1,11 +1,13 @@
 package org.folio.spring.cql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.context.jdbc.SqlMergeMode.MergeMode.MERGE;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.folio.spring.cql.domain.City;
 import org.folio.spring.cql.domain.Person;
@@ -26,12 +28,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlMergeMode;
 
 @IntegrationTest
 @SpringBootTest
 @EnablePostgres
 @ContextConfiguration(classes = JpaCqlConfiguration.class)
 @EnableAutoConfiguration
+@SqlMergeMode(MERGE)
 @Sql({"/sql/jpa-cql-general-it-schema.sql", "/sql/jpa-cql-general-test-data.sql"})
 class JpaCqlRepositoryIT {
 
@@ -63,30 +67,30 @@ class JpaCqlRepositoryIT {
 
   @Test
   @Sql({
-    "/sql/jpa-cql-general-it-schema.sql",
-    "/sql/jpa-cql-general-test-data.sql",
     "/sql/jpa-cql-person-test-data.sql"
   })
   void testSelectsWithAndWithoutDeletedCriteria() {
-    var page1 = personRepository.findByCqlAndDeletedFalse("name=Jane", PageRequest.of(0, 10));
-    var page2 = personRepository.findByCql("name=Jane", PageRequest.of(0, 10));
-    assertThat(page1)
+    var page = personRepository.findByCqlAndDeletedFalse("name=Jane", PageRequest.of(0, 10));
+    assertThat(page)
       .hasSize(2)
       .extracting(Person::getName)
       .contains("Jane");
-    assertThat(page2)
+
+    page = personRepository.findByCql("name=Jane", PageRequest.of(0, 10));
+    assertThat(page)
       .hasSize(3)
       .extracting(Person::getName)
       .contains("Jane");
 
-    page1 = personRepository.findByCqlAndDeletedFalse("name=John and age>20", PageRequest.of(0, 10));
-    page2 = personRepository.findByCql("name=John and age>20", PageRequest.of(0, 10));
-    assertThat(page1)
+    page = personRepository.findByCqlAndDeletedFalse("name=John and age>20", PageRequest.of(0, 10));
+    assertThat(page)
       .hasSize(3)
       .extracting(Person::getAge)
       .startsWith(22)
       .endsWith(30);
-    assertThat(page2)
+
+    page = personRepository.findByCql("name=John and age>20", PageRequest.of(0, 10));
+    assertThat(page)
       .hasSize(4)
       .extracting(Person::getAge)
       .startsWith(22)
@@ -95,14 +99,43 @@ class JpaCqlRepositoryIT {
     assertThat(personRepository.countDeletedFalse("(cql.allRecords=1)sortby age/sort.ascending"))
       .isEqualTo(5);
     assertThat(personRepository.count("(cql.allRecords=1)sortby age/sort.ascending"))
-      .isEqualTo(7);
+      .isEqualTo(9);
+  }
+
+  @Sql({
+    "/sql/jpa-cql-person-test-data.sql"
+  })
+  @ParameterizedTest
+  @CsvSource({
+    "city=\"\", 8, John2, Jane;John",
+    "cql.allRecords=1 NOT city=\"\", 1, Jane;John, John2",
+    "age>30 NOT city=\"\", 1, Jane;John, John2",
+    "name=John NOT city=\"\", 0, John2,",
+    "city.id=\"\", 8, John2, Jane;John",
+    "cql.allRecords=1 NOT city.id=\"\", 1, Jane;John, John2",
+    "age=40 NOT city.id=\"\", 1, Jane;John, John2",
+    "city.name=\"\", 8, John2, Jane;John",
+    "identifier=\"\" NOT city.id=\"\", 1, Jane;John, John2",
+    "name=\"\", 9, , Jane;John;John2",
+    "city.name==\"\", 1, Jane;John;John2, Jane2",
+    "age<45 NOT city.name==\"\", 8, Jane2, Jane;John;John2",
+    "city.name=\"\" NOT city.name==\"\", 7, Jane2;John2, Jane;John",
+    "name=\"\", 9, , Jane;John;John2",
+    "name<>\"peter\", 9, , Jane;John;John2"
+  })
+  void testSelectAllRecordsByNonSpecifiedField(String query, int expectedSize, String excludedNames,
+                                               String includedNames) {
+    var expectedNames = Optional.ofNullable(includedNames).map(names -> names.split(";")).orElse(new String[0]);
+    var notExpectedNames = Optional.ofNullable(excludedNames).map(names -> names.split(";")).orElse(new String[]{""});
+    var page = personRepository.findByCql(query, PageRequest.of(0, 10));
+    assertThat(page)
+      .hasSize(expectedSize)
+      .extracting(Person::getName)
+      .contains(expectedNames)
+      .doesNotContain(notExpectedNames);
   }
 
   @Test
-  @Sql({
-    "/sql/jpa-cql-general-it-schema.sql",
-    "/sql/jpa-cql-general-test-data.sql"
-  })
   void testSelectWithFilterByCreatedDate() {
     var page = personRepository.findByCqlAndDeletedFalse("createdDate<=2021-12-26T12:00:00.0", PageRequest.of(0, 4));
     assertThat(page)
