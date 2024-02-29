@@ -1,5 +1,6 @@
-## 8.1.0-SNAPSHOT
+## 8.1.0 2024-02-29
 * [FOLSPRINGB-144](https://issues.folio.org/browse/FOLSPRINGB-144) Add support for filtering by undefined field value
+* [FOLSPRINGB-148](https://issues.folio.org/browse/FOLSPRINGB-148) Add Minio extension for testing submodule
 
 ## 8.0.0 2024-01-19
 * [FOLSPRINGB-128](https://issues.folio.org/browse/FOLSPRINGB-128) System User POC
