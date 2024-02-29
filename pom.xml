@@ -348,7 +348,7 @@
     <url>https://github.com/folio-org/folio-spring-support</url>
     <connection>scm:git:git@github.com:folio-org/folio-spring-support.git</connection>
     <developerConnection>scm:git:git@github.com:folio-org/folio-spring-support.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>release/v8.1</tag>
   </scm>
 
   <repositories>
