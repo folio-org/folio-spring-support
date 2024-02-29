@@ -4,13 +4,13 @@
   <parent>
     <groupId>org.folio</groupId>
     <artifactId>folio-spring-support</artifactId>
-    <version>8.1.0-SNAPSHOT</version>
+    <version>8.2.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>folio-spring-testing</artifactId>
 
   <properties>
-    <testcontainers.version>1.19.3</testcontainers.version>
+    <testcontainers.version>1.19.6</testcontainers.version>
     <wiremock.version>3.0.1</wiremock.version>
   </properties>
 
