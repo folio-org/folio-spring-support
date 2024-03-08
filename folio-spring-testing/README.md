@@ -42,6 +42,7 @@ Extension populates `folio.okapi-url` env variable and configures `OkapiConfigur
 ### PostgresContainerExtension
 The PostgresContainerExtension class manages a PostgreSQL Docker container. To employ this extension, annotate test classes or methods with `@EnablePostgres`.
 Extension populates `spring.datasource.url`, `spring.datasource.username`, `spring.datasource.password` env variables.
+`TESTCONTAINERS_POSTGRES_IMAGE` environment variable provides an ability to change the default PostgreSQL container used for module tests.
 
 ### RandomParametersExtension
 The RandomParametersExtension class resolves parameters annotated with `@Random`, `@RandomInt`, or `@RandomLong` by generating random values for testing purposes.
