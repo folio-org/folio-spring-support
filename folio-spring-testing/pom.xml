@@ -9,11 +9,6 @@
 
   <artifactId>folio-spring-testing</artifactId>
 
-  <properties>
-    <testcontainers.version>1.19.6</testcontainers.version>
-    <wiremock.version>3.0.1</wiremock.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -67,31 +62,37 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
-      <version>${testcontainers.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>${testcontainers.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>kafka</artifactId>
-      <version>${testcontainers.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>postgresql</artifactId>
-      <version>${testcontainers.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>minio</artifactId>
-      <version>${testcontainers.version}</version>
+    </dependency>
+
+    <!-- Bump testcontainer's commons-compress 1.24.0 that has vulnerabilities:
+         https://nvd.nist.gov/vuln/detail/CVE-2024-25710
+         https://nvd.nist.gov/vuln/detail/CVE-2024-26308
+         https://github.com/testcontainers/testcontainers-java/issues/8169
+    -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>${commons-compress.version}</version>
     </dependency>
 
     <dependency>
@@ -100,12 +101,11 @@
     </dependency>
 
     <dependency>
-      <groupId>com.github.tomakehurst</groupId>
+      <groupId>org.wiremock</groupId>
       <artifactId>wiremock-standalone</artifactId>
       <version>${wiremock.version}</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher -->
     <dependency>
       <groupId>org.junit.platform</groupId>
       <artifactId>junit-platform-launcher</artifactId>
