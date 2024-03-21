@@ -38,7 +38,6 @@
     <feign-okhttp.version>13.1</feign-okhttp.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
     <cql2pgjson.version>35.1.1</cql2pgjson.version>
-    <edge-api-utils-version>1.3.0</edge-api-utils-version>
     <rhino.version>1.7.14</rhino.version>
     <icu4j.version>74.2</icu4j.version>
 

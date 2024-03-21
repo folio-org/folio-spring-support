@@ -25,13 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.folio.edge.api.utils.exception.AuthorizationException;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.client.AuthnClient;
 import org.folio.spring.client.AuthnClient.UserCredentials;
 import org.folio.spring.client.UsersClient;
 import org.folio.spring.config.properties.FolioEnvironment;
 import org.folio.spring.context.ExecutionContextBuilder;
+import org.folio.spring.exception.SystemUserAuthorizationException;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
@@ -62,13 +62,13 @@ class SystemUserServiceTest {
     .truncatedTo(ChronoUnit.MINUTES);
   private static final String MOCK_TOKEN = "test_token";
   private static final String CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID
-      = "Cannot retrieve okapi token for tenant: tenantId";
+    = "Cannot retrieve okapi token for tenant: tenantId";
+  private final ResponseEntity<AuthnClient.LoginResponse> expectedResponse =
+    Mockito.spy(ResponseEntity.of(Optional.of(new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString()))));
   @Mock
   private AuthnClient authnClient;
   @Mock
   private ExecutionContextBuilder contextBuilder;
-  private final ResponseEntity<AuthnClient.LoginResponse> expectedResponse =
-      Mockito.spy(ResponseEntity.of(Optional.of(new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString()))));
   @Mock
   private FolioExecutionContext context;
   @Mock
@@ -78,28 +78,19 @@ class SystemUserServiceTest {
   @Mock
   private Cache<String, SystemUser> userCache;
 
-  private static SystemUser systemUserValue() {
-    return SystemUser.builder().username("username").okapiUrl(OKAPI_URL).tenantId(TENANT_ID).build();
-  }
-
-  private static SystemUserProperties systemUserProperties() {
-    return new SystemUserProperties("username", "password", "system", "permissions/test-permissions.csv");
-  }
-
   @Test
   void getAuthedSystemUser_positive() {
     var expectedUserId = UUID.randomUUID();
     var expectedUserToken = userToken(CUSTOM_TOKEN_EXPIRATION);
 
     when(authnClient
-        .loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
+      .loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
     when(prepareSystemUserService.getFolioUser("username")).thenReturn(Optional.of(
-        new UsersClient.User(expectedUserId.toString(),
-            "username", SYSTEM_USER_TYPE, true, new UsersClient.User.Personal("last"))));
+      new UsersClient.User(expectedUserId.toString(),
+        "username", SYSTEM_USER_TYPE, true, new UsersClient.User.Personal("last"))));
     when(environment.getOkapiUrl()).thenReturn(OKAPI_URL);
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
-    when(expectedResponse.getHeaders())
-        .thenReturn(cookieHeaders(expectedUserToken.accessToken(), expectedUserToken.accessToken()));
+    when(expectedResponse.getHeaders()).thenReturn(cookieHeaders(expectedUserToken.accessToken()));
 
     var actual = systemUserService(systemUserProperties()).getAuthedSystemUser(TENANT_ID);
     assertToken(actual.token(), expectedUserToken);
@@ -107,7 +98,7 @@ class SystemUserServiceTest {
   }
 
   @ParameterizedTest
-  @ValueSource(ints = { 40, 24 * 60 * 60 })
+  @ValueSource(ints = {40, 24 * 60 * 60})
   void getAuthedSystemUserUsingCache_positive(int plusSeconds) {
     var expectedUserToken = userToken(Instant.now().plusSeconds(plusSeconds));
     var systemUserService = systemUserService(systemUserProperties());
@@ -124,7 +115,7 @@ class SystemUserServiceTest {
   }
 
   @ParameterizedTest
-  @ValueSource(ints = { -24 * 60 * 60, -1})
+  @ValueSource(ints = {-24 * 60 * 60, -1})
   void getAuthedSystemUserUsingCacheWithExpiredAccessToken_positive(int plusSeconds) {
     var cachedUserToken = userToken(Instant.now().plusSeconds(plusSeconds));
     var systemUserService = systemUserService(systemUserProperties());
@@ -147,9 +138,9 @@ class SystemUserServiceTest {
   void authSystemUser_positive() {
     var expectedToken = "x-okapi-token-value";
     var expectedUserToken = UserToken.builder()
-        .accessToken(expectedToken)
-        .accessTokenExpiration(CUSTOM_TOKEN_EXPIRATION)
-        .build();
+      .accessToken(expectedToken)
+      .accessTokenExpiration(CUSTOM_TOKEN_EXPIRATION)
+      .build();
     var systemUser = systemUserValue();
 
     when(authnClient.loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
@@ -183,20 +174,18 @@ class SystemUserServiceTest {
 
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(IllegalStateException.class)
-        .hasMessage("User [username] cannot login with expiry because of missing tokens");
+      .hasMessage("User [username] cannot login with expiry because of missing tokens");
   }
 
   @Test
   void overloaded_authSystemUser_negative_emptyHeaders() {
     when(expectedResponse.getHeaders()).thenReturn(new HttpHeaders());
 
-    var systemUser = systemUserValue();
-
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService
-        .authSystemUser("tenantId", "username", "password"))
-        .isInstanceOf(AuthorizationException.class)
-        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
+      .authSystemUser("tenantId", "username", "password"))
+      .isInstanceOf(SystemUserAuthorizationException.class)
+      .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
   }
 
   @Test
@@ -210,7 +199,7 @@ class SystemUserServiceTest {
 
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(IllegalStateException.class)
-        .hasMessage("User [username] cannot login with expiry because of missing tokens");
+      .hasMessage("User [username] cannot login with expiry because of missing tokens");
   }
 
   @Test
@@ -220,48 +209,46 @@ class SystemUserServiceTest {
     expectedHeaders.put(HttpHeaders.SET_COOKIE, emptyList());
     when(expectedResponse.getHeaders()).thenReturn(expectedHeaders);
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
-    var systemUser = systemUserValue();
 
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService
-        .authSystemUser("tenantId", "username", "password"))
-        .isInstanceOf(AuthorizationException.class)
-        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
+      .authSystemUser("tenantId", "username", "password"))
+      .isInstanceOf(SystemUserAuthorizationException.class)
+      .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
   }
 
   @Test
   void authSystemUser_negative_emptyBody() {
     when(authnClient.loginWithExpiry(new UserCredentials("username", "password")))
-        .thenReturn(new ResponseEntity<>(org.springframework.http.HttpStatus.OK));
+      .thenReturn(new ResponseEntity<>(org.springframework.http.HttpStatus.OK));
 
     var systemUser = systemUserValue();
 
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(IllegalStateException.class)
-        .hasMessage("User [username] cannot login with expiry because expire times missing for status 200 OK");
+      .hasMessage("User [username] cannot login with expiry because expire times missing for status 200 OK");
   }
 
   @Test
   void overloaded_authSystemUser_negative_emptyBody() {
     when(authnClient.loginWithExpiry(new UserCredentials("username", "password")))
-        .thenReturn(new ResponseEntity<>(org.springframework.http.HttpStatus.OK));
+      .thenReturn(new ResponseEntity<>(org.springframework.http.HttpStatus.OK));
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
-    var systemUser = systemUserValue();
 
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService
-        .authSystemUser("tenantId", "username", "password"))
-        .isInstanceOf(AuthorizationException.class)
-        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
+      .authSystemUser("tenantId", "username", "password"))
+      .isInstanceOf(SystemUserAuthorizationException.class)
+      .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
   }
 
   @Test
   void authSystemUser_when_loginExpiry_notFoundException() {
     var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
     doThrow(FeignException.errorStatus("GET", create404Response()))
-        .when(authnClient).loginWithExpiry(any());
+      .when(authnClient).loginWithExpiry(any());
     when(authnClient.login(new UserCredentials("username", "password")))
-        .thenReturn(buildClientResponse(MOCK_TOKEN));
+      .thenReturn(buildClientResponse(MOCK_TOKEN));
     var systemUser = systemUserValue();
     var systemUserService = systemUserService(systemUserProperties());
     var actual = systemUserService.authSystemUser(systemUser);
@@ -272,11 +259,10 @@ class SystemUserServiceTest {
   void overloaded_authSystemUser_when_loginExpiry_notFoundException() {
     var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
     doThrow(FeignException.errorStatus("GET", create404Response()))
-        .when(authnClient).loginWithExpiry(any());
+      .when(authnClient).loginWithExpiry(any());
     when(authnClient.login(new UserCredentials("username", "password")))
-        .thenReturn(buildClientResponse(MOCK_TOKEN));
+      .thenReturn(buildClientResponse(MOCK_TOKEN));
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
-    var systemUser = systemUserValue();
     var systemUserService = systemUserService(systemUserProperties());
     var actual = systemUserService.authSystemUser("tenantId", "username", "password");
     assertThat(actual).isEqualTo(expectedUserToken);
@@ -284,49 +270,45 @@ class SystemUserServiceTest {
 
   @Test
   void authSystemUser_when_loginExpiry_notFoundException_loginLegacReturnsNull() {
-    var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
     doThrow(FeignException.errorStatus("GET", create404Response()))
-        .when(authnClient).loginWithExpiry(any());
+      .when(authnClient).loginWithExpiry(any());
     when(authnClient.login(new UserCredentials("username", "password")))
-        .thenReturn(buildClientResponse(null));
+      .thenReturn(buildClientResponse(null));
     var systemUser = systemUserValue();
     var systemUserService = systemUserService(systemUserProperties());
-    assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(AuthorizationException.class)
-        .hasMessage("Cannot retrieve okapi token for tenant: username");
+    assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(
+        SystemUserAuthorizationException.class)
+      .hasMessage("Cannot retrieve okapi token for tenant: username");
   }
 
   @Test
   void authSystemUser_when_loginExpiry_Returns400Response() {
-    var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
     doThrow(FeignException.errorStatus("GET", create400Response()))
-        .when(authnClient).loginWithExpiry(any());
+      .when(authnClient).loginWithExpiry(any());
     var systemUser = systemUserValue();
     var systemUserService = systemUserService(systemUserProperties());
-    assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(AuthorizationException.class)
-        .hasMessage("Cannot retrieve okapi token for tenant: username");
+    assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(
+        SystemUserAuthorizationException.class)
+      .hasMessage("Cannot retrieve okapi token for tenant: username");
   }
 
   @Test
   void overloaded_authSystemUser_when_loginExpiry_Returns400Response() {
-    var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
-    var systemUser = systemUserValue();
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService
-        .authSystemUser("tenantId", "username", "password"))
-        .isInstanceOf(AuthorizationException.class)
-        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
+      .authSystemUser("tenantId", "username", "password"))
+      .isInstanceOf(SystemUserAuthorizationException.class)
+      .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
   }
 
   @Test
   void overloaded_authSystemUser_when_loginExpiry_notFoundException_loginLegacReturnsNull() {
-    var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
-    var systemUser = systemUserValue();
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService
-        .authSystemUser("tenantId", "username", "password"))
-        .isInstanceOf(AuthorizationException.class)
-        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
+      .authSystemUser("tenantId", "username", "password"))
+      .isInstanceOf(SystemUserAuthorizationException.class)
+      .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
   }
 
   @Test
@@ -334,31 +316,39 @@ class SystemUserServiceTest {
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService
-        .authSystemUser("tenantId", "username", "password"))
-        .isInstanceOf(AuthorizationException.class)
-        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
+      .authSystemUser("tenantId", "username", "password"))
+      .isInstanceOf(SystemUserAuthorizationException.class)
+      .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
   }
 
   @Test
   void authSystemUser_when_loginExpiry_and_tokenLegacy_both_notFound() {
     doThrow(FeignException.errorStatus("GET", create404Response()))
-        .when(authnClient).loginWithExpiry(any());
+      .when(authnClient).loginWithExpiry(any());
     doThrow(FeignException.errorStatus("GET", create404Response()))
-        .when(authnClient).login(any());
+      .when(authnClient).login(any());
     var systemUser = systemUserValue();
     var systemUserService = systemUserService(systemUserProperties());
-    assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(AuthorizationException.class)
-        .hasMessage("Cannot retrieve okapi token for tenant: username");
+    assertThatThrownBy(() -> systemUserService.authSystemUser(systemUser)).isInstanceOf(
+        SystemUserAuthorizationException.class)
+      .hasMessage("Cannot retrieve okapi token for tenant: username");
   }
 
   @Test
   void overloaded_authSystemUser_when_loginExpiry_and_tokenLegacy_both_notFound() {
-    var systemUser = systemUserValue();
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService
-        .authSystemUser("tenantId", "username", "password"))
-        .isInstanceOf(AuthorizationException.class)
-        .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
+      .authSystemUser("tenantId", "username", "password"))
+      .isInstanceOf(SystemUserAuthorizationException.class)
+      .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID);
+  }
+
+  private static SystemUser systemUserValue() {
+    return SystemUser.builder().username("username").okapiUrl(OKAPI_URL).tenantId(TENANT_ID).build();
+  }
+
+  private static SystemUserProperties systemUserProperties() {
+    return new SystemUserProperties("username", "password", "system", "permissions/test-permissions.csv");
   }
 
   private void assertToken(UserToken actualToken, UserToken expectedToken) {
@@ -374,42 +364,38 @@ class SystemUserServiceTest {
 
   private UserToken userToken(Instant accessExpiration) {
     return UserToken.builder()
-        .accessToken("access-token")
-        .accessTokenExpiration(accessExpiration)
-        .build();
+      .accessToken("access-token")
+      .accessTokenExpiration(accessExpiration)
+      .build();
   }
 
   private HttpHeaders cookieHeaders(String token) {
-    return cookieHeaders(token, token);
-  }
-
-  private HttpHeaders cookieHeaders(String accessToken, String refreshToken) {
     return new HttpHeaders(new MultiValueMapAdapter<>(Map.of(HttpHeaders.SET_COOKIE, List.of(
-        new DefaultCookie(FOLIO_ACCESS_TOKEN, accessToken).toString()
+      new DefaultCookie(FOLIO_ACCESS_TOKEN, token).toString()
     ))));
   }
 
   private ResponseEntity<AuthnClient.LoginResponse> buildClientResponse(String token) {
     return ResponseEntity.ok()
-        .header(XOkapiHeaders.TOKEN, token)
-        .body(new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString()));
+      .header(XOkapiHeaders.TOKEN, token)
+      .body(new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString()));
   }
 
   private Response create404Response() {
     return Response.builder()
-        .status(HttpStatus.NOT_FOUND.value())
-        .reason("Not Found")
-        .request(Request.create(Request.HttpMethod.GET,
-            "/some/path", Collections.emptyMap(), null, Util.UTF_8))
-        .build();
+      .status(HttpStatus.NOT_FOUND.value())
+      .reason("Not Found")
+      .request(Request.create(Request.HttpMethod.GET,
+        "/some/path", Collections.emptyMap(), null, Util.UTF_8, null))
+      .build();
   }
 
   private Response create400Response() {
     return Response.builder()
-        .status(HttpStatus.BAD_REQUEST.value())
-        .reason("Not Found")
-        .request(Request.create(Request.HttpMethod.GET,
-            "/some/path", Collections.emptyMap(), null, Util.UTF_8))
-        .build();
+      .status(HttpStatus.BAD_REQUEST.value())
+      .reason("Not Found")
+      .request(Request.create(Request.HttpMethod.GET,
+        "/some/path", Collections.emptyMap(), null, Util.UTF_8, null))
+      .build();
   }
 }
