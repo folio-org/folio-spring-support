@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.4</version> <!-- also change spring-boot.version -->
+    <version>3.2.5</version> <!-- also change spring-boot.version -->
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
 
@@ -30,26 +30,26 @@
 
   <properties>
     <java.version>17</java.version>
-    <spring-boot.version>3.2.4</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
+    <spring-boot.version>3.2.5</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
     <spring-cloud-starter-openfeign.version>4.1.1</spring-cloud-starter-openfeign.version>
     <maven-compat.version>3.9.6</maven-compat.version>
     <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
     <swagger-annotations.version>2.2.21</swagger-annotations.version>
     <feign-okhttp.version>13.2.1</feign-okhttp.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
-    <cql2pgjson.version>35.2.0</cql2pgjson.version>
+    <cql2pgjson.version>35.2.2</cql2pgjson.version>
     <rhino.version>1.7.14</rhino.version>
-    <icu4j.version>74.2</icu4j.version>
+    <icu4j.version>75.1</icu4j.version>
 
     <!-- Test dependencies versions -->
     <easy-random.version>5.0.0</easy-random.version>
     <mockito-inline.version>5.2.0</mockito-inline.version>
-    <wiremock.version>3.5.2</wiremock.version>
+    <wiremock.version>3.5.3</wiremock.version>
     <commons-compress.version>1.26.1</commons-compress.version>
 
     <!-- Plugins versions -->
     <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
-    <openapi-generator.version>7.4.0</openapi-generator.version>
+    <openapi-generator.version>7.5.0</openapi-generator.version>
     <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
   </properties>
 
