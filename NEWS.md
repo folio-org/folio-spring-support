@@ -1,3 +1,6 @@
+## 8.1.1 2024-05-24
+* [FOLSPRINGS-156](https://folio-org.atlassian.net/browse/FOLSPRINGS-156) Spring Boot 3.2.6, bcprov-jdk18on 1.78 fixing vulns
+
 ## 8.1.0 2024-02-29
 * [FOLSPRINGB-144](https://issues.folio.org/browse/FOLSPRINGB-144) Add support for filtering by undefined field value
 * [FOLSPRINGB-148](https://issues.folio.org/browse/FOLSPRINGB-148) Add Minio extension for testing submodule
