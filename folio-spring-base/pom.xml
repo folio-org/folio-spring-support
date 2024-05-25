@@ -61,6 +61,19 @@
       <artifactId>spring-cloud-starter-openfeign</artifactId>
     </dependency>
 
+    <!-- Upgrade spring-security-rsa from 1.1.2 to 1.1.3.
+         Remove this explicit spring-security-rsa dependency when spring-cloud-starter-openfeign ships with spring-security-rsa >= 1.1.3.
+         Needed to bump org.bouncycastle:bcprov-jdk18on from 1.74 to 1.78 to fix
+         https://nvd.nist.gov/vuln/detail/CVE-2024-30172
+         https://nvd.nist.gov/vuln/detail/CVE-2024-30171
+         https://security.snyk.io/vuln/SNYK-JAVA-ORGBOUNCYCASTLE-6277381
+    -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-rsa</artifactId>
+      <version>${spring-security-rsa.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
