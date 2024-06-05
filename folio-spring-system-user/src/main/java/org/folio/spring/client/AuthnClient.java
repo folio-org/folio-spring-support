@@ -27,6 +27,6 @@ public interface AuthnClient {
   record UserCredentials(String username, String password) {
   }
 
-  record LoginResponse(String accessTokenExpiration) {
+  record LoginResponse(String accessTokenExpiration, String refreshTokenExpiration) {
   }
 }
