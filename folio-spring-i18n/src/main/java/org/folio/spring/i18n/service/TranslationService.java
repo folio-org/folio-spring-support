@@ -119,6 +119,27 @@ public class TranslationService {
   }
 
   /**
+   * Format first found translation for keys, supplying a series of named arguments as key value pairs.
+   *
+   * @param keys the keys of the format string
+   * @param args pairs of keys and values to interpolate
+   * @return the formatted string or first key if translation not found
+   */
+  public String format(String[] keys, Object... args) {
+    if (keys == null || keys.length == 0) {
+      throw new IllegalStateException(
+        String.format("Keys must be provided for formatting, but provided %s", Arrays.toString(keys)));
+    }
+    for (String key : keys) {
+      var translation = format(key, args);
+      if (!translation.endsWith(key)) {
+        return translation;
+      }
+    }
+    return format(keys[0], args);
+  }
+
+  /**
    * Format a list of strings into one cohesive string.  For example, in English, {@code [A B C D]}
    * would become {@code "A, B, C, and D"}.
    *

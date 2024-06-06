@@ -15,9 +15,11 @@ import java.util.Locale;
 import java.util.Map;
 import org.folio.spring.i18n.config.TranslationConfiguration;
 import org.folio.spring.i18n.model.TranslationFile;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+@UnitTest
 class TranslationServiceGetFilesTest {
 
   private TranslationService getService(String path) {

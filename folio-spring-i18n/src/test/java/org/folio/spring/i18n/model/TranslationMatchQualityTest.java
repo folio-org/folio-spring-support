@@ -7,11 +7,13 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.io.FileSystemResource;
 
+@UnitTest
 class TranslationMatchQualityTest {
 
   protected static TranslationFile FILE_NO_NAME = new TranslationFile(
