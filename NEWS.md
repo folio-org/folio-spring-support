@@ -1,5 +1,9 @@
 ## 8.2.0 In progress
+### Testing submodule
 * [FOLSPRINGB-152](https://issues.folio.org/browse/FOLSPRINGB-152) Implement TESTCONTAINERS_POSTGRES_IMAGE
+
+### i18n submodule
+* [FOLSPRINGB-160](https://issues.folio.org/browse/FOLSPRINGB-160) Make translation service accept multiple keys
 
 ## 8.1.0 2024-02-29
 * [FOLSPRINGB-144](https://issues.folio.org/browse/FOLSPRINGB-144) Add support for filtering by undefined field value

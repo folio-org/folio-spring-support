@@ -1,16 +1,15 @@
 # Documentation for folio-spring-i18n features
 
-- [Introduction](#introduction)
-- [Adding this module to your project](#adding-this-module-to-your-project)
-- [Using translations in your code](#using-translations-in-your-code)
-  - [`String format(String key, Object... args)`](#string-formatstring-key-object-args)
-    - [Example](#example)
-  - [`String formatList(Collection<?> list)`](#string-formatlistcollection-list)
-    - [Example](#example-1)
+<!-- TOC -->
+* [Documentation for folio-spring-i18n features](#documentation-for-folio-spring-i18n-features)
+  * [Introduction](#introduction)
+  * [Adding this module to your project](#adding-this-module-to-your-project)
+  * [Using translations in your code](#using-translations-in-your-code)
+<!-- TOC -->
 
 ## Introduction
 
-Translations may be performed in backend modules using this library, per [this TC decision](https://wiki.folio.org/x/SqTc). These translations work the same as UI modules:
+Translations may be performed in backend modules using this library, per [this TC decision](https://github.com/folio-org/rfcs/blob/master/text/0001-localizing-api-messages.md). These translations work the same as UI modules:
 
 - Translations are stored in JSON files like `/translations/mod-foo/en_ca.json` in the code repository. The path is required for the automated exchange of translation files to and from FOLIO's translation tool [Lokalise](https://lokalise.com/).
 - This `/translations/` directory must be loaded as a resource and packaged with the application. The path is required by folio-spring-i18n.
@@ -53,17 +52,30 @@ Then, add the following to your `pom.xml` in `<build>`:
   </resources>
 ```
 
+In case multi-module project:
+```xml
+  <resources>
+    <resource>
+      <directory>src/main/resources</directory>
+    </resource>
+    <resource>
+      <directory>${maven.multiModuleProjectDirectory}/translations</directory>
+      <targetPath>translations</targetPath>
+    </resource>
+  </resources>
+```
+
 Now, create a folder `/translations/mod-name-here` and you're good to go!
 
 ## Using translations in your code
 
 To use this library, inject an instance of `TranslationService` into your class (e.g. by autowiring). This class provides the main interface to the library. Then, the following two methods can be invoked:
 
-### `String format(String key, Object... args)`
+`String format(String key, Object... args)`
 
 This method will format a given translation key with optional arguments. Arguments should be provided in pairs (key, value).
 
-#### Example
+**Example**
 
 With `/translations/mod-foo/en.json` as follows:
 
@@ -82,11 +94,11 @@ translationService.format("mod-foo.complex", "name", "Bob", "count", 1); // "Hel
 translationService.format("mod-foo.complex", "name", "Bob", "count", 2); // "Hello, Bob! You have 2 items."
 ```
 
-### `String formatList(Collection<?> list)`
+`String formatList(Collection<?> list)`
 
 This method will format a list of items in the current locale.
 
-#### Example
+**Example**
 
 ```java
 translationService.formatList("A"); // A"

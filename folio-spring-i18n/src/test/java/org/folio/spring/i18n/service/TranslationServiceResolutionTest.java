@@ -11,16 +11,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import org.folio.spring.i18n.config.TranslationConfiguration;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+@UnitTest
 class TranslationServiceResolutionTest {
 
   private TranslationService getService(String path) {
@@ -147,6 +150,30 @@ class TranslationServiceResolutionTest {
 
     // en (Locale.ENGLISH) is test default from TranslationConfiguration
     assertThat(service.format("mod-foo.foo"), is("[mod-foo] en {test}"));
+  }
+
+  @Test
+  void testDefaultFormatWhenSeveralKeysProvided() {
+    TranslationService service = getService("multiple");
+
+    assertThat(service.format(new String[]{"mod-foo.bar", "mod-foo.foo"}), is("[mod-foo] en {test}"));
+  }
+
+  @Test
+  void testDefaultFormatWhenSeveralKeysProvidedAndNoTranslationExist() {
+    TranslationService service = getService("multiple");
+
+    assertThat(service.format(new String[]{"mod-foo.bar", "mod-foo.baz"}), is("mod-foo.bar"));
+  }
+
+  @NullAndEmptySource
+  @ParameterizedTest
+  void testDefaultFormatWhenKeysAreNotProvided(String[] keys) {
+    TranslationService service = getService("multiple");
+
+    var exception = assertThrows(IllegalStateException.class, () -> service.format(keys));
+    assertThat(exception.getMessage(), is("Keys must be provided for formatting, but provided %s"
+      .formatted(Arrays.toString(keys))));
   }
 
   @Test
