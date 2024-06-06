@@ -1,3 +1,6 @@
+## 8.1.2 2024-06-04
+* [FOLSPRINGS-158](https://folio-org.atlassian.net/browse/FOLSPRINGS-158) spring-cloud-starter-openfeign 4.1.2 fixing bcprov-jdk18on TLS vulns
+
 ## 8.1.1 2024-05-24
 * [FOLSPRINGS-156](https://folio-org.atlassian.net/browse/FOLSPRINGS-156) Spring Boot 3.2.6, bcprov-jdk18on 1.78 fixing vulns
 
