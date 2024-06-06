@@ -22,7 +22,7 @@ class TokenUtilsTest {
   void parseUserTokenFromCookies_positive() {
     var tokenTtlMinutes = 10;
     var accessExp = Instant.now().plus(tokenTtlMinutes, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.MINUTES);
-    var authResponse = new AuthnClient.LoginResponse(accessExp.toString());
+    var authResponse = new AuthnClient.LoginResponse(accessExp.toString(), null);
     var accessToken = "acc";
     var cookies = List.of(new DefaultCookie(FOLIO_ACCESS_TOKEN, accessToken).toString());
     var expected = UserToken.builder()
@@ -40,7 +40,7 @@ class TokenUtilsTest {
   @ParameterizedTest
   @CsvSource({",1970-01-01T00:00:00Z"})
   void parseUserTokenFromCookies_negative_invalidExpiration(String accessExp, String refreshExp) {
-    var authResponse = new AuthnClient.LoginResponse(accessExp);
+    var authResponse = new AuthnClient.LoginResponse(accessExp, null);
     var accessToken = "acc";
     var refreshToken = "ref";
     var cookies = List.of(new DefaultCookie(FOLIO_ACCESS_TOKEN, accessToken).toString());
@@ -54,7 +54,7 @@ class TokenUtilsTest {
   @ParameterizedTest
   @CsvSource({"folioRefreshToken,folioAccessToken"})
   void parseUserTokenFromCookies_negative_missingCookie(String cookieName, String missingCookie) {
-    var authResponse = new AuthnClient.LoginResponse("");
+    var authResponse = new AuthnClient.LoginResponse("", null);
     var token = "token";
     var cookies = List.of(new DefaultCookie(cookieName, token).toString());
 
