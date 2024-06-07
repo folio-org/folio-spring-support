@@ -58,13 +58,15 @@ class SystemUserServiceTest {
   public static final String OKAPI_URL = "http://okapi";
   private static final String TENANT_ID = "test";
   private static final Instant TOKEN_EXPIRATION = Instant.now().plus(1, ChronoUnit.DAYS);
+  private static final Instant REFRESH_TOKEN_EXPIRATION = Instant.now().plus(7, ChronoUnit.DAYS);
   private static final Instant CUSTOM_TOKEN_EXPIRATION = TOKEN_EXPIRATION.minus(12, ChronoUnit.HOURS)
     .truncatedTo(ChronoUnit.MINUTES);
   private static final String MOCK_TOKEN = "test_token";
   private static final String CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID
     = "Cannot retrieve okapi token for tenant: tenantId";
   private final ResponseEntity<AuthnClient.LoginResponse> expectedResponse =
-    Mockito.spy(ResponseEntity.of(Optional.of(new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString()))));
+    Mockito.spy(ResponseEntity.of(Optional.of(
+      new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString(), REFRESH_TOKEN_EXPIRATION.toString()))));
   @Mock
   private AuthnClient authnClient;
   @Mock
@@ -378,7 +380,7 @@ class SystemUserServiceTest {
   private ResponseEntity<AuthnClient.LoginResponse> buildClientResponse(String token) {
     return ResponseEntity.ok()
       .header(XOkapiHeaders.TOKEN, token)
-      .body(new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString()));
+      .body(new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString(), REFRESH_TOKEN_EXPIRATION.toString()));
   }
 
   private Response create404Response() {
