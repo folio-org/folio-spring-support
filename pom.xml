@@ -44,7 +44,7 @@
     <!-- Test dependencies versions -->
     <easy-random.version>5.0.0</easy-random.version>
     <mockito-inline.version>5.2.0</mockito-inline.version>
-    <wiremock.version>3.9.0</wiremock.version>
+    <wiremock.version>3.9.1</wiremock.version>
     <commons-compress.version>1.26.2</commons-compress.version>
 
     <!-- Plugins versions -->
