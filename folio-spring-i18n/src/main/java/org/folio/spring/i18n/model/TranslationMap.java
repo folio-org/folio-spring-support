@@ -159,7 +159,7 @@ public final class TranslationMap {
           );
       }
     }
-    return MessageFormat.format(get(key), buildMap(args));
+    return new MessageFormat(get(key), locale).format(buildMap(args));
   }
 
   /**

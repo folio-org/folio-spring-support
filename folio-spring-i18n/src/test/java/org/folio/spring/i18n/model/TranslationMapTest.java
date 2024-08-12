@@ -9,8 +9,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.stream.Stream;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
@@ -143,6 +147,25 @@ class TranslationMapTest {
       ),
       is("placeholder2, #other, date Nov 23, 1991, time 3:57 PM")
     );
+  }
+
+  static Stream<Arguments> testPlural() {
+    // https://www.unicode.org/cldr/charts/45/supplemental/language_plural_rules.html#fr
+    return Stream.of(
+        Arguments.of(Locale.FRENCH, FILE_FR_FR, 1, "1 jour"),
+        Arguments.of(Locale.FRENCH, FILE_FR_FR, 2, "2 jours"),
+        Arguments.of(Locale.FRENCH, FILE_FR_FR, 1_000_000, "1 000 000 de jours"),
+        Arguments.of(Locale.ENGLISH, FILE_EN_BASE, 1, "1 day"),
+        Arguments.of(Locale.ENGLISH, FILE_EN_BASE, 2, "2 days"),
+        Arguments.of(Locale.ENGLISH, FILE_EN_BASE, 1_000_000, "1,000,000 days")
+        );
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void testPlural(Locale locale, TranslationFile translationFile, int i, String expected) {
+    var map = new TranslationMap(locale, translationFile);
+    assertThat(map.format("mod-foo.days", "count", i), is(expected));
   }
 
   @Test

@@ -213,6 +213,37 @@ class TranslationServiceResolutionTest {
   }
 
   @Test
+  void testLocale() {
+    TranslationService service = getService("multiple");
+
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setPreferredLocales(
+      Arrays.asList(Locale.ENGLISH)
+    );
+    RequestContextHolder.setRequestAttributes(
+      new ServletRequestAttributes(request)
+    );
+
+    assertThat(
+      service.format("mod-foo.days", "count", 1_000_000),
+      is("1,000,000 days")
+    );
+
+    request.setPreferredLocales(
+      Arrays.asList(Locale.FRENCH)
+    );
+    RequestContextHolder.setRequestAttributes(
+      new ServletRequestAttributes(request)
+    );
+
+    assertThat(
+      // https://www.unicode.org/cldr/charts/45/supplemental/language_plural_rules.html#fr
+      service.format("mod-foo.days", "count", 1_000_000),
+      is("1 000 000 de jours")  // plural {many}
+    );
+  }
+
+  @Test
   void testListFormat() {
     TranslationService service = getService("multiple");
 
