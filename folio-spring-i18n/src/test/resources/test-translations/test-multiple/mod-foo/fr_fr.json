@@ -1,4 +1,5 @@
 {
   "foo": "[mod-foo] fr_fr {test}",
-  "fr_only": "[mod-foo] In fr_fr!"
+  "fr_only": "[mod-foo] In fr_fr!",
+  "days": "{count, plural, one {# jour} other {# jours} many {# de jours}}"
 }
