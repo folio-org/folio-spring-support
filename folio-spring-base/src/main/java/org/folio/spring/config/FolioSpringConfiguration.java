@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 @Configuration
 @ComponentScan({"org.folio.spring.controller", "org.folio.spring.config",
@@ -49,8 +50,8 @@ public class FolioSpringConfiguration {
 
   @Bean
   @Qualifier("dataSourceSchemaAdvisorBeanPostProcessor")
-  public BeanPostProcessor dataSourceSchemaAdvisorBeanPostProcessor(
-    @Autowired FolioExecutionContext folioExecutionContext) {
+  public static BeanPostProcessor dataSourceSchemaAdvisorBeanPostProcessor(
+    @Autowired @Lazy FolioExecutionContext folioExecutionContext) {
     return new DataSourceSchemaAdvisorBeanPostProcessor(folioExecutionContext);
   }
 
