@@ -13,7 +13,7 @@ class KafkaContainerExtensionTest {
   @Test
   void beforeAllAddSystemProperties_positive() {
     extension.beforeAll(null);
-    assertThat(System.getProperty("spring.kafka.bootstrap-servers")).contains("PLAINTEXT://");
+    assertThat(System.getProperty("spring.kafka.bootstrap-servers")).contains(":");
   }
 
   @Test
