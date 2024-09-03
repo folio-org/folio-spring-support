@@ -42,6 +42,7 @@
     <icu4j.version>75.1</icu4j.version>
 
     <!-- Test dependencies versions -->
+    <classgraph.version>4.8.175</classgraph.version>
     <easy-random.version>5.0.0</easy-random.version>
     <mockito-inline.version>5.2.0</mockito-inline.version>
     <wiremock.version>3.9.1</wiremock.version>
