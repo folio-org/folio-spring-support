@@ -1,8 +1,7 @@
 ## 8.2.0 In progress
 * [FOLSPRINGS-164](https://folio-org.atlassian.net/browse/FOLSPRINGS-164) Add "Update NEWS.md" to PULL\_REQUEST\_TEMPLATE.md
 ### Testing submodule
-* [FOLSPRINGB-152](https://issues.folio.org/browse/FOLSPRINGB-152) Implement TESTCONTAINERS\_POSTGRES\_IMAGE
-* [FOLSPRINGS-165](https://folio-org.atlassian.net/browse/FOLSPRINGS-165) kafka.KafkaContainer, apache/kafka-native:3.8.0
+* [FOLSPRINGB-152](https://issues.folio.org/browse/FOLSPRINGB-152) Implement TESTCONTAINERS_POSTGRES_IMAGE
 ### folio-spring-system-user
 * [FOLSPRINGS-157](https://issues.folio.org/browse/FOLSPRINGS-157) Add missing property to authn client, to allow for `fail-on-unknown-properties` in consuming modules
 
