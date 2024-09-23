@@ -71,7 +71,7 @@ class TranslationMapTest {
   }
 
   /**
-   * Tests .get as a result
+   * Tests .get as a result.
    */
   @Test
   void testFallbackFormat() {
