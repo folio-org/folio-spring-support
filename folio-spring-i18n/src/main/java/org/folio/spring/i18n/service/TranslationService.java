@@ -4,6 +4,7 @@ import com.ibm.icu.text.ListFormatter;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.io.IOException;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -78,9 +79,7 @@ public class TranslationService {
   public List<Locale> getCurrentLocales() {
     try {
       return Collections.list(
-        ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-          .getRequest()
-          .getLocales()
+        ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getLocales()
       );
     } catch (IllegalStateException e) {
       log.warn("The current request contains no locale information: {}", e.getMessage());
@@ -97,25 +96,58 @@ public class TranslationService {
    * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language">MDN docs</a>
    */
   public Locale getCurrentLocale() {
-    return getCurrentLocales()
-      .stream()
-      .findFirst()
-      .orElse(configuration.getFallbackLocale());
+    return getCurrentLocales().stream().findFirst().orElse(configuration.getFallbackLocale());
   }
 
   /**
-   * Wraps the {@link TranslationMap#format TranslationMap#format} method on the current translation.
-   * Equivalent to {@code getCurrentTranslation().format(...)}.
-   *
    * <p>Format an ICU format string (found by its key), supplying a series of named arguments as key
-   * value pairs.  For example: {@code format("Hello {name}", "name", parameterValue)}</p>
+   * value pairs.  For example: {@code format("Hello {name}", "name", parameterValue)}.</p>
+   *
+   * <p>Uses the current locale(s) and system timezone.</p>
    *
    * @param key the key of the format string
    * @param args pairs of keys and values to interpolate
    * @return the formatted string
    */
   public String format(String key, Object... args) {
-    return getCurrentTranslation().format(key, args);
+    return format(getCurrentLocales(), ZoneId.systemDefault(), key, args);
+  }
+
+  /**
+   * The same as {@link #format(String, Object...) format}, but with specific locale(s).
+   *
+   * @param locales the locales to consider for formatting
+   * @param key the key of the format string
+   * @param args pairs of keys and values to interpolate
+   * @return the formatted string
+   */
+  public String format(Collection<Locale> locales, String key, Object... args) {
+    return format(locales, ZoneId.systemDefault(), key, args);
+  }
+
+  /**
+   * The same as {@link #format(String, Object...) format}, but with a specific timezone.
+   *
+   * @param zone the timezone to localize dates/times to
+   * @param key the key of the format string
+   * @param args pairs of keys and values to interpolate
+   * @return the formatted string
+   */
+  public String format(ZoneId zone, String key, Object... args) {
+    return format(getCurrentLocales(), zone, key, args);
+  }
+
+  /**
+   * The same as {@link #format(String, Object...) format}, but with specific locale(s) and timezone.
+   *
+   * @param locales the locales to consider for formatting
+   * @param zone the timezone to localize dates/times to
+   * @param key the key of the format string
+   * @param args pairs of keys and values to interpolate
+   * @return the formatted string
+   */
+  public String format(Collection<Locale> locales, ZoneId zone, String key, Object... args) {
+    return getBestTranslation(locales).format(zone, key, args);
   }
 
   /**
@@ -128,15 +160,37 @@ public class TranslationService {
   public String format(String[] keys, Object... args) {
     if (keys == null || keys.length == 0) {
       throw new IllegalStateException(
-        String.format("Keys must be provided for formatting, but provided %s", Arrays.toString(keys)));
+        String.format("Keys must be provided for formatting, but provided %s", Arrays.toString(keys))
+      );
     }
     for (String key : keys) {
-      var translation = format(key, args);
+      String translation = format(key, args);
       if (!translation.endsWith(key)) {
         return translation;
       }
     }
     return format(keys[0], args);
+  }
+
+  /**
+   * Check if a key exists in the translation map for the current locale (or a fallback).
+   *
+   * @param key the key to check
+   * @return true if the key exists in the translation map
+   */
+  public boolean hasKey(String key) {
+    return getCurrentTranslation().hasKey(key);
+  }
+
+  /**
+   * Check if a key exists in the translation map for a given set of locales (or their fallback).
+   *
+   * @param locales the locales to consider
+   * @param key the key to check
+   * @return true if the key exists in the translation map
+   */
+  public boolean hasKey(Collection<Locale> locales, String key) {
+    return getBestTranslation(locales).hasKey(key);
   }
 
   /**
@@ -176,10 +230,7 @@ public class TranslationService {
    *   default if neither are available
    */
   @Nullable
-  protected TranslationMap getTranslation(
-    Locale locale,
-    @Nullable TranslationMap fallback
-  ) {
+  protected TranslationMap getTranslation(Locale locale, @Nullable TranslationMap fallback) {
     return localeTranslations.computeIfAbsent(
       locale,
       (Locale missingLocale) -> {
@@ -195,11 +246,7 @@ public class TranslationService {
         TranslationMap baseMap = new TranslationMap(missingLocale, baseFile, fallback);
 
         if (languageMap.containsKey(missingLocale.getCountry().toLowerCase())) {
-          return new TranslationMap(
-            missingLocale,
-            languageMap.get(missingLocale.getCountry().toLowerCase()),
-            baseMap
-          );
+          return new TranslationMap(missingLocale, languageMap.get(missingLocale.getCountry().toLowerCase()), baseMap);
         }
 
         return baseMap;
@@ -227,10 +274,9 @@ public class TranslationService {
   protected TranslationMap resolveFallbackTranslation() {
     TranslationMap foundDefault = getTranslation(configuration.getFallbackLocale(), null);
     if (foundDefault == null) {
-      throw new IllegalStateException(String.format(
-        "No translations are sufficient for the default locale (%s)",
-        configuration.getFallbackLocale()
-      ));
+      throw new IllegalStateException(
+        String.format("No translations are sufficient for the default locale (%s)", configuration.getFallbackLocale())
+      );
     }
     return foundDefault;
   }
@@ -286,20 +332,13 @@ public class TranslationService {
   protected List<TranslationFile> getAvailableTranslationFiles() {
     try {
       Map<String, List<Resource>> localeGroups = Arrays
-        .stream(resourceResolver.getResources(
-          String.format(
-            TRANSLATIONS_CLASSPATH,
-            configuration.getTranslationDirectory()
-          )
-        ))
+        .stream(
+          resourceResolver.getResources(String.format(TRANSLATIONS_CLASSPATH, configuration.getTranslationDirectory()))
+        )
         .filter(Resource::isReadable)
         .collect(Collectors.groupingBy(Resource::getFilename));
 
-      List<TranslationFile> files = localeGroups
-        .values()
-        .stream()
-        .map(TranslationFile::new)
-        .toList();
+      List<TranslationFile> files = localeGroups.values().stream().map(TranslationFile::new).toList();
 
       log.info("Got translation files: " + files);
 
