@@ -132,10 +132,14 @@ public final class TranslationMap {
   /**
    * Check if a key exists in the translation map (or a fallback).
    *
-   * @param key
+   * @param key key to check for
    */
   public boolean hasKey(String key) {
-    return this.patterns.containsKey(key) || (this.fallback != null && this.fallback.hasKey(key));
+    if (this.patterns.containsKey(key)) {
+      return true;
+    }
+
+    return this.fallback != null && this.fallback.hasKey(key);
   }
 
   /**
@@ -148,11 +152,12 @@ public final class TranslationMap {
    * @return the formatted string
    */
   public String format(ZoneId zone, String key, Object... args) {
-    return format(zone, new MessageFormat(get(key)), buildArgs(zone, args));
+    return formatRaw(zone, new MessageFormat(get(key)), buildArgs(zone, args));
   }
 
   /**
-   * Like {@link #format(ZoneId, String, Object...)}, but uses a message format string rather than looking it up in the map
+   * Like {@link #format(ZoneId, String, Object...)}, but uses a message format string rather than
+   * looking it up in the map.
    *
    * @param zone the timezone to use for date formatting
    * @param format the format string
@@ -160,10 +165,10 @@ public final class TranslationMap {
    * @return the formatted string
    */
   public String formatString(ZoneId zone, String format, Object... args) {
-    return format(zone, new MessageFormat(format), buildArgs(zone, args));
+    return formatRaw(zone, new MessageFormat(format), buildArgs(zone, args));
   }
 
-  /** Build associative map to pass to {@link MessageFormat#format(String, Map)} */
+  /** Build associative map to pass to {@link MessageFormat#format(String, Map)}. */
   private static Map<String, Object> buildArgs(ZoneId zone, Object... args) {
     if (args.length % 2 != 0) {
       throw new IllegalArgumentException(
@@ -208,8 +213,8 @@ public final class TranslationMap {
     return map;
   }
 
-  /** Format a message */
-  private String format(ZoneId zone, MessageFormat message, Map<String, Object> args) {
+  /** Format a message. */
+  private String formatRaw(ZoneId zone, MessageFormat message, Map<String, Object> args) {
     message.setLocale(new ULocale("%s@timezone=%s".formatted(this.locale.toString(), zone.toString())));
     return message.format(args);
   }
