@@ -168,7 +168,9 @@ public final class TranslationMap {
     return formatRaw(zone, new MessageFormat(format), buildArgs(zone, args));
   }
 
-  /** Build associative map to pass to {@link MessageFormat#format(String, Map)}. */
+  /**
+   * Build associative map to pass to {@link MessageFormat#format(String, Map)}.
+   */
   private static Map<String, Object> buildArgs(ZoneId zone, Object... args) {
     if (args.length % 2 != 0) {
       throw new IllegalArgumentException(
