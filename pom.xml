@@ -31,9 +31,6 @@
   <properties>
     <java.version>17</java.version>
 
-    <!-- Used for pattern matching in switch, should be removed at 21 -->
-    <java.compilerArgs>--enable-preview</java.compilerArgs>
-
     <spring-boot.version>3.3.4</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
     <spring-cloud-starter-openfeign.version>4.1.3</spring-cloud-starter-openfeign.version>
     <maven-compat.version>3.9.9</maven-compat.version>
@@ -194,7 +191,6 @@
           <configuration>
             <useSystemClassLoader>false</useSystemClassLoader>
             <groups>unit</groups>
-            <argLine>${java.compilerArgs}</argLine>
           </configuration>
         </plugin>
         <plugin>
@@ -273,7 +269,6 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <release>${java.version}</release>
-          <compilerArgs>${java.compilerArgs}</compilerArgs>
           <annotationProcessorPaths>
             <path>
               <groupId>org.projectlombok</groupId>
@@ -326,9 +321,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <additionalJOptions>${java.compilerArgs}</additionalJOptions>
-        </configuration>
         <executions>
           <execution>
             <id>attach-javadocs</id>
