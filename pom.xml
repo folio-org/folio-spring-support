@@ -30,7 +30,6 @@
 
   <properties>
     <java.version>17</java.version>
-
     <spring-boot.version>3.3.4</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
     <spring-cloud-starter-openfeign.version>4.1.3</spring-cloud-starter-openfeign.version>
     <maven-compat.version>3.9.9</maven-compat.version>
@@ -267,9 +266,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <release>${java.version}</release>
-          <annotationProcessorPaths>
+          <configuration>
+            <release>${java.version}</release>
+            <annotationProcessorPaths>
             <path>
               <groupId>org.projectlombok</groupId>
               <artifactId>lombok</artifactId>
