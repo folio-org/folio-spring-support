@@ -9,6 +9,7 @@
 ### i18n submodule
 * [FOLSPRINGB-160](https://issues.folio.org/browse/FOLSPRINGB-160) Make translation service accept multiple keys
 * [FOLSPRINGS-163](https://folio-org.atlassian.net/browse/FOLSPRINGS-163) Wrong Locale in TranslationService and TranslationMap
+* [FOLSPRINGS-169](https://folio-org.atlassian.net/browse/FOLSPRINGS-169) Add additional convenience methods for providing locales, timezones, and using non-predefined templates
 
 ## 8.1.0 2024-02-29
 * [FOLSPRINGB-144](https://issues.folio.org/browse/FOLSPRINGB-144) Add support for filtering by undefined field value
