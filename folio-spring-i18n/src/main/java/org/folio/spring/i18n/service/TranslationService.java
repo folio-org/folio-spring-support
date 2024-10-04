@@ -103,14 +103,14 @@ public class TranslationService {
    * <p>Format an ICU format string (found by its key), supplying a series of named arguments as key
    * value pairs.  For example: {@code format("Hello {name}", "name", parameterValue)}.</p>
    *
-   * <p>Uses the current locale(s) and system timezone.</p>
+   * <p>Uses the current request's locale(s) and UTC.</p>
    *
    * @param key the key of the format string
    * @param args pairs of keys and values to interpolate
    * @return the formatted string
    */
   public String format(String key, Object... args) {
-    return format(getCurrentLocales(), ZoneId.systemDefault(), key, args);
+    return format(getCurrentLocales(), ZoneId.of("UTC"), key, args);
   }
 
   /**
@@ -122,7 +122,7 @@ public class TranslationService {
    * @return the formatted string
    */
   public String format(Collection<Locale> locales, String key, Object... args) {
-    return format(locales, ZoneId.systemDefault(), key, args);
+    return format(locales, ZoneId.of("UTC"), key, args);
   }
 
   /**
