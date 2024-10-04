@@ -182,18 +182,18 @@ public final class TranslationMap {
 
     for (int i = 0; i < args.length; i += 2) {
       // Sadly, ICU formatting strings only support date formats with the old Date class :(
-      Object transformedValue =
-        switch (args[i + 1]) {
-          case Instant instant -> Date.from(instant);
-          case LocalDateTime date -> Date.from(date.atZone(zone).toInstant());
-          case OffsetDateTime date -> Date.from(date.toInstant());
-          // ICU will chop off the time, so the time we use is irrelevant
-          case LocalDate date -> Date.from(date.atStartOfDay(zone).toInstant());
-          // ICU will chop off the date, so the date we use is irrelevant
-          case LocalTime time -> Date.from(time.atDate(LocalDate.now()).atZone(zone).toInstant());
-          case OffsetTime time -> Date.from(time.atDate(LocalDate.now()).toInstant());
-          default -> args[i + 1];
-        };
+      Object transformedValue = switch (args[i + 1]) {
+        case Instant instant -> Date.from(instant);
+        case LocalDateTime date -> Date.from(date.atZone(zone).toInstant());
+        case OffsetDateTime date -> Date.from(date.toInstant());
+        case ZonedDateTime date -> Date.from(date.toInstant());
+        // ICU will chop off the time, so the time we use is irrelevant
+        case LocalDate date -> Date.from(date.atStartOfDay(zone).toInstant());
+        // ICU will chop off the date, so the date we use is irrelevant
+        case LocalTime time -> Date.from(time.atDate(LocalDate.now()).atZone(zone).toInstant());
+        case OffsetTime time -> Date.from(time.atDate(LocalDate.now()).toInstant());
+        default -> args[i + 1];
+      };
 
       map.put(args[i].toString(), transformedValue);
     }
