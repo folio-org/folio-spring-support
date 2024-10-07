@@ -152,20 +152,21 @@ public final class TranslationMap {
    * @return the formatted string
    */
   public String format(ZoneId zone, String key, Object... args) {
-    return formatRaw(zone, new MessageFormat(get(key)), buildArgs(zone, args));
+    return formatRaw(this.locale, zone, new MessageFormat(get(key)), buildArgs(zone, args));
   }
 
   /**
    * Like {@link #format(ZoneId, String, Object...)}, but uses a message format string rather than
-   * looking it up in the map.
+   * looking it up in a map.
    *
+   * @param locale the locale to use for formatting
    * @param zone the timezone to use for date formatting
    * @param format the format string
    * @param args pairs of keys and values to interpolate
    * @return the formatted string
    */
-  public String formatString(ZoneId zone, String format, Object... args) {
-    return formatRaw(zone, new MessageFormat(format), buildArgs(zone, args));
+  public static String formatString(Locale locale, ZoneId zone, String format, Object... args) {
+    return formatRaw(locale, zone, new MessageFormat(format), buildArgs(zone, args));
   }
 
   /**
@@ -207,8 +208,8 @@ public final class TranslationMap {
   }
 
   /** Format a message. */
-  private String formatRaw(ZoneId zone, MessageFormat message, Map<String, Object> args) {
-    message.setLocale(new ULocale("%s@timezone=%s".formatted(this.locale.toString(), zone.toString())));
+  private static String formatRaw(Locale locale, ZoneId zone, MessageFormat message, Map<String, Object> args) {
+    message.setLocale(new ULocale("%s@timezone=%s".formatted(locale.toString(), zone.toString())));
     return message.format(args);
   }
 }
