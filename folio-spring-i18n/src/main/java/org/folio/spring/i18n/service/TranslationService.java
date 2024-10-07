@@ -176,7 +176,7 @@ public class TranslationService {
    * Like {@link #format(ZoneId, String, Object...)}, but uses a message format string rather than
    * looking it up in a map.
    *
-   * @param locales the locales to use for formatting
+   * @param locale the locale to use for formatting
    * @param zone the timezone to localize dates/times to
    * @param format the format string
    * @param args pairs of keys and values to interpolate
