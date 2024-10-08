@@ -173,6 +173,33 @@ public class TranslationService {
   }
 
   /**
+   * Like {@link #format(ZoneId, String, Object...)}, but uses a message format string rather than
+   * looking it up in a map.
+   *
+   * @param locale the locale to use for formatting
+   * @param zone the timezone to localize dates/times to
+   * @param format the format string
+   * @param args pairs of keys and values to interpolate
+   * @return the formatted string
+   */
+  public String formatString(Locale locale, ZoneId zone, String format, Object... args) {
+    return TranslationMap.formatString(locale, zone, format, args);
+  }
+
+  /**
+   * Like {@link #format(ZoneId, String, Object...)}, but uses a message format string rather than
+   * looking it up in a map. Uses the locale from the current request context.
+   *
+   * @param zone the timezone to use for date formatting
+   * @param format the format string
+   * @param args pairs of keys and values to interpolate
+   * @return the formatted string
+   */
+  public String formatString(ZoneId zone, String format, Object... args) {
+    return TranslationMap.formatString(getCurrentLocale(), zone, format, args);
+  }
+
+  /**
    * Check if a key exists in the translation map for the current locale (or a fallback).
    *
    * @param key the key to check

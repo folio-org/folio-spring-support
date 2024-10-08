@@ -205,8 +205,7 @@ class TranslationMapTest {
   @ParameterizedTest
   @MethodSource("temporalDates")
   void testTemporalAsDate(Temporal input, Locale locale, ZoneId timezone, String expected) {
-    TranslationMap map = new TranslationMap(locale, FILE_EN_BASE); // file doesn't do anything here
-    assertThat(map.formatString(timezone, "{test, date, medium}", "test", input), is(expected));
+    assertThat(TranslationMap.formatString(locale, timezone, "{test, date, medium}", "test", input), is(expected));
   }
 
   static Stream<Arguments> temporalTimes() {
@@ -247,7 +246,6 @@ class TranslationMapTest {
   @ParameterizedTest
   @MethodSource("temporalTimes")
   void testTemporalAsTime(Temporal input, Locale locale, ZoneId timezone, String expected) {
-    TranslationMap map = new TranslationMap(locale, FILE_EN_BASE); // file doesn't do anything here
-    assertThat(map.formatString(timezone, "{test, time, medium}", "test", input), is(expected));
+    assertThat(TranslationMap.formatString(locale, timezone, "{test, time, medium}", "test", input), is(expected));
   }
 }
