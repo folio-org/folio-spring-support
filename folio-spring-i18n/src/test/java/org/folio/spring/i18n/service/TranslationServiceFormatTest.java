@@ -14,7 +14,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 @UnitTest
 class TranslationServiceFormatTest {
 
-  static Instant JAN_1_MIDNIGHT = Instant.parse("2024-01-01T00:00:00Z");
+  static final Instant JAN_1_MIDNIGHT = Instant.parse("2024-01-01T00:00:00Z");
 
   TranslationService service = new TranslationService(
     new PathMatchingResourcePatternResolver(),
