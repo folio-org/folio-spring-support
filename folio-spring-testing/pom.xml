@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.folio</groupId>
     <artifactId>folio-spring-support</artifactId>
-    <version>8.2.0-SNAPSHOT</version>
+    <version>8.3.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>folio-spring-testing</artifactId>
