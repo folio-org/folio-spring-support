@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -62,7 +63,7 @@ public class TranslationService {
   /**
    * A map from locales to translations, filled in on-demand as locales are presented.
    */
-  protected Map<Locale, TranslationMap> localeTranslations = new HashMap<>();
+  protected Map<Locale, TranslationMap> localeTranslations = new ConcurrentHashMap<>();
 
   private final ResourcePatternResolver resourceResolver;
   private final TranslationConfiguration configuration;
@@ -239,7 +240,7 @@ public class TranslationService {
    * @return the map of languages to countries to {@link TranslationFile TranslationFile}s
    */
   @Nonnull
-  protected Map<String, Map<String, TranslationFile>> getFileMap() {
+  protected synchronized Map<String, Map<String, TranslationFile>> getFileMap() {
     if (this.translationFileFromLanguageCountryMap == null) {
       this.translationFileFromLanguageCountryMap = buildLanguageCountryPatternMap();
     }
@@ -313,7 +314,7 @@ public class TranslationService {
    *
    * @return the default locale's translation map
    */
-  protected TranslationMap getFallbackTranslation() {
+  protected synchronized TranslationMap getFallbackTranslation() {
     // computeIfAbsent does not work due to the resolver potentially filling multiple keys
     if (!this.localeTranslations.containsKey(configuration.getFallbackLocale())) {
       this.localeTranslations.put(configuration.getFallbackLocale(), resolveFallbackTranslation());
