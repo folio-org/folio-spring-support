@@ -1,3 +1,5 @@
+## 8.3.0 In progress
+
 ## 8.2.0 2024-10-11
 * [FOLSPRINGS-164](https://folio-org.atlassian.net/browse/FOLSPRINGS-164) Add "Update NEWS.md" to PULL\_REQUEST\_TEMPLATE.md
 
