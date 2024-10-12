@@ -240,9 +240,13 @@ public class TranslationService {
    * @return the map of languages to countries to {@link TranslationFile TranslationFile}s
    */
   @Nonnull
-  protected synchronized Map<String, Map<String, TranslationFile>> getFileMap() {
+  protected Map<String, Map<String, TranslationFile>> getFileMap() {
     if (this.translationFileFromLanguageCountryMap == null) {
-      this.translationFileFromLanguageCountryMap = buildLanguageCountryPatternMap();
+      synchronized (this.translationFileFromLanguageCountryMap) {
+        if (this.translationFileFromLanguageCountryMap == null) {
+          this.translationFileFromLanguageCountryMap = buildLanguageCountryPatternMap();
+        }
+      }
     }
     return this.translationFileFromLanguageCountryMap;
   }
