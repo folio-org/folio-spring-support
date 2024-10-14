@@ -242,7 +242,7 @@ public class TranslationService {
   @Nonnull
   protected Map<String, Map<String, TranslationFile>> getFileMap() {
     if (this.translationFileFromLanguageCountryMap == null) {
-      synchronized (this.translationFileFromLanguageCountryMap) {
+      synchronized (this) {
         if (this.translationFileFromLanguageCountryMap == null) {
           this.translationFileFromLanguageCountryMap = buildLanguageCountryPatternMap();
         }
@@ -318,7 +318,7 @@ public class TranslationService {
    *
    * @return the default locale's translation map
    */
-  protected synchronized TranslationMap getFallbackTranslation() {
+  protected TranslationMap getFallbackTranslation() {
     // computeIfAbsent does not work due to the resolver potentially filling multiple keys
     if (!this.localeTranslations.containsKey(configuration.getFallbackLocale())) {
       this.localeTranslations.put(configuration.getFallbackLocale(), resolveFallbackTranslation());
