@@ -243,9 +243,7 @@ public class TranslationService {
   protected Map<String, Map<String, TranslationFile>> getFileMap() {
     if (this.translationFileFromLanguageCountryMap == null) {
       synchronized (this) {
-        if (this.translationFileFromLanguageCountryMap == null) {
-          this.translationFileFromLanguageCountryMap = buildLanguageCountryPatternMap();
-        }
+        this.translationFileFromLanguageCountryMap = buildLanguageCountryPatternMap();
       }
     }
     return this.translationFileFromLanguageCountryMap;
