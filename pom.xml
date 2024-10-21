@@ -37,7 +37,7 @@
     <swagger-annotations.version>2.2.25</swagger-annotations.version>
     <feign-okhttp.version>13.5</feign-okhttp.version>
     <mapstruct.version>1.6.2</mapstruct.version>
-    <cql2pgjson.version>35.2.2</cql2pgjson.version>
+    <cql2pgjson.version>35.3.0</cql2pgjson.version>
     <rhino.version>1.7.15</rhino.version>
     <icu4j.version>75.1</icu4j.version>
     <commons-lang3.version>3.17.0</commons-lang3.version>
