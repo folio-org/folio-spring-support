@@ -17,7 +17,7 @@ public class PostgresContainerExtension implements BeforeAllCallback, AfterAllCa
   private static final String USERNAME_PROPERTY_NAME = "spring.datasource.username";
   private static final String PASSWORD_PROPERTY_NAME = "spring.datasource.password";
   private static final String ENV_NAME = "TESTCONTAINERS_POSTGRES_IMAGE";
-  private static final String POSTGRES_DEFAULT_IMAGE = "postgres:12-alpine";
+  private static final String POSTGRES_DEFAULT_IMAGE = "postgres:16-alpine";
   private static final String POSTGRES_IMAGE = postgresImage(System.getenv());
 
   private static final PostgreSQLContainer<?> CONTAINER = new PostgreSQLContainer<>(POSTGRES_IMAGE)
