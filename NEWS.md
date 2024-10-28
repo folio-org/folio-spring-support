@@ -1,10 +1,14 @@
 ## 8.3.0 In progress
 
+## 8.2.1 In progress
+### Testing submodule
+* [FOLSPRINGS-172](https://folio-org.atlassian.net/browse/FOLSPRINGS-172) Bump to postgres:16-alpine, suggest adding .github/workflows/postgres.yml
+
 ## 8.2.0 2024-10-11
 * [FOLSPRINGS-164](https://folio-org.atlassian.net/browse/FOLSPRINGS-164) Add "Update NEWS.md" to PULL\_REQUEST\_TEMPLATE.md
 
 ### Testing submodule
-* [FOLSPRINGB-152](https://issues.folio.org/browse/FOLSPRINGB-152) Implement TESTCONTAINERS_POSTGRES_IMAGE
+* [FOLSPRINGB-152](https://issues.folio.org/browse/FOLSPRINGB-152) Implement TESTCONTAINERS\_POSTGRES\_IMAGE
 * [FOLSPRINGS-166](https://folio-org.atlassian.net/browse/FOLSPRINGS-166) Upgrade classgraph dependency from 4.8.90 to 4.8.175 fixing CVE-2021-47621
 
 ### folio-spring-system-user
