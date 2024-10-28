@@ -51,6 +51,7 @@ public class TranslationService {
    * Note that files are not read here, only enumerated.  Look at the other maps for that information
    *
    * <p>This can be null - if this is the case, the map has not been constructed yet.</p>
+   *
    * <p>You should call getFileMap instead of accessing this directly.</p>
    *
    * <p>
@@ -101,8 +102,8 @@ public class TranslationService {
   }
 
   /**
-   * <p>Format an ICU format string (found by its key), supplying a series of named arguments as key
-   * value pairs.  For example: {@code format("Hello {name}", "name", parameterValue)}.</p>
+   * Format an ICU format string (found by its key), supplying a series of named arguments as key
+   * value pairs.  For example: {@code format("Hello {name}", "name", parameterValue)}.
    *
    * <p>Uses the current request's locale(s) and UTC.</p>
    *
