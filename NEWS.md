@@ -1,3 +1,8 @@
+## 8.2.1 2024-11-01
+
+### i18n submodule
+* [FOLSPRINGS-171](https://folio-org.atlassian.net/browse/FOLSPRINGS-171) folio-spring-i18n throws ConcurrentModificationException
+
 ## 8.2.0 2024-10-11
 * [FOLSPRINGS-164](https://folio-org.atlassian.net/browse/FOLSPRINGS-164) Add "Update NEWS.md" to PULL\_REQUEST\_TEMPLATE.md
 
