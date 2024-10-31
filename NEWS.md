@@ -1,3 +1,6 @@
+## 8.2.1 2024-10-31
+* [FOLSPRINGS-171](https://folio-org.atlassian.net/browse/FOLSPRINGS-171) i18n Use concurrent maps and synchronized methods where necessary
+
 ## 8.2.0 2024-10-11
 * [FOLSPRINGS-164](https://folio-org.atlassian.net/browse/FOLSPRINGS-164) Add "Update NEWS.md" to PULL\_REQUEST\_TEMPLATE.md
 
