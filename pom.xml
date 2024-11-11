@@ -36,7 +36,7 @@
     <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
     <swagger-annotations.version>2.2.25</swagger-annotations.version>
     <feign-okhttp.version>13.5</feign-okhttp.version>
-    <mapstruct.version>1.6.2</mapstruct.version>
+    <mapstruct.version>1.6.3</mapstruct.version>
     <cql2pgjson.version>35.3.0</cql2pgjson.version>
     <rhino.version>1.7.15</rhino.version>
     <icu4j.version>76.1</icu4j.version>
@@ -139,7 +139,7 @@
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.19.0</version>
+              <version>10.20.1</version>
             </dependency>
           </dependencies>
           <executions>
