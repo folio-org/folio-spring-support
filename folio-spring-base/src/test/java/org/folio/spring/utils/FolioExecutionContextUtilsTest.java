@@ -12,8 +12,10 @@ import java.util.function.Consumer;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
+@UnitTest
 class FolioExecutionContextUtilsTest {
   private final FolioModuleMetadata moduleMetadata = new FolioModuleMetadata() {
     @Override public String getModuleName() {
