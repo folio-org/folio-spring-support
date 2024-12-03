@@ -31,7 +31,7 @@
   <properties>
     <java.version>17</java.version>
     <spring-boot.version>3.3.5</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
-    <spring-cloud-starter-openfeign.version>4.1.3</spring-cloud-starter-openfeign.version>
+    <spring-cloud-starter-openfeign.version>4.1.4</spring-cloud-starter-openfeign.version>
     <maven-compat.version>3.9.9</maven-compat.version>
     <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
     <swagger-annotations.version>2.2.26</swagger-annotations.version>
