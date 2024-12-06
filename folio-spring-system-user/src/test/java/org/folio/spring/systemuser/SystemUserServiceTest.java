@@ -3,6 +3,7 @@ package org.folio.spring.systemuser;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.within;
 import static org.folio.spring.service.PrepareSystemUserService.SYSTEM_USER_TYPE;
 import static org.folio.spring.utils.TokenUtils.FOLIO_ACCESS_TOKEN;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,10 +58,10 @@ class SystemUserServiceTest {
 
   public static final String OKAPI_URL = "http://okapi";
   private static final String TENANT_ID = "test";
-  private static final Instant TOKEN_EXPIRATION = Instant.now().plus(1, ChronoUnit.DAYS);
-  private static final Instant REFRESH_TOKEN_EXPIRATION = Instant.now().plus(7, ChronoUnit.DAYS);
-  private static final Instant CUSTOM_TOKEN_EXPIRATION = TOKEN_EXPIRATION.minus(12, ChronoUnit.HOURS)
-    .truncatedTo(ChronoUnit.MINUTES);
+  private static final Instant NOW = Instant.now();
+  private static final Instant TOKEN_EXPIRATION = NOW.plus(1, ChronoUnit.DAYS);
+  private static final Instant REFRESH_TOKEN_EXPIRATION = NOW.plus(7, ChronoUnit.DAYS);
+  private static final Instant CUSTOM_TOKEN_EXPIRATION = TOKEN_EXPIRATION.minus(12, ChronoUnit.HOURS);
   private static final String MOCK_TOKEN = "test_token";
   private static final String CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_TENANT_TENANT_ID
     = "Cannot retrieve okapi token for tenant: tenantId";
@@ -102,7 +103,7 @@ class SystemUserServiceTest {
   @ParameterizedTest
   @ValueSource(ints = {40, 24 * 60 * 60})
   void getAuthedSystemUserUsingCache_positive(int plusSeconds) {
-    var expectedUserToken = userToken(Instant.now().plusSeconds(plusSeconds));
+    var expectedUserToken = userToken(NOW.plusSeconds(plusSeconds));
     var systemUserService = systemUserService(systemUserProperties());
     systemUserService.setSystemUserCache(userCache);
 
@@ -119,7 +120,7 @@ class SystemUserServiceTest {
   @ParameterizedTest
   @ValueSource(ints = {-24 * 60 * 60, -1})
   void getAuthedSystemUserUsingCacheWithExpiredAccessToken_positive(int plusSeconds) {
-    var cachedUserToken = userToken(Instant.now().plusSeconds(plusSeconds));
+    var cachedUserToken = userToken(NOW.plusSeconds(plusSeconds));
     var systemUserService = systemUserService(systemUserProperties());
     systemUserService.setSystemUserCache(userCache);
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
@@ -131,8 +132,8 @@ class SystemUserServiceTest {
     var actual = systemUserService.getAuthedSystemUser(TENANT_ID);
     assertThat(actual.token().accessToken())
       .isEqualTo(tokenResponseMock);
-    assertThat(actual.token().accessTokenExpiration().truncatedTo(ChronoUnit.MINUTES))
-      .isEqualTo(CUSTOM_TOKEN_EXPIRATION);
+    assertThat(actual.token().accessTokenExpiration())
+      .isCloseTo(CUSTOM_TOKEN_EXPIRATION, within(10, ChronoUnit.SECONDS));
     verify(userCache).get(eq(TENANT_ID), any());
   }
 
@@ -356,8 +357,8 @@ class SystemUserServiceTest {
   private void assertToken(UserToken actualToken, UserToken expectedToken) {
     assertThat(actualToken.accessToken())
       .isEqualTo(expectedToken.accessToken());
-    assertThat(actualToken.accessTokenExpiration().truncatedTo(ChronoUnit.MINUTES))
-      .isEqualTo(expectedToken.accessTokenExpiration());
+    assertThat(actualToken.accessTokenExpiration())
+      .isCloseTo(expectedToken.accessTokenExpiration(), within(10, ChronoUnit.SECONDS));
   }
 
   private SystemUserService systemUserService(SystemUserProperties properties) {
