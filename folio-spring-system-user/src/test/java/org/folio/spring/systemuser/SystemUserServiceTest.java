@@ -63,9 +63,9 @@ class SystemUserServiceTest {
     .truncatedTo(ChronoUnit.MINUTES);
   private static final String MOCK_TOKEN = "test_token";
   private static final String CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_USERNAME
-  = "Cannot retrieve okapi token for system user: username";
+    = "Cannot retrieve okapi token for system user: username";
   private static final String CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_USERNAME_AND_DIKU
-  = "Cannot retrieve okapi token for system user: username [tenantId=diku]";
+    = "Cannot retrieve okapi token for system user: username [tenantId=diku]";
   private final ResponseEntity<AuthnClient.LoginResponse> expectedResponse =
     Mockito.spy(ResponseEntity.of(Optional.of(
       new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString(), REFRESH_TOKEN_EXPIRATION.toString()))));
