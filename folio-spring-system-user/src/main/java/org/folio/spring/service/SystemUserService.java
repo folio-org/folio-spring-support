@@ -27,7 +27,7 @@ import org.springframework.util.CollectionUtils;
 @RequiredArgsConstructor
 public class SystemUserService {
 
-  public static final String TOKEN_FAILED_MSG = "Cannot retrieve okapi token for tenant: ";
+  public static final String TOKEN_FAILED_MSG = "Cannot retrieve okapi token for system user: ";
   public static final String LOGIN_LEGACY_UNEXPECTED_MSG = "Login with legacy end-point returned unexpected error";
   public static final String LOGIN_EXPIRY_UNEXPECTED_MSG = "Login with expiry end-point returned unexpected error";
   public static final String LOGIN_WITH_EXPIRY = "login with expiry";
@@ -77,15 +77,15 @@ public class SystemUserService {
   }
 
   public UserToken authSystemUser(String tenantId, String username, String password) {
-    log.info("Attempting to issue token for system user [tenantId={}]", tenantId);
+    log.info("Attempting to issue token for system user [tenantId={}][username={}]", tenantId, username);
     var systemUser = prepareSystemUser(tenantId, username);
     try (var fex = new FolioExecutionContextSetter(contextBuilder.forSystemUser(systemUser))) {
       var token = getToken(new UserCredentials(username, password));
-      log.info("Token for system user has been issued [tenantId={}]", tenantId);
+      log.info("Token for system user has been issued [tenantId={}][username={}]", tenantId, username);
       return token;
     } catch (Exception exp) {
       log.error("Unexpected error occurred while setting folio context" + exp);
-      throw new SystemUserAuthorizationException(TOKEN_FAILED_MSG + tenantId);
+      throw new SystemUserAuthorizationException(TOKEN_FAILED_MSG + username + " [tenantId=" + tenantId + "]");
     }
   }
 
