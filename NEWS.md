@@ -1,4 +1,5 @@
 ## 8.3.0 In progress
+* [FOLSPRINGS-178](https://folio-org.atlassian.net/browse/FOLSPRINGS-178) spring-cloud-starter-openfeign 4.1.4 fixing spring-security-crypto Authorization Bypass
 
 ## 8.2.1 In progress
 ### Testing submodule
