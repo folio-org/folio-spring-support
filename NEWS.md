@@ -1,3 +1,6 @@
+## 8.2.2
+* [FOLSPRINGS-181](https://folio-org.atlassian.net/browse/FOLSPRINGS-181) Upgrade Spring Boot from 3.3.4 to 3.3.6 fixing vulns
+
 ## 8.2.1 2024-10-31
 * [FOLSPRINGS-171](https://folio-org.atlassian.net/browse/FOLSPRINGS-171) i18n Use concurrent maps and synchronized methods where necessary
 
