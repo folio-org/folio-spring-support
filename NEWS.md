@@ -1,11 +1,13 @@
-## 8.2.2
+## 8.2.2 2024-12-11
+* [FOLSPRINGS-174](https://folio-org.atlassian.net/browse/FOLSPRINGS-174) x-okapi-tenant header duplication
+* [FOLSPRINGS-178](https://folio-org.atlassian.net/browse/FOLSPRINGS-178) spring-cloud-starter-openfeign 4.1.4 fixing spring-security-crypto Authorization Bypass
 * [FOLSPRINGS-181](https://folio-org.atlassian.net/browse/FOLSPRINGS-181) Upgrade Spring Boot from 3.3.4 to 3.3.6 fixing vulns
-
-## 8.2.1 2024-10-31
-* [FOLSPRINGS-171](https://folio-org.atlassian.net/browse/FOLSPRINGS-171) i18n Use concurrent maps and synchronized methods where necessary
 
 ### folio-spring-system-user
 * [FOLSPRINGS-179](https://folio-org.atlassian.net/browse/FOLSPRINGS-179) Fix error message: Cannot retrieve okapi token for tenant: \<username\>
+
+## 8.2.1 2024-10-31
+* [FOLSPRINGS-171](https://folio-org.atlassian.net/browse/FOLSPRINGS-171) i18n Use concurrent maps and synchronized methods where necessary
 
 ## 8.2.0 2024-10-11
 * [FOLSPRINGS-164](https://folio-org.atlassian.net/browse/FOLSPRINGS-164) Add "Update NEWS.md" to PULL\_REQUEST\_TEMPLATE.md
