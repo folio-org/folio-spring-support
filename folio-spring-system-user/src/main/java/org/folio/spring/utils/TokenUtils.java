@@ -4,7 +4,6 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import lombok.experimental.UtilityClass;
@@ -35,14 +34,14 @@ public class TokenUtils {
 
   /**
    * Half of original token ttl is used as suggested for system users
-   * on <a href="https://wiki.folio.org/pages/viewpage.action?pageId=96414255">...</a>.
+   * on <a href="https://folio-org.atlassian.net/wiki/spaces/FOLIJET/pages/1396980/Refresh+Token+Rotation+RTR">
+   * Refresh Token Rotation (RTR)</a>.
    * */
   private Instant calculateTokenExpirationForUser(AuthnClient.LoginResponse loginResponse) {
     var tokenExpiration = parseExpiration(loginResponse.accessTokenExpiration());
     var now = Instant.now();
-    var customTtlMinutes = (long) Math.ceil(Duration.between(now, tokenExpiration).toMinutes() / 2.0);
-
-    return now.plus(customTtlMinutes, ChronoUnit.MINUTES);
+    var customTtl = Duration.between(now, tokenExpiration).dividedBy(2);
+    return now.plus(customTtl);
   }
 
   private String getTokenFromCookies(String cookieName, List<Cookie> cookies) {
