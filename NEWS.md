@@ -1,6 +1,9 @@
 ## 8.3.0 In progress
 * [FOLSPRINGS-178](https://folio-org.atlassian.net/browse/FOLSPRINGS-178) spring-cloud-starter-openfeign 4.1.4 fixing spring-security-crypto Authorization Bypass
 
+### folio-spring-system-user
+* [FOLSPRINGS-180](https://issues.folio.org/browse/FOLSPRINGS-180) Token expiration off by 1 minute in test
+
 ## 8.2.1 In progress
 ### Testing submodule
 * [FOLSPRINGS-172](https://folio-org.atlassian.net/browse/FOLSPRINGS-172) Bump to postgres:16-alpine, suggest adding .github/workflows/postgres.yml
