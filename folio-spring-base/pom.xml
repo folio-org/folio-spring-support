@@ -14,6 +14,9 @@
 
   <properties>
     <tenant.yaml.file>${project.basedir}/src/main/resources/swagger.api/tenant.yaml</tenant.yaml.file>
+    <sonar.exclusions>
+      src/main/java/org/folio/**/FolioLiquibaseConfiguration.java
+    </sonar.exclusions>
   </properties>
 
   <dependencies>
