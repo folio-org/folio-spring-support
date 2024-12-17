@@ -12,6 +12,8 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(prefix = "spring.liquibase", name = "enabled", matchIfMissing = true)
@@ -33,7 +35,9 @@ public class FolioLiquibaseConfiguration {
     liquibase.setDataSource(dataSource);
     liquibase.setChangeLog(this.properties.getChangeLog());
     liquibase.setClearCheckSums(this.properties.isClearChecksums());
-    liquibase.setContexts(this.properties.getContexts());
+    if (!CollectionUtils.isEmpty(properties.getContexts())) {
+      liquibase.setContexts(StringUtils.collectionToCommaDelimitedString(properties.getContexts()));
+    }
     liquibase.setDefaultSchema(this.properties.getDefaultSchema());
     liquibase.setLiquibaseSchema(this.properties.getLiquibaseSchema());
     liquibase.setLiquibaseTablespace(this.properties.getLiquibaseTablespace());
@@ -41,7 +45,9 @@ public class FolioLiquibaseConfiguration {
     liquibase.setDatabaseChangeLogLockTable(this.properties.getDatabaseChangeLogLockTable());
     liquibase.setDropFirst(this.properties.isDropFirst());
     liquibase.setShouldRun(this.properties.isEnabled());
-    liquibase.setLabelFilter(this.properties.getLabelFilter());
+    if (!CollectionUtils.isEmpty(properties.getLabelFilter())) {
+      liquibase.setLabelFilter(StringUtils.collectionToCommaDelimitedString(properties.getLabelFilter()));
+    }
     liquibase.setChangeLogParameters(this.properties.getParameters());
     liquibase.setRollbackFile(this.properties.getRollbackFile());
     liquibase.setTestRollbackOnUpdate(this.properties.isTestRollbackOnUpdate());
