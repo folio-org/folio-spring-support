@@ -1,12 +1,30 @@
-## 8.2.0 In progress
+## 8.3.0 In progress
+* [FOLSPRINGS-178](https://folio-org.atlassian.net/browse/FOLSPRINGS-178) spring-cloud-starter-openfeign 4.1.4 fixing spring-security-crypto Authorization Bypass
+
+### folio-spring-system-user
+* [FOLSPRINGS-180](https://issues.folio.org/browse/FOLSPRINGS-180) Token expiration off by 1 minute in test
+
+## 8.2.1 In progress
 ### Testing submodule
-* [FOLSPRINGB-152](https://issues.folio.org/browse/FOLSPRINGB-152) Implement TESTCONTAINERS_POSTGRES_IMAGE
+* [FOLSPRINGS-172](https://folio-org.atlassian.net/browse/FOLSPRINGS-172) Bump to postgres:16-alpine, suggest adding .github/workflows/postgres.yml
+
+### folio-spring-system-user
+* [FOLSPRINGS-179](https://folio-org.atlassian.net/browse/FOLSPRINGS-179) Fix error message: Cannot retrieve okapi token for tenant: \<username\>
+
+## 8.2.0 2024-10-11
+* [FOLSPRINGS-164](https://folio-org.atlassian.net/browse/FOLSPRINGS-164) Add "Update NEWS.md" to PULL\_REQUEST\_TEMPLATE.md
+
+### Testing submodule
+* [FOLSPRINGB-152](https://issues.folio.org/browse/FOLSPRINGB-152) Implement TESTCONTAINERS\_POSTGRES\_IMAGE
+* [FOLSPRINGS-166](https://folio-org.atlassian.net/browse/FOLSPRINGS-166) Upgrade classgraph dependency from 4.8.90 to 4.8.175 fixing CVE-2021-47621
+
 ### folio-spring-system-user
 * [FOLSPRINGS-157](https://issues.folio.org/browse/FOLSPRINGS-157) Add missing property to authn client, to allow for `fail-on-unknown-properties` in consuming modules
 
 ### i18n submodule
 * [FOLSPRINGB-160](https://issues.folio.org/browse/FOLSPRINGB-160) Make translation service accept multiple keys
 * [FOLSPRINGS-163](https://folio-org.atlassian.net/browse/FOLSPRINGS-163) Wrong Locale in TranslationService and TranslationMap
+* [FOLSPRINGS-169](https://folio-org.atlassian.net/browse/FOLSPRINGS-169) Add additional convenience methods for providing locales, timezones, and using non-predefined templates
 
 ## 8.1.0 2024-02-29
 * [FOLSPRINGB-144](https://issues.folio.org/browse/FOLSPRINGB-144) Add support for filtering by undefined field value

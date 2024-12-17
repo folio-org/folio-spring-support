@@ -5,13 +5,13 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.0-M1</version> <!-- also change spring-boot.version -->
+    <version>3.3.5</version> <!-- also change spring-boot.version -->
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>org.folio</groupId>
   <artifactId>folio-spring-support</artifactId>
-  <version>8.2.0-SNAPSHOT</version>
+  <version>8.3.0-SNAPSHOT</version>
   <name>folio-spring-support</name>
   <description>This is a library (jar) that contains the basic functionality and main dependencies required for
     development FOLIO modules using
@@ -30,26 +30,28 @@
 
   <properties>
     <java.version>17</java.version>
-    <spring-boot.version>3.4.0-M1</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
-    <spring-cloud-starter-openfeign.version>4.2.0-SNAPSHOT</spring-cloud-starter-openfeign.version>
-    <maven-compat.version>3.9.8</maven-compat.version>
+    <spring-boot.version>3.3.5</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
+    <spring-cloud-starter-openfeign.version>4.1.4</spring-cloud-starter-openfeign.version>
+    <maven-compat.version>3.9.9</maven-compat.version>
     <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
-    <swagger-annotations.version>2.2.22</swagger-annotations.version>
-    <feign-okhttp.version>13.3</feign-okhttp.version>
-    <mapstruct.version>1.5.5.Final</mapstruct.version>
-    <cql2pgjson.version>35.2.2</cql2pgjson.version>
+    <swagger-annotations.version>2.2.26</swagger-annotations.version>
+    <feign-okhttp.version>13.5</feign-okhttp.version>
+    <mapstruct.version>1.6.3</mapstruct.version>
+    <cql2pgjson.version>35.3.0</cql2pgjson.version>
     <rhino.version>1.7.15</rhino.version>
-    <icu4j.version>75.1</icu4j.version>
+    <icu4j.version>76.1</icu4j.version>
+    <commons-lang3.version>3.17.0</commons-lang3.version>
 
     <!-- Test dependencies versions -->
+    <classgraph.version>4.8.179</classgraph.version>
     <easy-random.version>5.0.0</easy-random.version>
     <mockito-inline.version>5.2.0</mockito-inline.version>
-    <wiremock.version>3.9.1</wiremock.version>
+    <wiremock.version>3.9.2</wiremock.version>
     <commons-compress.version>1.26.2</commons-compress.version>
 
     <!-- Plugins versions -->
-    <maven-checkstyle-plugin.version>3.4.0</maven-checkstyle-plugin.version>
-    <openapi-generator.version>7.7.0</openapi-generator.version>
+    <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+    <openapi-generator.version>7.10.0</openapi-generator.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
   </properties>
 
@@ -137,7 +139,7 @@
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.17.0</version>
+              <version>10.20.1</version>
             </dependency>
           </dependencies>
           <executions>
@@ -357,16 +359,6 @@
       <id>folio-nexus</id>
       <name>FOLIO Maven Repository</name>
       <url>https://repository.folio.org/repository/maven-folio</url>
-    </repository>
-    <repository>
-      <id>repo.spring.io-milestone</id>
-      <name>Spring Milestone Repository</name>
-      <url>https://repo.spring.io/milestone</url>
-    </repository>
-    <repository>
-      <id>repo.spring.io-snapshot</id>
-      <name>Spring Snapshot Repository</name>
-      <url>https://repo.spring.io/snapshot</url>
     </repository>
   </repositories>
 

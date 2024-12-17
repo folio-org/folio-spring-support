@@ -1,10 +1,16 @@
 package org.folio.spring.i18n.model;
 
 import com.ibm.icu.text.MessageFormat;
+import com.ibm.icu.util.ULocale;
 import jakarta.annotation.Nullable;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -66,11 +72,7 @@ public final class TranslationMap {
    * @param file the {@link TranslationFile TranslationFile} to read from
    * @param fallback the TranslationMap to search if a given translation cannot be found
    */
-  public TranslationMap(
-    Locale locale,
-    TranslationFile file,
-    @Nullable TranslationMap fallback
-  ) {
+  public TranslationMap(Locale locale, TranslationFile file, @Nullable TranslationMap fallback) {
     this(locale, file, file.getPatterns(), fallback);
   }
 
@@ -95,12 +97,7 @@ public final class TranslationMap {
    * @return the TranslationMap with {@code newLocale}
    */
   public TranslationMap withLocale(Locale newLocale) {
-    return new TranslationMap(
-      newLocale,
-      this.file,
-      this.patterns,
-      this.fallback
-    );
+    return new TranslationMap(newLocale, this.file, this.patterns, this.fallback);
   }
 
   /**
@@ -124,7 +121,7 @@ public final class TranslationMap {
     }
 
     if (pattern == null) {
-      log.error("Could not resolve key {} in any translation", key);
+      log.warn("Could not resolve key {} in any translation", key);
       // fallback to translation key itself
       pattern = key;
     }
@@ -133,55 +130,86 @@ public final class TranslationMap {
   }
 
   /**
+   * Check if a key exists in the translation map (or a fallback).
+   *
+   * @param key key to check for
+   */
+  public boolean hasKey(String key) {
+    if (this.patterns.containsKey(key)) {
+      return true;
+    }
+
+    return this.fallback != null && this.fallback.hasKey(key);
+  }
+
+  /**
    * Format an ICU format string (found by its key), supplying a series of named arguments as key
    * value pairs.  For example: {@code format("Hello {name}", "name", parameterValue)}
    *
+   * @param zone the timezone to use for date formatting
    * @param key the key of the format string
    * @param args pairs of keys and values to interpolate
    * @return the formatted string
    */
-  public String format(String key, Object... args) {
-    for (int i = 0; i < args.length; i++) {
-      // Convert LocalDate to Date
-      // Sadly, ICU formatting strings only support date formats with the old Date class :(
-      if (args[i] instanceof LocalDate date) {
-        args[i] =
-          Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
-      }
-      // Same for LocalTime
-      if (args[i] instanceof LocalTime time) {
-        args[i] =
-          Date.from(
-            time
-              .atDate(LocalDate.now())
-              .atZone(ZoneId.systemDefault())
-              .toInstant()
-          );
-      }
-    }
-    return new MessageFormat(get(key), locale).format(buildMap(args));
+  public String format(ZoneId zone, String key, Object... args) {
+    return formatRaw(this.locale, zone, new MessageFormat(get(key)), buildArgs(zone, args));
   }
 
   /**
-   * Get a translation map from a set of (String, Object) pairs.
+   * Like {@link #format(ZoneId, String, Object...)}, but uses a message format string rather than
+   * looking it up in a map.
    *
-   * @param args pairs of elements, e.g. key1, value1, key2, value2, ...
-   * @return the map of each key =&gt; value
-   * @throws IllegalArgumentException if an odd number of parameters is passed
+   * @param locale the locale to use for formatting
+   * @param zone the timezone to use for date formatting
+   * @param format the format string
+   * @param args pairs of keys and values to interpolate
+   * @return the formatted string
    */
-  private static Map<String, Object> buildMap(Object... args) {
+  public static String formatString(Locale locale, ZoneId zone, String format, Object... args) {
+    return formatRaw(locale, zone, new MessageFormat(format), buildArgs(zone, args));
+  }
+
+  /**
+   * Build associative map to pass to {@link MessageFormat#format(String, Map)}.
+   */
+  private static Map<String, Object> buildArgs(ZoneId zone, Object... args) {
     if (args.length % 2 != 0) {
       throw new IllegalArgumentException(
-        "An odd number of parameters were passed to buildMap; even amounts are needed to construct key-value pairs"
+        "An odd number of arguments were passed to buildArgs; even amounts are needed to construct key-value pairs"
       );
     }
 
     Map<String, Object> map = new HashMap<>();
 
     for (int i = 0; i < args.length; i += 2) {
-      map.put(args[i].toString(), args[i + 1]);
+      Object transformedValue = args[i + 1];
+
+      // Sadly, ICU formatting strings only support date formats with the old Date class :(
+      if (transformedValue instanceof Instant instant) {
+        transformedValue = Date.from(instant);
+      } else if (transformedValue instanceof LocalDateTime date) {
+        transformedValue = Date.from(date.atZone(zone).toInstant());
+      } else if (transformedValue instanceof OffsetDateTime date) {
+        transformedValue = Date.from(date.toInstant());
+      } else if (transformedValue instanceof ZonedDateTime date) {
+        transformedValue = Date.from(date.toInstant());
+      } else if (transformedValue instanceof LocalDate date) {
+        transformedValue = Date.from(date.atStartOfDay(zone).toInstant());
+      } else if (transformedValue instanceof LocalTime time) {
+        transformedValue = Date.from(time.atDate(LocalDate.now()).atZone(zone).toInstant());
+      } else if (transformedValue instanceof OffsetTime time) {
+        transformedValue = Date.from(time.atDate(LocalDate.now()).toInstant());
+      }
+
+      map.put(args[i].toString(), transformedValue);
     }
 
     return map;
+  }
+
+  /** Format a message. */
+  private static String formatRaw(Locale locale, ZoneId zone, MessageFormat message, Map<String, Object> args) {
+    message.setLocale(new ULocale("%s@timezone=%s".formatted(locale.toString(), zone.toString())));
+    return message.format(args);
   }
 }

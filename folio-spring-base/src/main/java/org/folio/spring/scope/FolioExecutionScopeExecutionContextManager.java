@@ -14,18 +14,18 @@ import org.springframework.core.NamedInheritableThreadLocal;
 
 /**
  * FolioExecutionScopeExecutionContextManager is used to store {@link FolioExecutionContext} in thread local.
- *
- * <p>CAUTION:
- *
- * <p>If current thread that uses FolioExecutionContext creates a new thread,
+ * <br>
+ * CAUTION:
+ * <br>
+ * If current thread that uses FolioExecutionContext creates a new thread,
  * the context should be set in the new thread by calling {@code new FolioExecutionContextSetter(...)}
  * from the new thread.
+ * <br>
+ * When the execution is finished {@link FolioExecutionContextSetter#close()} should be called.
+ * <br>
+ * Best practice is try-with-resources that automatically calls {@code close()} in all cases, even on exception:
  *
- * <p>When the execution is finished {@link FolioExecutionContextSetter#close()} should be called.
- *
- * <p>Best practice is try-with-resources that automatically calls {@code close()} in all cases, even on exception:
- *
- * <p><pre>
+ * <pre>
  * try (var x = FolioExecutionContextSetter(currentFolioExecutionContext) {
  *   //some stuff
  * }
