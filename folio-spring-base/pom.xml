@@ -14,6 +14,9 @@
 
   <properties>
     <tenant.yaml.file>${project.basedir}/src/main/resources/swagger.api/tenant.yaml</tenant.yaml.file>
+    <sonar.exclusions>
+      src/main/java/org/folio/**/FolioLiquibaseConfiguration.java
+    </sonar.exclusions>
   </properties>
 
   <dependencies>
@@ -33,6 +36,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-logging</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
