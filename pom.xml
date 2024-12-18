@@ -34,7 +34,7 @@
     <spring-cloud-starter-openfeign.version>4.2.0</spring-cloud-starter-openfeign.version>
     <maven-compat.version>3.9.9</maven-compat.version>
     <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
-    <swagger-annotations.version>2.2.26</swagger-annotations.version>
+    <swagger-annotations.version>2.2.27</swagger-annotations.version>
     <feign-okhttp.version>13.5</feign-okhttp.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <cql2pgjson.version>35.3.0</cql2pgjson.version>
@@ -46,7 +46,7 @@
     <classgraph.version>4.8.179</classgraph.version>
     <easy-random.version>5.0.0</easy-random.version>
     <mockito-inline.version>5.2.0</mockito-inline.version>
-    <wiremock.version>3.9.2</wiremock.version>
+    <wiremock.version>3.10.0</wiremock.version>
     <commons-compress.version>1.26.2</commons-compress.version>
 
     <!-- Plugins versions -->
@@ -139,7 +139,7 @@
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.20.1</version>
+              <version>10.21.0</version>
             </dependency>
           </dependencies>
           <executions>
