@@ -11,7 +11,6 @@ import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-
 import org.folio.spring.model.ResultList;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,13 +47,6 @@ public interface UsersClient {
     @Builder.Default
     private Map<String, Object> extraProperties = new HashMap<>();
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Personal(String firstName, String lastName) {
-      public Personal(String lastName) {
-        this(null, lastName);
-      }
-    }
-
     // we must store extra properties to be able to update the user, otherwise
     // all additional information from mod-users will be lost.
     @JsonAnyGetter
@@ -65,6 +57,13 @@ public interface UsersClient {
     @JsonAnySetter
     public void set(String key, Object value) {
       this.extraProperties.put(key, value);
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record Personal(String firstName, String lastName) {
+      public Personal(String lastName) {
+        this(null, lastName);
+      }
     }
   }
 }

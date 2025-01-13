@@ -41,7 +41,6 @@ import org.folio.spring.service.PrepareSystemUserService;
 import org.folio.spring.service.SystemUserProperties;
 import org.folio.spring.service.SystemUserService;
 import org.folio.spring.testing.type.UnitTest;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

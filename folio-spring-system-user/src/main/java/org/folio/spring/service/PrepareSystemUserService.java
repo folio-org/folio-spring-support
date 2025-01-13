@@ -71,12 +71,14 @@ public class PrepareSystemUserService {
       assignPermissions(userId);
 
       try {
-        systemUserService.authSystemUser(folioExecutionContext.getTenantId(), systemUserProperties.username(), systemUserProperties.password());
+        systemUserService.authSystemUser(folioExecutionContext.getTenantId(),
+                                         systemUserProperties.username(), systemUserProperties.password());
         log.info("System user authenticated successfully");
       } catch (SystemUserAuthorizationException e) {
         log.info("Unable to login as system user; saving credentials and retrying...");
         saveCredentials(userId);
-        systemUserService.authSystemUser(folioExecutionContext.getTenantId(), systemUserProperties.username(), systemUserProperties.password());
+        systemUserService.authSystemUser(folioExecutionContext.getTenantId(),
+                                         systemUserProperties.username(), systemUserProperties.password());
         log.info("System user authenticated successfully");
       }
 
@@ -98,14 +100,15 @@ public class PrepareSystemUserService {
     usersClient.createUser(user);
   }
 
-  /** Save the credentials for a user, removing an existing login if necessary */
+  /** Save the credentials for a user, removing an existing login if necessary. */
   private void saveCredentials(String id) {
     saveCredentials(id, true);
   }
 
   private void saveCredentials(String id, boolean clearExisting) {
     try {
-      authnClient.saveCredentials(new UserCredentials(systemUserProperties.username(), systemUserProperties.password()));
+      authnClient.saveCredentials(new UserCredentials(systemUserProperties.username(),
+                                                      systemUserProperties.password()));
 
       log.info("Saved credentials for user with username={}", systemUserProperties.username());
     } catch (FeignException.UnprocessableEntity e) {

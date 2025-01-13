@@ -82,7 +82,8 @@ public class SystemUserExecutionContext implements FolioExecutionContext {
 
     if (refresher == null) {
       log.warn(
-        "System user token is about to expire at {}, but no refresh method was provided, so I can't do anything about it... :(",
+        "System user token is about to expire at {}, but no refresh method was provided, "
+          + "so I can't do anything about it... :(",
         user.token().accessTokenExpiration()
       );
       return;
