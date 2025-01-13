@@ -2,15 +2,19 @@ package org.folio.spring.service;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+import feign.FeignException;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
+import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.client.AuthnClient;
 import org.folio.spring.client.AuthnClient.UserCredentials;
 import org.folio.spring.client.PermissionsClient;
@@ -18,6 +22,7 @@ import org.folio.spring.client.PermissionsClient.Permission;
 import org.folio.spring.client.PermissionsClient.Permissions;
 import org.folio.spring.client.UsersClient;
 import org.folio.spring.client.UsersClient.User;
+import org.folio.spring.exception.SystemUserAuthorizationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -29,7 +34,9 @@ public class PrepareSystemUserService {
 
   public static final String SYSTEM_USER_TYPE = "system";
 
+  private final FolioExecutionContext folioExecutionContext;
   private final SystemUserProperties systemUserProperties;
+  private final SystemUserService systemUserService;
 
   private UsersClient usersClient;
   private AuthnClient authnClient;
@@ -41,23 +48,43 @@ public class PrepareSystemUserService {
       return;
     }
 
-    log.info("Preparing system user...");
-    var folioUser = getFolioUser(systemUserProperties.username());
-    var userId = folioUser.map(User::id)
-        .orElse(UUID.randomUUID().toString());
+    try {
+      log.info("Preparing system user...");
+      Optional<User> folioUser = systemUserService.getFolioUser(systemUserProperties.username());
+      String userId = folioUser.map(User::id).orElse(UUID.randomUUID().toString());
 
-    if (folioUser.isPresent()) {
-      log.info("System user already exists");
-      addPermissions(userId);
-      deleteCredentials(userId);
-      saveCredentials();
-    } else {
-      log.info("No system user exist, creating...");
-      createFolioUser(userId);
+      if (folioUser.isPresent()) {
+        User user = folioUser.get();
+        log.info("Found existing system user, id={}", user.id());
+
+        if (!user.active()) {
+          log.info("System user is inactive, attempting to mark active...");
+          user = user.toBuilder().active(true).expirationDate(null).build();
+          usersClient.updateUser(user);
+        }
+      } else {
+        log.info("Could not find a system user with username={}, creating a new one with id={}...",
+                 systemUserProperties.username(), userId);
+        createFolioUser(userId);
+      }
+
       assignPermissions(userId);
-      saveCredentials();
+
+      try {
+        systemUserService.authSystemUser(folioExecutionContext.getTenantId(), systemUserProperties.username(), systemUserProperties.password());
+        log.info("System user authenticated successfully");
+      } catch (SystemUserAuthorizationException e) {
+        log.info("Unable to login as system user; saving credentials and retrying...");
+        saveCredentials(userId);
+        systemUserService.authSystemUser(folioExecutionContext.getTenantId(), systemUserProperties.username(), systemUserProperties.password());
+        log.info("System user authenticated successfully");
+      }
+
+      log.info("System user is ready to go!");
+    } catch (RuntimeException e) {
+      log.error("Unexpected error while preparing system user:", e);
+      throw e;
     }
-    log.info("System user has been created");
   }
 
   public void deleteCredentials(String userId) {
@@ -66,59 +93,80 @@ public class PrepareSystemUserService {
     log.info("Removed credentials for user {}.", userId);
   }
 
-  public Optional<User> getFolioUser(String username) {
-    var users = usersClient.query("username==" + username);
-    return (users == null || users.getResult() == null) ? Optional.empty() : users.getResult().stream().findFirst();
-  }
-
   private void createFolioUser(String id) {
-    final var user = prepareUserObject(id);
-    usersClient.saveUser(user);
+    final User user = prepareUserObject(id);
+    usersClient.createUser(user);
   }
 
-  private void saveCredentials() {
-    authnClient.saveCredentials(new UserCredentials(systemUserProperties.username(), systemUserProperties.password()));
+  /** Save the credentials for a user, removing an existing login if necessary */
+  private void saveCredentials(String id) {
+    saveCredentials(id, true);
+  }
 
-    log.info("Saved credentials for user: [{}]", systemUserProperties.username());
+  private void saveCredentials(String id, boolean clearExisting) {
+    try {
+      authnClient.saveCredentials(new UserCredentials(systemUserProperties.username(), systemUserProperties.password()));
+
+      log.info("Saved credentials for user with username={}", systemUserProperties.username());
+    } catch (FeignException.UnprocessableEntity e) {
+      if (!clearExisting) {
+        throw e;
+      }
+
+      log.warn("Credentials already exist for user with username={}, removing them and re-adding...",
+               systemUserProperties.username());
+
+      deleteCredentials(id);
+      saveCredentials(id, false);
+    }
   }
 
   private void assignPermissions(String userId) {
     List<String> permissionsToAssign = getResourceLines(systemUserProperties.permissionsFilePath());
+    log.info("Found {} permissions to assign: {}", permissionsToAssign.size(), permissionsToAssign);
 
     if (isEmpty(permissionsToAssign)) {
-      throw new IllegalStateException("No permissions found to assign to user with id: " + userId);
+      throw log.throwing(
+        new IllegalStateException("No permissions found to assign to system user; maybe the permissions file is empty?")
+      );
     }
 
-    var permissions = new Permissions(UUID.randomUUID().toString(), userId, permissionsToAssign);
+    try {
+      List<String> existingPermissions = permissionsClient.getUserPermissions(userId).getResult();
+      log.info("System user currently has {} permissions", existingPermissions.size());
 
-    permissionsClient.assignPermissionsToUser(permissions);
-    log.info("Permissions assigned to system user: [{}]", permissionsToAssign);
-  }
+      Set<String> permissionsToAdd = new HashSet<>(permissionsToAssign);
+      existingPermissions.forEach(permissionsToAdd::remove);
 
-  private void addPermissions(String userId) {
-    var permissionsToAssign = getResourceLines(systemUserProperties.permissionsFilePath());
+      log.info("Adding {} permissions to system user: {}", permissionsToAdd.size(), permissionsToAdd);
 
-    if (isEmpty(permissionsToAssign)) {
-      throw new IllegalStateException("No permissions found to assign to user with id: " + userId);
+      permissionsToAdd.forEach(permission -> permissionsClient.addPermission(userId, new Permission(permission)));
+    } catch (FeignException.NotFound | NullPointerException e) {
+      UUID newPermissionsId = UUID.randomUUID();
+      log.warn("No permissions record found for system user, creating a fresh one with id={}...", newPermissionsId);
+      Permissions permissions = new Permissions(UUID.randomUUID().toString(), userId, permissionsToAssign);
+
+      permissionsClient.assignPermissionsToUser(permissions);
     }
 
-    var permissionsToAdd = new HashSet<>(permissionsToAssign);
-    permissionsClient.getUserPermissions(userId).getResult().forEach(permissionsToAdd::remove);
-
-    permissionsToAdd.forEach(permission ->
-        permissionsClient.addPermission(userId, new Permission(permission)));
-    log.info("Permissions assigned to system user: [{}]", permissionsToAdd);
+    log.info("System user permission assignment successful");
   }
 
   private User prepareUserObject(String id) {
-    return new User(id, systemUserProperties.username(), SYSTEM_USER_TYPE,  true,
+    return new User(id, systemUserProperties.username(), SYSTEM_USER_TYPE, true, null,
         new User.Personal(systemUserProperties.lastname()));
   }
 
-  @SneakyThrows
   private List<String> getResourceLines(String permissionsFilePath) {
-    var resource = new ClassPathResource(permissionsFilePath);
-    return IOUtils.readLines(resource.getInputStream(), StandardCharsets.UTF_8);
+    try {
+      ClassPathResource resource = new ClassPathResource(permissionsFilePath);
+      return IOUtils.readLines(resource.getInputStream(), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    } catch (UncheckedIOException e) {
+      log.error("Unable to open permissions file {}", permissionsFilePath);
+      throw log.throwing(e);
+    }
   }
 
   @Autowired(required = false)

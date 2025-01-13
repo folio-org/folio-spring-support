@@ -34,6 +34,7 @@ import org.folio.spring.config.properties.FolioEnvironment;
 import org.folio.spring.context.ExecutionContextBuilder;
 import org.folio.spring.exception.SystemUserAuthorizationException;
 import org.folio.spring.integration.XOkapiHeaders;
+import org.folio.spring.model.ResultList;
 import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
 import org.folio.spring.service.PrepareSystemUserService;
@@ -73,6 +74,8 @@ class SystemUserServiceTest {
   @Mock
   private AuthnClient authnClient;
   @Mock
+  private UsersClient usersClient;
+  @Mock
   private ExecutionContextBuilder contextBuilder;
   @Mock
   private FolioExecutionContext context;
@@ -90,9 +93,9 @@ class SystemUserServiceTest {
 
     when(authnClient
       .loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
-    when(prepareSystemUserService.getFolioUser("username")).thenReturn(Optional.of(
+    when(usersClient.query("username==username")).thenReturn(ResultList.asSinglePage(
       new UsersClient.User(expectedUserId.toString(),
-        "username", SYSTEM_USER_TYPE, true, new UsersClient.User.Personal("last"))));
+        "username", SYSTEM_USER_TYPE, true, null, new UsersClient.User.Personal("last"))));
     when(environment.getOkapiUrl()).thenReturn(OKAPI_URL);
     when(contextBuilder.forSystemUser(any())).thenReturn(context);
     when(expectedResponse.getHeaders()).thenReturn(cookieHeaders(expectedUserToken.accessToken()));
@@ -364,7 +367,7 @@ class SystemUserServiceTest {
   }
 
   private SystemUserService systemUserService(SystemUserProperties properties) {
-    return new SystemUserService(contextBuilder, properties, environment, authnClient, prepareSystemUserService);
+    return new SystemUserService(contextBuilder, properties, environment, authnClient, usersClient);
   }
 
   private UserToken userToken(Instant accessExpiration) {

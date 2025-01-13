@@ -1,8 +1,6 @@
-# Documentation for folio-service-tools-spring-dev features
+# Documentation for folio-sprint-system-user features
 
-## System user creation and utilization
-
-### Creation
+## Creation
 
 If module need system user to communicate with other modules then it's required to create the system
 user on enabling for tenant. To do so you should:
@@ -26,6 +24,7 @@ Requirements:
 * Update ModuleDescriptor with modulePermissions for `POST /_/tenant` endpoint:
     * users.collection.get
     * users.item.post
+    * users.item.put
     * login.item.post
     * login.item.delete
     * perms.users.get
@@ -36,13 +35,24 @@ Requirements:
     * login
     * permissions
     * users
+* ??? SETUP CAFFEINE?
 
-### Utilization
+## Utilization
 
 If system user was created during enabling for tenant, then the system user could be used to make request
 to other modules. To do so `SystemUserScopedExecutionService` could be used.
 
-### Disable system user functionality
+### Example
+
+...
+
+## Notes about caching
+
+## Notes about RTR
+
+...
+
+## Disable system user functionality
 
 Setting property `folio.system-user.enabled=false` will disable system user functionality:
 * all actions called using `SystemUserScopedExecutionService` will be performed in `DefaultFolioExecutionContext`
@@ -52,5 +62,3 @@ Setting property `folio.system-user.enabled=false` will disable system user func
   * `PermissionsClient`
   * `UsersClient`
   * `SystemUserService`
-
-****

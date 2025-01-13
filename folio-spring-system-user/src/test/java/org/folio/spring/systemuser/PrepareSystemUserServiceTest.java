@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.client.AuthnClient;
 import org.folio.spring.client.PermissionsClient;
 import org.folio.spring.client.PermissionsClient.Permission;
@@ -19,6 +20,7 @@ import org.folio.spring.client.UsersClient.User.Personal;
 import org.folio.spring.model.ResultList;
 import org.folio.spring.service.PrepareSystemUserService;
 import org.folio.spring.service.SystemUserProperties;
+import org.folio.spring.service.SystemUserService;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,11 +34,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PrepareSystemUserServiceTest {
 
   @Mock
+  private FolioExecutionContext context;
+
+  @Mock
   private UsersClient usersClient;
+
   @Mock
   private AuthnClient authnClient;
+
   @Mock
   private PermissionsClient permissionsClient;
+
+  @Mock
+  private SystemUserService systemUserService;
+
   @Captor
   private ArgumentCaptor<UsersClient.User> userArgumentCaptor;
 
@@ -62,7 +73,7 @@ class PrepareSystemUserServiceTest {
 
     prepareSystemUser(systemUserProperties());
 
-    verify(usersClient).saveUser(userArgumentCaptor.capture());
+    verify(usersClient).createUser(userArgumentCaptor.capture());
     verify(permissionsClient).assignPermissionsToUser(any());
 
     assertThat(userArgumentCaptor.getValue())
@@ -76,7 +87,7 @@ class PrepareSystemUserServiceTest {
 
     prepareSystemUser(systemUserProperties());
 
-    verify(usersClient).saveUser(any());
+    verify(usersClient).createUser(any());
     verify(permissionsClient).assignPermissionsToUser(any());
   }
 
@@ -111,14 +122,12 @@ class PrepareSystemUserServiceTest {
   @Test
   void shouldAddOnlyNewPermissions() {
     when(usersClient.query(any())).thenReturn(userExistsResponse());
-    when(permissionsClient.getUserPermissions(any()))
-      .thenReturn(asSinglePage("inventory-storage.instance.item.get"));
+    when(permissionsClient.getUserPermissions(any())).thenReturn(asSinglePage("inventory-storage.instance.item.get"));
 
     prepareSystemUser(systemUserProperties());
 
     verify(permissionsClient, times(1)).addPermission(any(), any());
-    verify(permissionsClient, times(0))
-      .addPermission(any(), eq(new Permission("inventory-storage.instance.item.get")));
+    verify(permissionsClient, times(0)).addPermission(any(), eq(new Permission("inventory-storage.instance.item.get")));
     verify(permissionsClient, times(1))
       .addPermission(any(), eq(new Permission("inventory-storage.instance.item.post")));
   }
@@ -126,8 +135,7 @@ class PrepareSystemUserServiceTest {
   @Test
   void updateCredentialsForAnExistingUser() {
     when(usersClient.query(any())).thenReturn(userExistsResponse());
-    when(permissionsClient.getUserPermissions(any()))
-      .thenReturn(asSinglePage("inventory-storage.instance.item.get"));
+    when(permissionsClient.getUserPermissions(any())).thenReturn(asSinglePage("inventory-storage.instance.item.get"));
     prepareSystemUser(systemUserProperties());
     verify(authnClient).deleteCredentials(any());
     verify(authnClient).saveCredentials(any());
@@ -140,8 +148,7 @@ class PrepareSystemUserServiceTest {
   }
 
   private ResultList<UsersClient.User> userExistsResponse() {
-    return asSinglePage(new UsersClient.User("id", "username", SYSTEM_USER_TYPE, true,
-      new Personal("lastName")));
+    return asSinglePage(new UsersClient.User("id", "username", SYSTEM_USER_TYPE, true, null, new Personal("lastName")));
   }
 
   private ResultList<UsersClient.User> userNotExistResponse() {
@@ -149,7 +156,7 @@ class PrepareSystemUserServiceTest {
   }
 
   private PrepareSystemUserService systemUserService(SystemUserProperties properties) {
-    var prepareSystemUserService = new PrepareSystemUserService(properties);
+    var prepareSystemUserService = new PrepareSystemUserService(context, properties, systemUserService);
     prepareSystemUserService.setAuthnClient(authnClient);
     prepareSystemUserService.setUsersClient(usersClient);
     prepareSystemUserService.setPermissionsClient(permissionsClient);
@@ -159,5 +166,4 @@ class PrepareSystemUserServiceTest {
   private void prepareSystemUser(SystemUserProperties properties) {
     systemUserService(properties).setupSystemUser();
   }
-
 }
