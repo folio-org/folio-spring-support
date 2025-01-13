@@ -8,12 +8,22 @@ import java.util.Collection;
 import java.util.List;
 import lombok.experimental.UtilityClass;
 import org.folio.spring.client.AuthnClient;
+import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
 
 @UtilityClass
 public class TokenUtils {
 
   public static final String FOLIO_ACCESS_TOKEN = "folioAccessToken";
+
+  /** Checks if the token is about to expire (in the next 30s). */
+  public static boolean tokenAboutToExpire(UserToken userToken) {
+    return userToken.accessTokenExpiration().isBefore(Instant.now().plusSeconds(30L));
+  }
+
+  public static boolean tokenAboutToExpire(SystemUser user) {
+    return tokenAboutToExpire(user.token());
+  }
 
   public static UserToken parseUserTokenFromCookies(List<String> cookieHeaders,
                                                     AuthnClient.LoginResponse loginResponse) {

@@ -2,11 +2,19 @@ package org.folio.spring.client;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.Map;
+import lombok.Builder;
+import lombok.Singular;
+import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 import org.folio.spring.model.ResultList;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -16,10 +24,33 @@ public interface UsersClient {
   ResultList<User> query(@RequestParam("query") String query);
 
   @PostMapping(consumes = APPLICATION_JSON_VALUE)
-  void saveUser(@RequestBody User user);
+  void createUser(@RequestBody User user);
 
-  @JsonIgnoreProperties(ignoreUnknown = true)
-  record User(String id, String username, String type, boolean active, Personal personal) {
+  @PutMapping(value = "{user.id}", consumes = APPLICATION_JSON_VALUE)
+  void updateUser(@RequestBody User user);
+
+  @Value
+  @Jacksonized
+  @Builder(toBuilder = true)
+  class User {
+
+    private String id;
+    private String username;
+    private String type;
+    private boolean active;
+    private String expirationDate;
+    private Personal personal;
+
+    @JsonAnyGetter
+    @JsonAnySetter
+    @Singular("extraProperties")
+    private Map<String, Object> extraProperties;
+
+    // we must store extra properties to be able to update the user, otherwise
+    // all additional information from mod-users will be lost.
+    public Map<String, Object> getExtraProperties() {
+      return this.extraProperties;
+    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Personal(String firstName, String lastName) {

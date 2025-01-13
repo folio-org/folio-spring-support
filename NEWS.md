@@ -2,7 +2,9 @@
 * [FOLSPRINGS-178](https://folio-org.atlassian.net/browse/FOLSPRINGS-178) spring-cloud-starter-openfeign 4.1.4 fixing spring-security-crypto Authorization Bypass
 
 ### folio-spring-system-user
-* [FOLSPRINGS-180](https://issues.folio.org/browse/FOLSPRINGS-180) Token expiration off by 1 minute in test
+* [FOLSPRINGS-180](https://folio-org.atlassian.net/browse/FOLSPRINGS-180) Token expiration off by 1 minute in test
+* [FOLSPRINGS-183](https://folio-org.atlassian.net/browse/FOLSPRINGS-183) Improve resiliency of system user operations, support re-activating inactive system users
+* [FOLSPRINGS-183](https://folio-org.atlassian.net/browse/FOLSPRINGS-183) Automatically refresh system user tokens on RTR expiration
 
 ## 8.2.1 In progress
 ### Testing submodule

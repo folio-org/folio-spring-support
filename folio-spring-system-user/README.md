@@ -1,8 +1,6 @@
-# Documentation for folio-service-tools-spring-dev features
+# Documentation for folio-spring-system-user features
 
-## System user creation and utilization
-
-### Creation
+## Creation
 
 If module need system user to communicate with other modules then it's required to create the system
 user on enabling for tenant. To do so you should:
@@ -26,6 +24,7 @@ Requirements:
 * Update ModuleDescriptor with modulePermissions for `POST /_/tenant` endpoint:
     * users.collection.get
     * users.item.post
+    * users.item.put
     * login.item.post
     * login.item.delete
     * perms.users.get
@@ -36,13 +35,32 @@ Requirements:
     * login
     * permissions
     * users
+* Add `caffeine` as a dependency to your module, if you want to use [caching](#notes-about-caching)
 
-### Utilization
+## Utilization
 
 If system user was created during enabling for tenant, then the system user could be used to make request
 to other modules. To do so `SystemUserScopedExecutionService` could be used.
 
-### Disable system user functionality
+## Notes about caching
+
+A cache can be used to prevent excessive re-authentications of the system user. To use this cache, your project must include the `caffeine` dependency:
+
+```xml
+<dependency>
+  <groupId>com.github.ben-manes.caffeine</groupId>
+  <artifactId>caffeine</artifactId>
+  <version>${caffeine version goes here}</version>
+</dependency>
+```
+
+If the dependency is available in your project, the cache will be automatically configured.
+
+## Notes about RTR
+
+Refresh token rotation affects system user logins, just as any other logged-in user. This library attempts to mitigate this by automatically re-authenticating the system user if the token is expiring in the next thirty seconds and populating new tokens in the `FolioExecutionContext`. This should cover the majority of use cases, and makes it possible to do many requests over a longer period within one call of the `SystemUserScopedExecutionService`. However, any manual handling or use of the token within the context should be done with extra care, and this library provides no guarantees for this type of use.
+
+## Disable system user functionality
 
 Setting property `folio.system-user.enabled=false` will disable system user functionality:
 * all actions called using `SystemUserScopedExecutionService` will be performed in `DefaultFolioExecutionContext`
@@ -52,5 +70,3 @@ Setting property `folio.system-user.enabled=false` will disable system user func
   * `PermissionsClient`
   * `UsersClient`
   * `SystemUserService`
-
-****
