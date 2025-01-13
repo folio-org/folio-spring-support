@@ -38,7 +38,7 @@ class ExecutionContextBuilderTest {
         .okapiUrl("okapi").tenantId("tenant")
         .userId(userId.toString())
         .build();
-    var context = builder.forSystemUser(systemUser);
+    var context = builder.forSystemUser(systemUser, null);
 
     assertThat(context.getTenantId()).isEqualTo("tenant");
     assertThat(context.getToken()).isEqualTo("token");
@@ -58,7 +58,7 @@ class ExecutionContextBuilderTest {
         .userId(null)
         .build();
 
-    var context = builder.forSystemUser(systemUser);
+    var context = builder.forSystemUser(systemUser, null);
 
     assertThat(context.getTenantId()).isEqualTo(EMPTY);
     assertThat(context.getToken()).isEqualTo(EMPTY);

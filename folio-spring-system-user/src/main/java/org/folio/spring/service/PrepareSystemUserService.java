@@ -153,8 +153,8 @@ public class PrepareSystemUserService {
   }
 
   private User prepareUserObject(String id) {
-    return new User(id, systemUserProperties.username(), SYSTEM_USER_TYPE, true, null,
-        new User.Personal(systemUserProperties.lastname()));
+    return User.builder().id(id).username(systemUserProperties.username()).type(SYSTEM_USER_TYPE).active(true)
+              .personal(new User.Personal(systemUserProperties.lastname())).build();
   }
 
   private List<String> getResourceLines(String permissionsFilePath) {

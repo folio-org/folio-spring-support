@@ -2,8 +2,16 @@ package org.folio.spring.client;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.experimental.Accessors;
+
 import org.folio.spring.model.ResultList;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,15 +31,40 @@ public interface UsersClient {
   @PutMapping(value = "{user.id}", consumes = APPLICATION_JSON_VALUE)
   void updateUser(@RequestBody User user);
 
+  @Getter
+  @Accessors(fluent = true)
   @Builder(toBuilder = true)
   @JsonIgnoreProperties(ignoreUnknown = true)
-  record User(String id, String username, String type, boolean active, String expirationDate, Personal personal) {
+  class User {
+
+    private String id;
+    private String username;
+    private String type;
+    private boolean active;
+    private String expirationDate;
+    private Personal personal;
+
+    @JsonIgnore
+    @Builder.Default
+    private Map<String, Object> extraProperties = new HashMap<>();
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Personal(String firstName, String lastName) {
       public Personal(String lastName) {
         this(null, lastName);
       }
+    }
+
+    // we must store extra properties to be able to update the user, otherwise
+    // all additional information from mod-users will be lost.
+    @JsonAnyGetter
+    public Map<String, Object> getExtraProperties() {
+      return this.extraProperties;
+    }
+
+    @JsonAnySetter
+    public void set(String key, Object value) {
+      this.extraProperties.put(key, value);
     }
   }
 }

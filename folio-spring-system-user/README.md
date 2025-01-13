@@ -1,4 +1,4 @@
-# Documentation for folio-sprint-system-user features
+# Documentation for folio-spring-system-user features
 
 ## Creation
 
