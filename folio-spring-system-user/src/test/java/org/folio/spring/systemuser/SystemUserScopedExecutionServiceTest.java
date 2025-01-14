@@ -3,7 +3,10 @@ package org.folio.spring.systemuser;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -17,14 +20,12 @@ import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.service.SystemUserService;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-@Disabled
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class SystemUserScopedExecutionServiceTest {
@@ -52,11 +53,12 @@ class SystemUserScopedExecutionServiceTest {
   void executeSystemUserScoped_positive() {
     var systemUser = SystemUser.builder().build();
     when(systemUserService.getAuthedSystemUser(TENANT_ID)).thenReturn(systemUser);
-    when(contextBuilder.forSystemUser(systemUser, null)).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
+    when(contextBuilder.forSystemUser(eq(systemUser), any())).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
 
     var actual = systemUserScopedExecutionService.executeSystemUserScoped(TENANT_ID, () -> "result");
 
     assertThat(actual).isEqualTo("result");
+    verify(systemUserService, times(1)).getAuthedSystemUser(TENANT_ID);
   }
 
   @Test
@@ -73,7 +75,7 @@ class SystemUserScopedExecutionServiceTest {
   void executeAsyncSystemUserScoped_positive() {
     var systemUser = SystemUser.builder().build();
     when(systemUserService.getAuthedSystemUser(TENANT_ID)).thenReturn(systemUser);
-    when(contextBuilder.forSystemUser(systemUser, null)).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
+    when(contextBuilder.forSystemUser(eq(systemUser), any())).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
     var runnableMock = mock(Runnable.class);
 
     systemUserScopedExecutionService.executeAsyncSystemUserScoped(TENANT_ID, runnableMock);
@@ -98,7 +100,7 @@ class SystemUserScopedExecutionServiceTest {
     var systemUser = SystemUser.builder().build();
     when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
     when(systemUserService.getAuthedSystemUser(TENANT_ID)).thenReturn(systemUser);
-    when(contextBuilder.forSystemUser(systemUser, null)).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
+    when(contextBuilder.forSystemUser(eq(systemUser), any())).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
 
     var actual = systemUserScopedExecutionService.executeSystemUserScoped(() -> "result");
 
@@ -120,7 +122,7 @@ class SystemUserScopedExecutionServiceTest {
   void executeSystemUserScoped_negative_throwsException() {
     var systemUser = SystemUser.builder().build();
     when(systemUserService.getAuthedSystemUser(TENANT_ID)).thenReturn(systemUser);
-    when(contextBuilder.forSystemUser(systemUser, null)).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
+    when(contextBuilder.forSystemUser(eq(systemUser), any())).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
 
     Callable<Object> callable = () -> {
       throw new Exception("error");

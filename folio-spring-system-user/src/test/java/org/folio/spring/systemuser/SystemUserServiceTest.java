@@ -41,7 +41,6 @@ import org.folio.spring.service.PrepareSystemUserService;
 import org.folio.spring.service.SystemUserProperties;
 import org.folio.spring.service.SystemUserService;
 import org.folio.spring.testing.type.UnitTest;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -54,7 +53,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMapAdapter;
 
-@Disabled
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class SystemUserServiceTest {

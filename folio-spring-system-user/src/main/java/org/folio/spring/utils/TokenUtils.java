@@ -16,8 +16,9 @@ public class TokenUtils {
 
   public static final String FOLIO_ACCESS_TOKEN = "folioAccessToken";
 
+  /** Checks if the token is about to expire (in the next 30s). */
   public static boolean tokenAboutToExpire(UserToken userToken) {
-    return userToken.accessTokenExpiration().isAfter(Instant.now().plusSeconds(30L));
+    return userToken.accessTokenExpiration().isBefore(Instant.now().plusSeconds(30L));
   }
 
   public static boolean tokenAboutToExpire(SystemUser user) {
