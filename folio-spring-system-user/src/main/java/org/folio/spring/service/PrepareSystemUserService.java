@@ -22,7 +22,6 @@ import org.folio.spring.client.PermissionsClient.Permission;
 import org.folio.spring.client.PermissionsClient.Permissions;
 import org.folio.spring.client.UsersClient;
 import org.folio.spring.client.UsersClient.User;
-import org.folio.spring.exception.SystemUserAuthorizationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
