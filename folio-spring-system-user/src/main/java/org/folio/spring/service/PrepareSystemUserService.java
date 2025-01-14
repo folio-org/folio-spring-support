@@ -69,24 +69,18 @@ public class PrepareSystemUserService {
       }
 
       assignPermissions(userId);
+      saveCredentials(userId);
 
-      try {
-        systemUserService.authSystemUser(folioExecutionContext.getTenantId(),
-                                         systemUserProperties.username(), systemUserProperties.password());
-        log.info("System user authenticated successfully");
-      } catch (SystemUserAuthorizationException e) {
-        log.info("Unable to login as system user; saving credentials and retrying...");
-        saveCredentials(userId);
-        systemUserService.authSystemUser(folioExecutionContext.getTenantId(),
-                                         systemUserProperties.username(), systemUserProperties.password());
-        log.info("System user authenticated successfully");
-      }
-
-      log.info("System user is ready to go!");
+      // a nice sanity check, to fail sooner and ensure later logins will go smoothly
+      systemUserService.authSystemUser(folioExecutionContext.getTenantId(),
+                                       systemUserProperties.username(), systemUserProperties.password());
+      log.info("System user authenticated successfully");
     } catch (RuntimeException e) {
       log.error("Unexpected error while preparing system user:", e);
       throw e;
     }
+
+    log.info("System user is ready to go!");
   }
 
   public void deleteCredentials(String userId) {

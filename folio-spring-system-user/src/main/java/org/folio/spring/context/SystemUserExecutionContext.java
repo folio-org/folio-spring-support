@@ -41,35 +41,43 @@ public class SystemUserExecutionContext implements FolioExecutionContext {
     this.headers = getHeadersMap();
   }
 
+  @Override
   public FolioModuleMetadata getFolioModuleMetadata() {
     return moduleMetadata;
   }
 
+  @Override
   public String getTenantId() {
     return Optional.ofNullable(user.tenantId()).orElse("");
   }
 
+  @Override
   public String getOkapiUrl() {
     return Optional.ofNullable(user.okapiUrl()).orElse("");
   }
 
+  @Override
   public String getToken() {
     updateTokenIfNeeded();
     return Optional.ofNullable(user.token()).map(UserToken::accessToken).orElse("");
   }
 
+  @Override
   public UUID getUserId() {
     return Optional.ofNullable(user.userId()).map(UUID::fromString).orElse(null);
   }
 
+  @Override
   public String getRequestId() {
     return null;
   }
 
+  @Override
   public Map<String, Collection<String>> getAllHeaders() {
     return getOkapiHeaders();
   }
 
+  @Override
   public Map<String, Collection<String>> getOkapiHeaders() {
     updateTokenIfNeeded();
     return headers;
