@@ -124,7 +124,7 @@ public class SystemUserService {
     // create context for user with token for getting user id
     try (var fex = new FolioExecutionContextSetter(contextBuilder.forSystemUser(systemUser, null))) {
       var userId = getFolioUser(systemUserProperties.username())
-        .map(UsersClient.User::id)
+        .map(UsersClient.User::getId)
         .orElse(null);
       return systemUser.withUserId(userId);
     }

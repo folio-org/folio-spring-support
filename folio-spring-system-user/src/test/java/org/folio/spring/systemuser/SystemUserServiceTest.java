@@ -9,8 +9,11 @@ import static org.folio.spring.utils.TokenUtils.FOLIO_ACCESS_TOKEN;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -349,6 +352,37 @@ class SystemUserServiceTest {
       .authSystemUser("diku", "username", "password"))
       .isInstanceOf(SystemUserAuthorizationException.class)
       .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_USERNAME_AND_DIKU);
+  }
+
+  @Test
+  void testGetFolioUserSuccess() {
+    UsersClient.User entity = mock(UsersClient.User.class); // gives us an object reference
+    when(usersClient.query("username==foo")).thenReturn(ResultList.asSinglePage(entity));
+
+    Optional<UsersClient.User> result = systemUserService(systemUserProperties()).getFolioUser("foo");
+
+    assertThat(result.get()).isSameAs(entity);
+
+    verify(usersClient, times(1)).query("username==foo");
+    verifyNoMoreInteractions(usersClient);
+  }
+
+  @Test
+  void testGetFolioUserNullResponse() {
+    when(usersClient.query("username==foo")).thenReturn(null);
+
+    Optional<UsersClient.User> result = systemUserService(systemUserProperties()).getFolioUser("foo");
+
+    assertThat(result.isEmpty()).isTrue();
+  }
+
+  @Test
+  void testGetFolioUserEmptyResponse() {
+    when(usersClient.query("username==foo")).thenReturn(ResultList.empty());
+
+    Optional<UsersClient.User> result = systemUserService(systemUserProperties()).getFolioUser("foo");
+
+    assertThat(result.isEmpty()).isTrue();
   }
 
   private static SystemUser systemUserValue() {

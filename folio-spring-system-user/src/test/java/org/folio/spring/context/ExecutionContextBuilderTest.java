@@ -44,6 +44,7 @@ class ExecutionContextBuilderTest {
     assertThat(context.getToken()).isEqualTo("token");
     assertThat(context.getOkapiUrl()).isEqualTo("okapi");
     assertThat(context.getUserId()).isEqualTo(userId);
+    assertThat(context.getRequestId()).isNullOrEmpty();
 
     assertThat(context.getAllHeaders()).isNotNull();
     assertThat(context.getOkapiHeaders()).isNotNull().hasSize(4);
@@ -63,6 +64,7 @@ class ExecutionContextBuilderTest {
     assertThat(context.getTenantId()).isEqualTo(EMPTY);
     assertThat(context.getToken()).isEqualTo(EMPTY);
     assertThat(context.getOkapiUrl()).isEqualTo(EMPTY);
+    assertThat(context.getRequestId()).isNullOrEmpty();
 
     assertThat(context.getAllHeaders()).isNotNull();
     assertThat(context.getOkapiHeaders()).isNotNull().isEmpty();
@@ -80,6 +82,7 @@ class ExecutionContextBuilderTest {
     assertThat(context.getTenantId()).isEqualTo(tenantId);
     assertThat(context.getToken()).isEqualTo(EMPTY);
     assertThat(context.getOkapiUrl()).isEqualTo(okapiUrl);
+    assertThat(context.getRequestId()).isNullOrEmpty();
 
     assertThat(context.getAllHeaders()).hasSize(2);
     assertThat(context.getOkapiHeaders()).hasSize(2);

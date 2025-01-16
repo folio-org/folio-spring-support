@@ -50,13 +50,13 @@ public class PrepareSystemUserService {
     try {
       log.info("Preparing system user...");
       Optional<User> folioUser = systemUserService.getFolioUser(systemUserProperties.username());
-      String userId = folioUser.map(User::id).orElse(UUID.randomUUID().toString());
+      String userId = folioUser.map(User::getId).orElse(UUID.randomUUID().toString());
 
       if (folioUser.isPresent()) {
         User user = folioUser.get();
-        log.info("Found existing system user, id={}", user.id());
+        log.info("Found existing system user, id={}", user.getId());
 
-        if (!user.active()) {
+        if (!user.isActive()) {
           log.info("System user is inactive, attempting to mark active...");
           user = user.toBuilder().active(true).expirationDate(null).build();
           usersClient.updateUser(user);
