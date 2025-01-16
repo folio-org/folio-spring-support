@@ -69,6 +69,8 @@ public class SystemUserExecutionContext implements FolioExecutionContext {
 
   @Override
   public String getRequestId() {
+    // These are for requests originating from the system user, so they're not part
+    // of any existing request chain. Therefore, request ID does not apply.
     return null;
   }
 
