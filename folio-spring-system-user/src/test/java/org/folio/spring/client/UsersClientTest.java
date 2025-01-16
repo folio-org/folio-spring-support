@@ -8,8 +8,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.Test;
 
+@UnitTest
 public class UsersClientTest {
 
   private ObjectMapper objectMapper = new ObjectMapper();

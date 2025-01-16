@@ -361,7 +361,7 @@ class SystemUserServiceTest {
 
     Optional<UsersClient.User> result = systemUserService(systemUserProperties()).getFolioUser("foo");
 
-    assertThat(result.get()).isSameAs(entity);
+    assertThat(result).containsSame(entity);
 
     verify(usersClient, times(1)).query("username==foo");
     verifyNoMoreInteractions(usersClient);
@@ -373,7 +373,7 @@ class SystemUserServiceTest {
 
     Optional<UsersClient.User> result = systemUserService(systemUserProperties()).getFolioUser("foo");
 
-    assertThat(result.isEmpty()).isTrue();
+    assertThat(result).isEmpty();
   }
 
   @Test
@@ -382,7 +382,7 @@ class SystemUserServiceTest {
 
     Optional<UsersClient.User> result = systemUserService(systemUserProperties()).getFolioUser("foo");
 
-    assertThat(result.isEmpty()).isTrue();
+    assertThat(result).isEmpty();
   }
 
   private static SystemUser systemUserValue() {

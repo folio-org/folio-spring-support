@@ -134,8 +134,7 @@ class PrepareSystemUserServiceTest {
   @Test
   void testAddOnlyNewPermissions() {
     when(systemUserService.getFolioUser(any())).thenReturn(userExistsResponse());
-    when(permissionsClient.getUserPermissions(any()))
-      .thenReturn(asSinglePage("inventory-storage.instance.item.get"));
+    when(permissionsClient.getUserPermissions(any())).thenReturn(asSinglePage("inventory-storage.instance.item.get"));
 
     prepareSystemUser(systemUserProperties());
 
@@ -147,8 +146,7 @@ class PrepareSystemUserServiceTest {
   @Test
   void testUpdateCredentialsForAnExistingUserWithNoExistingCredentials() {
     when(systemUserService.getFolioUser(any())).thenReturn(userExistsResponse());
-    when(permissionsClient.getUserPermissions(any()))
-      .thenReturn(asSinglePage("inventory-storage.instance.item.get"));
+    when(permissionsClient.getUserPermissions(any())).thenReturn(asSinglePage("inventory-storage.instance.item.get"));
 
     prepareSystemUser(systemUserProperties());
 
@@ -162,11 +160,26 @@ class PrepareSystemUserServiceTest {
     when(permissionsClient.getUserPermissions(any())).thenReturn(asSinglePage("inventory-storage.instance.item.get"));
 
     // fail on the 1st try
-    doThrow(mock(FeignException.UnprocessableEntity.class))
-      .doNothing()
-      .when(authnClient).saveCredentials(any());
+    doThrow(mock(FeignException.UnprocessableEntity.class)).doNothing().when(authnClient).saveCredentials(any());
 
     prepareSystemUser(systemUserProperties());
+
+    InOrder verifier = inOrder(authnClient);
+    verifier.verify(authnClient, times(1)).saveCredentials(any());
+    verifier.verify(authnClient, times(1)).deleteCredentials(any());
+    verifier.verify(authnClient, times(1)).saveCredentials(any());
+    verifier.verifyNoMoreInteractions();
+  }
+
+  @Test
+  void testUpdateCredentialsFailure() {
+    when(systemUserService.getFolioUser(any())).thenReturn(userExistsResponse());
+    when(permissionsClient.getUserPermissions(any())).thenReturn(asSinglePage("inventory-storage.instance.item.get"));
+
+    // fail on 1st try and retry
+    doThrow(mock(FeignException.UnprocessableEntity.class)).when(authnClient).saveCredentials(any());
+
+    assertThrows(FeignException.UnprocessableEntity.class, () -> prepareSystemUser(systemUserProperties()));
 
     InOrder verifier = inOrder(authnClient);
     verifier.verify(authnClient, times(1)).saveCredentials(any());
@@ -182,14 +195,31 @@ class PrepareSystemUserServiceTest {
   }
 
   private Optional<UsersClient.User> userExistsResponse() {
-    return Optional.of(UsersClient.User.builder().id("id").username("username").type(SYSTEM_USER_TYPE).active(true)
-              .personal(new Personal("lastName")).build());
+    return Optional.of(
+      UsersClient.User
+        .builder()
+        .id("id")
+        .username("username")
+        .type(SYSTEM_USER_TYPE)
+        .active(true)
+        .personal(new Personal("lastName"))
+        .build()
+    );
   }
 
   private Optional<UsersClient.User> userExistsInactiveResponse() {
-    return Optional.of(UsersClient.User.builder().id("id").username("username").type(SYSTEM_USER_TYPE).active(false)
-              .expirationDate("yesterday").personal(new Personal("lastName"))
-              .extraProperties(Map.of("foo", "bar")).build());
+    return Optional.of(
+      UsersClient.User
+        .builder()
+        .id("id")
+        .username("username")
+        .type(SYSTEM_USER_TYPE)
+        .active(false)
+        .expirationDate("yesterday")
+        .personal(new Personal("lastName"))
+        .extraProperties(Map.of("foo", "bar"))
+        .build()
+    );
   }
 
   private Optional<UsersClient.User> userNotExistResponse() {
