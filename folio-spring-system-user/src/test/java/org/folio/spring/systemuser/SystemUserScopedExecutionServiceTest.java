@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
-
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.context.ExecutionContextBuilder;
