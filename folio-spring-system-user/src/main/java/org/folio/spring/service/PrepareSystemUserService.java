@@ -79,7 +79,7 @@ public class PrepareSystemUserService {
       throw e;
     }
 
-    log.info("System user is ready to go!");
+    log.info("Preparing system user is completed!");
   }
 
   public void deleteCredentials(String userId) {
@@ -156,12 +156,11 @@ public class PrepareSystemUserService {
   private List<String> getResourceLines(String permissionsFilePath) {
     try {
       ClassPathResource resource = new ClassPathResource(permissionsFilePath);
-      return IOUtils.readLines(resource.getInputStream(), StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    } catch (UncheckedIOException e) {
-      log.error("Unable to open permissions file {}", permissionsFilePath);
-      throw log.throwing(e);
+      List<String> lines = IOUtils.readLines(resource.getInputStream(), StandardCharsets.UTF_8);
+      lines.removeIf(String::isBlank);
+      return lines;
+    } catch (IOException | UncheckedIOException e) {
+      throw log.throwing(new IllegalArgumentException("Unable to open permissions file " + permissionsFilePath, e));
     }
   }
 

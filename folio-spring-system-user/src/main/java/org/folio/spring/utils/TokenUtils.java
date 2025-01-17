@@ -21,6 +21,7 @@ public class TokenUtils {
     return userToken.accessTokenExpiration().isBefore(Instant.now().plusSeconds(30L));
   }
 
+  /** Checks if the user's token is about to expire (in the next 30s). */
   public static boolean tokenAboutToExpire(SystemUser user) {
     return tokenAboutToExpire(user.token());
   }

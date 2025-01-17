@@ -21,6 +21,13 @@ public class ExecutionContextBuilder {
   private final FolioEnvironment folioEnvironment;
   private final FolioModuleMetadata moduleMetadata;
 
+  /**
+   * Creates an execution context for sending requests to FOLIO on behalf of a system user.
+   *
+   * @param systemUser the user to send requests as
+   * @param refresher a supplier which should, upon the {@code systemUser}'s expiration, return a new
+   *   {@link SystemUser} with a fresh access token
+   */
   public FolioExecutionContext forSystemUser(SystemUser systemUser, @CheckForNull Supplier<SystemUser> refresher) {
     return new SystemUserExecutionContext(moduleMetadata, systemUser, refresher);
   }

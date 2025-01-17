@@ -23,6 +23,7 @@ import org.folio.spring.model.ResultList;
 import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
 import org.folio.spring.scope.FolioExecutionContextSetter;
+import org.folio.spring.utils.CqlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.CollectionUtils;
@@ -187,7 +188,7 @@ public class SystemUserService {
   }
 
   public Optional<User> getFolioUser(String username) {
-    ResultList<User> users = usersClient.query("username==" + username);
+    ResultList<User> users = usersClient.query("username==" + CqlUtils.encodeCql(username));
     return Optional.ofNullable(users).map(ResultList::getResult).flatMap(r -> r.stream().findFirst());
   }
 }

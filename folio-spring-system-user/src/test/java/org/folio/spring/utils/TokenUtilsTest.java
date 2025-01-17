@@ -63,5 +63,4 @@ class TokenUtilsTest {
 
     assertThat(ex.getMessage()).isEqualTo("No cookie found for name: " + missingCookie);
   }
-
 }

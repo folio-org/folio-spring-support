@@ -26,17 +26,17 @@ public class SystemUserExecutionContext implements FolioExecutionContext {
   @CheckForNull
   private final Supplier<SystemUser> refresher;
 
-  private SystemUser user;
+  private SystemUser systemUser;
   private Map<String, Collection<String>> headers;
 
   public SystemUserExecutionContext(
     FolioModuleMetadata moduleMetadata,
-    SystemUser user,
+    SystemUser systemUser,
     Supplier<SystemUser> refresher
   ) {
     this.moduleMetadata = moduleMetadata;
     this.refresher = refresher;
-    this.user = user;
+    this.systemUser = systemUser;
 
     this.headers = getHeadersMap();
   }
@@ -48,23 +48,23 @@ public class SystemUserExecutionContext implements FolioExecutionContext {
 
   @Override
   public String getTenantId() {
-    return Optional.ofNullable(user.tenantId()).orElse("");
+    return Optional.ofNullable(systemUser.tenantId()).orElse("");
   }
 
   @Override
   public String getOkapiUrl() {
-    return Optional.ofNullable(user.okapiUrl()).orElse("");
+    return Optional.ofNullable(systemUser.okapiUrl()).orElse("");
   }
 
   @Override
   public String getToken() {
     updateTokenIfNeeded();
-    return Optional.ofNullable(user.token()).map(UserToken::accessToken).orElse("");
+    return Optional.ofNullable(systemUser.token()).map(UserToken::accessToken).orElse("");
   }
 
   @Override
   public UUID getUserId() {
-    return Optional.ofNullable(user.userId()).map(UUID::fromString).orElse(null);
+    return Optional.ofNullable(systemUser.userId()).map(UUID::fromString).orElse(null);
   }
 
   @Override
@@ -86,7 +86,7 @@ public class SystemUserExecutionContext implements FolioExecutionContext {
   }
 
   private void updateTokenIfNeeded() {
-    if (user.token() == null || !TokenUtils.tokenAboutToExpire(user)) {
+    if (systemUser.token() == null || !TokenUtils.tokenAboutToExpire(systemUser)) {
       return;
     }
 
@@ -94,22 +94,20 @@ public class SystemUserExecutionContext implements FolioExecutionContext {
       log.warn(
         "System user token is about to expire at {}, but no refresh method was provided, "
           + "so I can't do anything about it... :(",
-        user.token().accessTokenExpiration()
+        systemUser.token().accessTokenExpiration()
       );
       return;
     }
 
     log.info("System user token is about to expire at {}, preemptively refreshing...",
-             user.token().accessTokenExpiration());
+             systemUser.token().accessTokenExpiration());
 
-    user = refresher.get();
+    systemUser = refresher.get();
     headers = getHeadersMap();
   }
 
   private Map<String, Collection<String>> getHeadersMap() {
     Map<String, Collection<String>> newHeaders = new HashMap<>();
-
-    SystemUser systemUser = user;
 
     if (StringUtils.isNotBlank(systemUser.okapiUrl())) {
       newHeaders.put(XOkapiHeaders.URL, singleton(systemUser.okapiUrl()));
