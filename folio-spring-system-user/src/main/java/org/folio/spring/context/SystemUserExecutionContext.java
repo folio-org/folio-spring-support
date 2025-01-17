@@ -18,6 +18,10 @@ import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
 import org.folio.spring.utils.TokenUtils;
 
+/**
+ * An execution context representing requests being performed on behalf of a system user. This context contains
+ * information about the system user, and is not associated with any particular request.
+ */
 @Log4j2
 public class SystemUserExecutionContext implements FolioExecutionContext {
 
@@ -29,6 +33,14 @@ public class SystemUserExecutionContext implements FolioExecutionContext {
   private SystemUser systemUser;
   private Map<String, Collection<String>> headers;
 
+  /**
+   * Creates a context for a system user.
+   *
+   * @param moduleMetadata metadata about the module
+   * @param systemUser the user to send requests on behalf of
+   * @param refresher an optional supplier which, upon the {@code systemUser}'s expiration, should return a new
+   *                  {@link SystemUser} with a fresh access token
+   */
   public SystemUserExecutionContext(
     FolioModuleMetadata moduleMetadata,
     SystemUser systemUser,
@@ -67,10 +79,12 @@ public class SystemUserExecutionContext implements FolioExecutionContext {
     return Optional.ofNullable(systemUser.userId()).map(UUID::fromString).orElse(null);
   }
 
+  /**
+   * This execution context is for for requests originating from the system user, so they're not part
+   * of any existing request chain. Therefore, request ID does not apply and this will always return null.
+   */
   @Override
   public String getRequestId() {
-    // These are for requests originating from the system user, so they're not part
-    // of any existing request chain. Therefore, request ID does not apply.
     return null;
   }
 

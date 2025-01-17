@@ -96,7 +96,7 @@ class SystemUserServiceTest {
 
     when(authnClient
       .loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
-    when(usersClient.query("username==username")).thenReturn(ResultList.asSinglePage(
+    when(usersClient.query("username==\"username\"")).thenReturn(ResultList.asSinglePage(
       UsersClient.User.builder().id(expectedUserId.toString()).username("username").type(SYSTEM_USER_TYPE).active(true)
               .personal(new UsersClient.User.Personal("last")).build()));
     when(environment.getOkapiUrl()).thenReturn(OKAPI_URL);
@@ -357,19 +357,19 @@ class SystemUserServiceTest {
   @Test
   void testGetFolioUserSuccess() {
     UsersClient.User entity = mock(UsersClient.User.class); // gives us an object reference
-    when(usersClient.query("username==foo")).thenReturn(ResultList.asSinglePage(entity));
+    when(usersClient.query("username==\"foo\"")).thenReturn(ResultList.asSinglePage(entity));
 
     Optional<UsersClient.User> result = systemUserService(systemUserProperties()).getFolioUser("foo");
 
     assertThat(result).containsSame(entity);
 
-    verify(usersClient, times(1)).query("username==foo");
+    verify(usersClient, times(1)).query("username==\"foo\"");
     verifyNoMoreInteractions(usersClient);
   }
 
   @Test
   void testGetFolioUserNullResponse() {
-    when(usersClient.query("username==foo")).thenReturn(null);
+    when(usersClient.query("username==\"foo\"")).thenReturn(null);
 
     Optional<UsersClient.User> result = systemUserService(systemUserProperties()).getFolioUser("foo");
 
@@ -378,7 +378,7 @@ class SystemUserServiceTest {
 
   @Test
   void testGetFolioUserEmptyResponse() {
-    when(usersClient.query("username==foo")).thenReturn(ResultList.empty());
+    when(usersClient.query("username==\"foo\"")).thenReturn(ResultList.empty());
 
     Optional<UsersClient.User> result = systemUserService(systemUserProperties()).getFolioUser("foo");
 

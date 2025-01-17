@@ -49,24 +49,8 @@ public class PrepareSystemUserService {
 
     try {
       log.info("Preparing system user...");
-      Optional<User> folioUser = systemUserService.getFolioUser(systemUserProperties.username());
-      String userId = folioUser.map(User::getId).orElse(UUID.randomUUID().toString());
 
-      if (folioUser.isPresent()) {
-        User user = folioUser.get();
-        log.info("Found existing system user, id={}", user.getId());
-
-        if (!user.isActive()) {
-          log.info("System user is inactive, attempting to mark active...");
-          user = user.toBuilder().active(true).expirationDate(null).build();
-          usersClient.updateUser(user);
-        }
-      } else {
-        log.info("Could not find a system user with username={}, creating a new one with id={}...",
-                 systemUserProperties.username(), userId);
-        createFolioUser(userId);
-      }
-
+      String userId = getOrCreateSystemUser();
       assignPermissions(userId);
       saveCredentials(userId);
 
@@ -75,22 +59,49 @@ public class PrepareSystemUserService {
                                        systemUserProperties.username(), systemUserProperties.password());
       log.info("System user authenticated successfully");
     } catch (RuntimeException e) {
-      log.error("Unexpected error while preparing system user:", e);
+      log.error("Unexpected error while preparing system user with username={}:", systemUserProperties.username(), e);
       throw e;
     }
 
     log.info("Preparing system user is completed!");
   }
 
-  public void deleteCredentials(String userId) {
-    authnClient.deleteCredentials(userId);
+  /**
+   * Gets or creates the system user (reactivating if needed).
+   *
+   * @return the system user's ID
+   */
+  private String getOrCreateSystemUser() {
+    Optional<User> folioUser = systemUserService.getFolioUser(systemUserProperties.username());
+    String userId = folioUser.map(User::getId).orElse(UUID.randomUUID().toString());
 
-    log.info("Removed credentials for user {}.", userId);
+    if (folioUser.isPresent()) {
+      User user = folioUser.get();
+      log.info("Found existing system user, id={}", user.getId());
+
+      if (!user.isActive()) {
+        log.info("System user is inactive, attempting to mark active...");
+        user = user.toBuilder().active(true).expirationDate(null).build();
+        usersClient.updateUser(user);
+      }
+    } else {
+      log.info("Could not find a system user with username={}, creating a new one with id={}...",
+                systemUserProperties.username(), userId);
+      createFolioUser(userId);
+    }
+
+    return userId;
   }
 
   private void createFolioUser(String id) {
     final User user = prepareUserObject(id);
     usersClient.createUser(user);
+  }
+
+  public void deleteCredentials(String userId) {
+    authnClient.deleteCredentials(userId);
+
+    log.info("Removed credentials for user {}.", userId);
   }
 
   /** Save the credentials for a user, removing an existing login if necessary. */
