@@ -118,7 +118,8 @@ class PrepareSystemUserServiceTest {
     when(systemUserService.getFolioUser(any())).thenReturn(userExistsInactiveResponse());
     doThrow(mock(FeignException.class)).when(usersClient).updateUser(any());
 
-    assertThrows(FeignException.class, () -> prepareSystemUser(systemUserProperties()));
+    SystemUserProperties systemUserProperties = systemUserProperties();
+    assertThrows(FeignException.class, () -> prepareSystemUser(systemUserProperties));
 
     verify(usersClient, times(1)).updateUser(any());
     verifyNoMoreInteractions(usersClient);
