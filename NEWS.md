@@ -4,7 +4,10 @@
 ### folio-spring-system-user
 * [FOLSPRINGS-180](https://folio-org.atlassian.net/browse/FOLSPRINGS-180) Token expiration off by 1 minute in test
 * [FOLSPRINGS-183](https://folio-org.atlassian.net/browse/FOLSPRINGS-183) Improve resiliency of system user operations; auto-reactivate inactive system users; automatically refresh system user tokens on RTR expiration
-* [FOLSPRINGS-183](https://folio-org.atlassian.net/browse/FOLSPRINGS-183) Add requirement of `users.item.put` as a `modulePermission` for the `POST /_/tenant` endpoint in module descriptors
+
+#### Upgrade instructions
+
+In the module descriptor add `users.item.put` to the `modulePermissions` list of the `POST /_/tenant` endpoint ([FOLSPRINGS-183](https://folio-org.atlassian.net/browse/FOLSPRINGS-183)).
 
 ## 8.2.1 In progress
 ### Testing submodule
