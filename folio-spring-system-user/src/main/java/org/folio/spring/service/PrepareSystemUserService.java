@@ -82,7 +82,13 @@ public class PrepareSystemUserService {
       if (!user.isActive()) {
         log.info("System user is inactive, attempting to mark active...");
         user = user.toBuilder().active(true).expirationDate(null).build();
-        usersClient.updateUser(user);
+        try {
+          usersClient.updateUser(user);
+        } catch (FeignException e) {
+          log.error("System user was unable to be marked active, so we are failing module upgrade.");
+          log.error("Attempting to mark system user active resulted in the following error:", e);
+          throw e;
+        }
       }
     } else {
       log.info("Could not find a system user with username={}, creating a new one with id={}...",

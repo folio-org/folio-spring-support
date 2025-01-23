@@ -114,6 +114,17 @@ class PrepareSystemUserServiceTest {
   }
 
   @Test
+  void testUnableActivateSystemUserWhenInactive() {
+    when(systemUserService.getFolioUser(any())).thenReturn(userExistsInactiveResponse());
+    doThrow(mock(FeignException.class)).when(usersClient).updateUser(any());
+
+    assertThrows(FeignException.class, () -> prepareSystemUser(systemUserProperties()));
+
+    verify(usersClient, times(1)).updateUser(any());
+    verifyNoMoreInteractions(usersClient);
+  }
+
+  @Test
   void cannotUpdateUserIfEmptyPermissions() {
     SystemUserProperties systemUser = systemUserPropertiesWithoutPermissions();
     when(systemUserService.getFolioUser(any())).thenReturn(userNotExistResponse());
