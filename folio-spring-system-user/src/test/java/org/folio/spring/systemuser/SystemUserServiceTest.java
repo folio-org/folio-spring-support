@@ -9,8 +9,11 @@ import static org.folio.spring.utils.TokenUtils.FOLIO_ACCESS_TOKEN;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -34,6 +37,7 @@ import org.folio.spring.config.properties.FolioEnvironment;
 import org.folio.spring.context.ExecutionContextBuilder;
 import org.folio.spring.exception.SystemUserAuthorizationException;
 import org.folio.spring.integration.XOkapiHeaders;
+import org.folio.spring.model.ResultList;
 import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
 import org.folio.spring.service.PrepareSystemUserService;
@@ -73,6 +77,8 @@ class SystemUserServiceTest {
   @Mock
   private AuthnClient authnClient;
   @Mock
+  private UsersClient usersClient;
+  @Mock
   private ExecutionContextBuilder contextBuilder;
   @Mock
   private FolioExecutionContext context;
@@ -90,11 +96,11 @@ class SystemUserServiceTest {
 
     when(authnClient
       .loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
-    when(prepareSystemUserService.getFolioUser("username")).thenReturn(Optional.of(
-      new UsersClient.User(expectedUserId.toString(),
-        "username", SYSTEM_USER_TYPE, true, new UsersClient.User.Personal("last"))));
+    when(usersClient.query("username==\"username\"")).thenReturn(ResultList.asSinglePage(
+      UsersClient.User.builder().id(expectedUserId.toString()).username("username").type(SYSTEM_USER_TYPE).active(true)
+              .personal(new UsersClient.User.Personal("last")).build()));
     when(environment.getOkapiUrl()).thenReturn(OKAPI_URL);
-    when(contextBuilder.forSystemUser(any())).thenReturn(context);
+    when(contextBuilder.forSystemUser(any(), any())).thenReturn(context);
     when(expectedResponse.getHeaders()).thenReturn(cookieHeaders(expectedUserToken.accessToken()));
 
     var actual = systemUserService(systemUserProperties()).getAuthedSystemUser(TENANT_ID);
@@ -116,7 +122,7 @@ class SystemUserServiceTest {
     verify(userCache).get(eq(TENANT_ID), any());
     verify(authnClient, never()).loginWithExpiry(any());
     verify(environment, never()).getOkapiUrl();
-    verify(contextBuilder, never()).forSystemUser(any());
+    verify(contextBuilder, never()).forSystemUser(any(), any());
   }
 
   @ParameterizedTest
@@ -125,7 +131,7 @@ class SystemUserServiceTest {
     var cachedUserToken = userToken(NOW.plusSeconds(plusSeconds));
     var systemUserService = systemUserService(systemUserProperties());
     systemUserService.setSystemUserCache(userCache);
-    when(contextBuilder.forSystemUser(any())).thenReturn(context);
+    when(contextBuilder.forSystemUser(any(), any())).thenReturn(context);
     var tokenResponseMock = cachedUserToken.accessToken();
     when(authnClient.loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
     when(expectedResponse.getHeaders()).thenReturn(cookieHeaders("access-token"));
@@ -158,7 +164,7 @@ class SystemUserServiceTest {
   @Test
   void overloaded_authSystemUser_positive() {
     var expectedToken = "x-okapi-token-value";
-    when(contextBuilder.forSystemUser(any())).thenReturn(context);
+    when(contextBuilder.forSystemUser(any(), any())).thenReturn(context);
     when(authnClient.loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
     when(expectedResponse.getHeaders()).thenReturn(cookieHeaders(expectedToken));
     var expectedUserToken = UserToken.builder()
@@ -213,7 +219,7 @@ class SystemUserServiceTest {
     var expectedHeaders = new HttpHeaders();
     expectedHeaders.put(HttpHeaders.SET_COOKIE, emptyList());
     when(expectedResponse.getHeaders()).thenReturn(expectedHeaders);
-    when(contextBuilder.forSystemUser(any())).thenReturn(context);
+    when(contextBuilder.forSystemUser(any(), any())).thenReturn(context);
 
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService
@@ -238,7 +244,7 @@ class SystemUserServiceTest {
   void overloaded_authSystemUser_negative_emptyBody() {
     when(authnClient.loginWithExpiry(new UserCredentials("username", "password")))
       .thenReturn(new ResponseEntity<>(org.springframework.http.HttpStatus.OK));
-    when(contextBuilder.forSystemUser(any())).thenReturn(context);
+    when(contextBuilder.forSystemUser(any(), any())).thenReturn(context);
 
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService
@@ -267,7 +273,7 @@ class SystemUserServiceTest {
       .when(authnClient).loginWithExpiry(any());
     when(authnClient.login(new UserCredentials("username", "password")))
       .thenReturn(buildClientResponse(MOCK_TOKEN));
-    when(contextBuilder.forSystemUser(any())).thenReturn(context);
+    when(contextBuilder.forSystemUser(any(), any())).thenReturn(context);
     var systemUserService = systemUserService(systemUserProperties());
     var actual = systemUserService.authSystemUser("tenantId", "username", "password");
     assertThat(actual).isEqualTo(expectedUserToken);
@@ -308,7 +314,7 @@ class SystemUserServiceTest {
 
   @Test
   void overloaded_authSystemUser_when_loginExpiry_notFoundException_loginLegacReturnsNull() {
-    when(contextBuilder.forSystemUser(any())).thenReturn(context);
+    when(contextBuilder.forSystemUser(any(), any())).thenReturn(context);
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService
       .authSystemUser("diku", "username", "password"))
@@ -318,7 +324,7 @@ class SystemUserServiceTest {
 
   @Test
   void overloaded_authSystemUser_when_loginExpiryReturnsNull() {
-    when(contextBuilder.forSystemUser(any())).thenReturn(context);
+    when(contextBuilder.forSystemUser(any(), any())).thenReturn(context);
     var systemUserService = systemUserService(systemUserProperties());
     assertThatThrownBy(() -> systemUserService
       .authSystemUser("diku", "username", "password"))
@@ -348,6 +354,37 @@ class SystemUserServiceTest {
       .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_USERNAME_AND_DIKU);
   }
 
+  @Test
+  void testGetFolioUserSuccess() {
+    UsersClient.User entity = mock(UsersClient.User.class); // gives us an object reference
+    when(usersClient.query("username==\"foo\"")).thenReturn(ResultList.asSinglePage(entity));
+
+    Optional<UsersClient.User> result = systemUserService(systemUserProperties()).getFolioUser("foo");
+
+    assertThat(result).containsSame(entity);
+
+    verify(usersClient, times(1)).query("username==\"foo\"");
+    verifyNoMoreInteractions(usersClient);
+  }
+
+  @Test
+  void testGetFolioUserNullResponse() {
+    when(usersClient.query("username==\"foo\"")).thenReturn(null);
+
+    Optional<UsersClient.User> result = systemUserService(systemUserProperties()).getFolioUser("foo");
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void testGetFolioUserEmptyResponse() {
+    when(usersClient.query("username==\"foo\"")).thenReturn(ResultList.empty());
+
+    Optional<UsersClient.User> result = systemUserService(systemUserProperties()).getFolioUser("foo");
+
+    assertThat(result).isEmpty();
+  }
+
   private static SystemUser systemUserValue() {
     return SystemUser.builder().username("username").okapiUrl(OKAPI_URL).tenantId(TENANT_ID).build();
   }
@@ -364,7 +401,7 @@ class SystemUserServiceTest {
   }
 
   private SystemUserService systemUserService(SystemUserProperties properties) {
-    return new SystemUserService(contextBuilder, properties, environment, authnClient, prepareSystemUserService);
+    return new SystemUserService(contextBuilder, properties, environment, authnClient, usersClient);
   }
 
   private UserToken userToken(Instant accessExpiration) {
