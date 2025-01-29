@@ -3,10 +3,10 @@ package org.folio.spring.config;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.folio.spring.client.AuthnClient;
+import org.folio.spring.client.UsersClient;
 import org.folio.spring.config.properties.FolioEnvironment;
 import org.folio.spring.context.ExecutionContextBuilder;
 import org.folio.spring.model.SystemUser;
-import org.folio.spring.service.PrepareSystemUserService;
 import org.folio.spring.service.SystemUserProperties;
 import org.folio.spring.service.SystemUserService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -30,8 +30,8 @@ public class OptionalSystemUserConfig {
   @Bean
   public SystemUserService systemUserService(ExecutionContextBuilder executionContextBuilder,
       SystemUserProperties systemUserProperties, FolioEnvironment folioEnvironment,
-      AuthnClient authnClient, PrepareSystemUserService prepareSystemUserService) {
+      AuthnClient authnClient, UsersClient usersClient) {
     return new SystemUserService(executionContextBuilder, systemUserProperties, folioEnvironment,
-      authnClient, prepareSystemUserService);
+      authnClient, usersClient);
   }
 }

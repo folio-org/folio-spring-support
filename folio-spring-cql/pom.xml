@@ -33,7 +33,7 @@
     <dependency>
       <groupId>org.folio</groupId>
       <artifactId>cql2pgjson</artifactId>
-      <version>${cql2pgjson.version}</version>
+      <version>${folio-util.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.folio</groupId>
