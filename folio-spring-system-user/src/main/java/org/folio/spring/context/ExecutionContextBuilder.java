@@ -1,11 +1,10 @@
 package org.folio.spring.context;
 
 import static java.util.Collections.singleton;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
+import javax.annotation.CheckForNull;
 import lombok.RequiredArgsConstructor;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
@@ -22,38 +21,22 @@ public class ExecutionContextBuilder {
   private final FolioEnvironment folioEnvironment;
   private final FolioModuleMetadata moduleMetadata;
 
-  public FolioExecutionContext forSystemUser(SystemUser systemUser) {
-    var okapiUrl = systemUser.okapiUrl();
-    var tenantId = systemUser.tenantId();
-    var token = systemUser.token() == null ? null : systemUser.token().accessToken();
-    var userId = systemUser.userId();
-
-    return buildContext(okapiUrl, tenantId, token, userId, null);
+  /**
+   * Creates an execution context for sending requests to FOLIO on behalf of a system user.
+   *
+   * @param systemUser the user to send requests as
+   * @param refresher a supplier which should, upon the {@code systemUser}'s expiration, return a new
+   *   {@link SystemUser} with a fresh access token
+   */
+  public FolioExecutionContext forSystemUser(SystemUser systemUser, @CheckForNull Supplier<SystemUser> refresher) {
+    return new SystemUserExecutionContext(moduleMetadata, systemUser, refresher);
   }
 
   public FolioExecutionContext buildContext(String tenantId) {
     var okapiUrl = folioEnvironment.getOkapiUrl();
-    return buildContext(okapiUrl, tenantId, null, null, null);
-  }
-
-  private FolioExecutionContext buildContext(String okapiUrl, String tenantId, String token, String userId,
-                                             String requestId) {
-    Map<String, Collection<String>> headers = new HashMap<>();
-    if (isNotBlank(okapiUrl)) {
-      headers.put(XOkapiHeaders.URL, singleton(okapiUrl));
-    }
-    if (isNotBlank(tenantId)) {
-      headers.put(XOkapiHeaders.TENANT, singleton(tenantId));
-    }
-    if (isNotBlank(token)) {
-      headers.put(XOkapiHeaders.TOKEN, singleton(token));
-    }
-    if (isNotBlank(userId)) {
-      headers.put(XOkapiHeaders.USER_ID, singleton(userId));
-    }
-    if (isNotBlank(requestId)) {
-      headers.put(XOkapiHeaders.REQUEST_ID, singleton(requestId));
-    }
-    return new DefaultFolioExecutionContext(moduleMetadata, headers);
+    return new DefaultFolioExecutionContext(
+      moduleMetadata,
+      Map.of(XOkapiHeaders.URL, singleton(okapiUrl), XOkapiHeaders.TENANT, singleton(tenantId))
+    );
   }
 }

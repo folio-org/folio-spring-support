@@ -63,9 +63,11 @@ public class SystemUserScopedExecutionService {
   }
 
   private FolioExecutionContext folioExecutionContext(String tenantId) {
-    return systemUserService != null
-      ? contextBuilder.forSystemUser(systemUserService.getAuthedSystemUser(tenantId))
-      : contextBuilder.buildContext(tenantId);
+    if (systemUserService == null) {
+      return contextBuilder.buildContext(tenantId);
+    }
+    return contextBuilder.forSystemUser(systemUserService.getAuthedSystemUser(tenantId),
+                  () -> systemUserService.getAuthedSystemUser(tenantId));
   }
 
   @Autowired(required = false)
