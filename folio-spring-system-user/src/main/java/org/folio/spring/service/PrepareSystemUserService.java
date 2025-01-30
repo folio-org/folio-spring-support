@@ -24,10 +24,8 @@ import org.folio.spring.client.UsersClient;
 import org.folio.spring.client.UsersClient.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Service;
 
 @Log4j2
-@Service
 @RequiredArgsConstructor
 public class PrepareSystemUserService {
 
