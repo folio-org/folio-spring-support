@@ -114,7 +114,6 @@ public class Cql2JpaCriteria<E> {
       var query = cb.createQuery(Long.class);
       var root = query.from(domainClass);
       query.select(cb.count(root));
-      //FIXME
       var predicate = createPredicate(node, root, cb, query, ignoreCase);
       query.orderBy(Collections.emptyList());
       root.getFetches().clear();
@@ -171,7 +170,6 @@ public class Cql2JpaCriteria<E> {
     return (root, query, criteriaBuilder) -> {
       try {
         var node = new CQLParser().parse(cql);
-        //FIXME
         return createPredicate(node, root, criteriaBuilder, criteriaBuilder.createQuery(Long.class), false);
       } catch (IOException | CQLParseException | QueryValidationException e) {
         throw new CqlQueryValidationException(e);
@@ -350,7 +348,6 @@ public class Cql2JpaCriteria<E> {
       var fieldName = getFieldNameByModifier(field, modifier);
       var fieldValue = modifier.getValue();
 
-      //FIXME
       result = cb.and(result, queryBySql(field.get(fieldName), fieldValue, modifier.getComparison(), cb, false));
     }
 
