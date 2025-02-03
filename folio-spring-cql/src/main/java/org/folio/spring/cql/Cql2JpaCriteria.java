@@ -221,7 +221,8 @@ public class Cql2JpaCriteria<E> {
   private Predicate processBoolean(CQLBooleanNode node, CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query)
     throws QueryValidationException {
     if (node instanceof CQLAndNode) {
-      return cb.and(process(node.getLeftOperand(), cb, root, query, false), process(node.getRightOperand(), cb, root, query, false));
+      return cb.and(process(node.getLeftOperand(), cb, root, query, false),
+        process(node.getRightOperand(), cb, root, query, false));
     } else if (node instanceof CQLOrNode) {
       if (node.getRightOperand().getClass() == CQLTermNode.class) {
         // special case for the query the UI uses most often, before the user has
@@ -233,7 +234,8 @@ public class Cql2JpaCriteria<E> {
           return process(node.getLeftOperand(), cb, root, query, false);
         }
       }
-      return cb.or(process(node.getLeftOperand(), cb, root, query, false), process(node.getRightOperand(), cb, root, query, false));
+      return cb.or(process(node.getLeftOperand(), cb, root, query, false),
+        process(node.getRightOperand(), cb, root, query, false));
     } else if (node instanceof CQLNotNode) {
       return
         cb.and(process(node.getLeftOperand(), cb, root, query, false),
@@ -373,8 +375,8 @@ public class Cql2JpaCriteria<E> {
                                 CriteriaBuilder cb, boolean ignoreCase) {
     if (NOT_EQUALS_OPERATOR.equals(comparator)) {
       return ignoreCase
-      ? cb.notLike(cb.lower(field), cql2like(term).toLowerCase())
-      : cb.notLike(field, cql2like(term), '\\');
+        ? cb.notLike(cb.lower(field), cql2like(term).toLowerCase())
+        : cb.notLike(field, cql2like(term), '\\');
     } else {
       return ignoreCase
         ? cb.like(cb.lower(field), cql2like(term).toLowerCase())
