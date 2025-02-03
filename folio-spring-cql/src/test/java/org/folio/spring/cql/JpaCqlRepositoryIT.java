@@ -74,7 +74,7 @@ class JpaCqlRepositoryIT {
   @Sql({
     "/sql/jpa-cql-lang-ignore-case-test-data.sql"
   })
-  void testFindByCqlIgnoreCase() {
+  void testFindByCqlIgnoreCaseWhenTrue() {
     var page = languageRepository.findByCqlIgnoreCase("name=Java",
       PageRequest.of(0, 10), true);
 
@@ -92,16 +92,17 @@ class JpaCqlRepositoryIT {
   @Sql({
     "/sql/jpa-cql-lang-ignore-case-test-data.sql"
   })
-  void testFindByCql() {
-    var page = languageRepository.findByCql("name=Java",
-      PageRequest.of(0, 10));
+  void testFindByCqlIgnoreCaseWhenFalse() {
+    var page = languageRepository.findByCqlIgnoreCase("name=Java",
+      PageRequest.of(0, 10), false);
 
     assertThat(page)
       .extracting(Language::getName)
       .contains("Java")
       .hasSize(1);
 
-    assertThat(languageRepository.count("(cql.allRecords=1)sortby name/sort.ascending"))
+    assertThat(languageRepository.countIgnoreCase("(cql.allRecords=1)sortby name/sort.ascending",
+      false))
       .isEqualTo(4);
   }
 
