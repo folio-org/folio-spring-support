@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.folio.spring.cql.domain.City;
+import org.folio.spring.cql.domain.Language;
 import org.folio.spring.cql.domain.Person;
 import org.folio.spring.cql.domain.Str;
 import org.folio.spring.cql.repo.CityRepository;
+import org.folio.spring.cql.repo.LanguageRepository;
 import org.folio.spring.cql.repo.PersonRepository;
 import org.folio.spring.cql.repo.StrRepository;
 import org.folio.spring.testing.extension.EnablePostgres;
@@ -48,6 +50,9 @@ class JpaCqlRepositoryIT {
   @Autowired
   private StrRepository strRepository;
 
+  @Autowired
+  private LanguageRepository languageRepository;
+
   @Test
   void testTypesOfRepositories() {
     assertThat(personRepository).isInstanceOf(JpaCqlRepository.class);
@@ -63,6 +68,24 @@ class JpaCqlRepositoryIT {
       .extracting(Person::getAge)
       .startsWith(20)
       .endsWith(40);
+  }
+
+  @Test
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCqlIgnoreCase() {
+    var page = languageRepository.findByCqlIgnoreCase("name=Java",
+      PageRequest.of(0, 10), true);
+
+    assertThat(page)
+      .extracting(Language::getName)
+      .contains("Java", "jAva", "JaVa", "javA")
+      .hasSize(4);
+
+    assertThat(languageRepository.countIgnoreCase("(cql.allRecords=1)sortby name/sort.ascending",
+      true))
+      .isEqualTo(4);
   }
 
   @Test
