@@ -90,6 +90,23 @@ class JpaCqlRepositoryIT {
 
   @Test
   @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCql() {
+    var page = languageRepository.findByCql("name=Java",
+      PageRequest.of(0, 10));
+
+    assertThat(page)
+      .extracting(Language::getName)
+      .contains("Java")
+      .hasSize(1);
+
+    assertThat(languageRepository.count("(cql.allRecords=1)sortby name/sort.ascending"))
+      .isEqualTo(4);
+  }
+
+  @Test
+  @Sql({
     "/sql/jpa-cql-person-test-data.sql"
   })
   void testSelectsWithAndWithoutDeletedCriteria() {
