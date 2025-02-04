@@ -45,14 +45,14 @@ public class JpaCqlRepositoryImpl<T, I> extends SimpleJpaRepository<T, I> implem
   }
 
   @Override
-  public Page<T> findByCqlIgnoreCase(String cql, Pageable pageable, boolean ignoreCase) {
-    var criteria = cql2JpaCriteria.toCollectCriteria(cql, ignoreCase);
+  public Page<T> findByCqlIgnoreCase(String cql, Pageable pageable) {
+    var criteria = cql2JpaCriteria.toCollectCriteria(cql, true);
     List<T> resultList = em
       .createQuery(criteria)
       .setFirstResult((int) pageable.getOffset())
       .setMaxResults(pageable.getPageSize())
       .getResultList();
-    return PageableExecutionUtils.getPage(resultList, pageable, () -> countIgnoreCase(cql, true));
+    return PageableExecutionUtils.getPage(resultList, pageable, () -> countIgnoreCase(cql));
   }
 
   @Override
@@ -62,8 +62,8 @@ public class JpaCqlRepositoryImpl<T, I> extends SimpleJpaRepository<T, I> implem
   }
 
   @Override
-  public long countIgnoreCase(String cql, boolean ignoreCase) {
-    var criteria = cql2JpaCriteria.toCountCriteria(cql, ignoreCase);
+  public long countIgnoreCase(String cql) {
+    var criteria = cql2JpaCriteria.toCountCriteria(cql, true);
     return em.createQuery(criteria).getSingleResult();
   }
 }
