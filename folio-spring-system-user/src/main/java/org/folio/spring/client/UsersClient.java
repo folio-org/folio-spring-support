@@ -58,11 +58,11 @@ public interface UsersClient {
      * We must store these to be able to update the user (in the case of re-activation), otherwise all additional
      * information from mod-users will be lost when re-serializing.
      */
-    @JsonAnyGetter
     @JsonAnySetter
     @Singular("extraProperties")
     private Map<String, Object> extraProperties;
 
+    @JsonAnyGetter
     public Map<String, Object> getExtraProperties() {
       return this.extraProperties;
     }
