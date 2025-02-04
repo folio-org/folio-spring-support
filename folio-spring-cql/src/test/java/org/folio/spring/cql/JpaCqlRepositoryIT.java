@@ -80,7 +80,7 @@ class JpaCqlRepositoryIT {
   @Sql({
     "/sql/jpa-cql-lang-ignore-case-test-data.sql"
   })
-  void testFindByCqlIgnoreCaseWhenTrue() {
+  void testFindByCqlIgnoreCaseWhenTrueEqualOperator() {
     var page = languageRepository.findByCqlIgnoreCase("name=Java",
       PageRequest.of(0, 10), true);
 
@@ -91,14 +91,50 @@ class JpaCqlRepositoryIT {
 
     assertThat(languageRepository.countIgnoreCase("(cql.allRecords=1)sortby name/sort.ascending",
       true))
-      .isEqualTo(4);
+      .isEqualTo(5);
   }
 
   @Test
   @Sql({
     "/sql/jpa-cql-lang-ignore-case-test-data.sql"
   })
-  void testFindByCqlIgnoreCaseWhenFalse() {
+  void testFindByCqlIgnoreCaseWhenTrueDoubleEqualOperator() {
+    var page = languageRepository.findByCqlIgnoreCase("name==Java",
+      PageRequest.of(0, 10), true);
+
+    assertThat(page)
+      .extracting(Language::getName)
+      .contains("Java", "jAva", "JaVa", "javA")
+      .hasSize(4);
+
+    assertThat(languageRepository.countIgnoreCase("(cql.allRecords=1)sortby name/sort.ascending",
+      true))
+      .isEqualTo(5);
+  }
+
+  @Test
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCqlIgnoreCaseTrueWhenNotEqualOperator() {
+    var page = languageRepository.findByCqlIgnoreCase("name<>Java",
+      PageRequest.of(0, 10), true);
+
+    assertThat(page)
+      .extracting(Language::getName)
+      .contains("python")
+      .hasSize(1);
+
+    assertThat(languageRepository.countIgnoreCase("(cql.allRecords=1)sortby name/sort.ascending",
+      true))
+      .isEqualTo(5);
+  }
+
+  @Test
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCqlIgnoreCaseFalseWhenEqualOperator() {
     var page = languageRepository.findByCqlIgnoreCase("name=Java",
       PageRequest.of(0, 10), false);
 
@@ -109,7 +145,43 @@ class JpaCqlRepositoryIT {
 
     assertThat(languageRepository.countIgnoreCase("(cql.allRecords=1)sortby name/sort.ascending",
       false))
-      .isEqualTo(4);
+      .isEqualTo(5);
+  }
+
+  @Test
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCqlIgnoreCaseFalseWhenDoubleEqualOperator() {
+    var page = languageRepository.findByCqlIgnoreCase("name==Java",
+      PageRequest.of(0, 10), false);
+
+    assertThat(page)
+      .extracting(Language::getName)
+      .contains("Java")
+      .hasSize(1);
+
+    assertThat(languageRepository.countIgnoreCase("(cql.allRecords=1)sortby name/sort.ascending",
+      false))
+      .isEqualTo(5);
+  }
+
+  @Test
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCqlIgnoreCaseFalseWhenNotEqualOperator() {
+    var page = languageRepository.findByCqlIgnoreCase("name<>Java",
+      PageRequest.of(0, 10), false);
+
+    assertThat(page)
+      .extracting(Language::getName)
+      .contains("python", "jAva", "JaVa", "javA")
+      .hasSize(4);
+
+    assertThat(languageRepository.countIgnoreCase("(cql.allRecords=1)sortby name/sort.ascending",
+      false))
+      .isEqualTo(5);
   }
 
   @Test
