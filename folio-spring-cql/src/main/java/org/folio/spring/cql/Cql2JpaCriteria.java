@@ -279,10 +279,16 @@ public class Cql2JpaCriteria<E> {
   private static <G extends Comparable<? super G>> Predicate toPredicate(Expression<G> field, G value,
     String comparator, CriteriaBuilder cb, boolean ignoreCase) throws QueryValidationException {
     return switch (comparator) {
-      case ">" -> cb.greaterThan(field, value);
+      case ">" -> ignoreCase && field.getJavaType().equals(String.class)
+        ? cb.notEqual(cb.lower(field.as(String.class)), value.toString().toLowerCase())
+        : cb.greaterThan(field, value);
       case "<" -> cb.lessThan(field, value);
-      case ">=" -> cb.greaterThanOrEqualTo(field, value);
-      case "<=" -> cb.lessThanOrEqualTo(field, value);
+      case ">=" -> ignoreCase && field.getJavaType().equals(String.class)
+        ? cb.notEqual(cb.lower(field.as(String.class)), value.toString().toLowerCase())
+        : cb.greaterThanOrEqualTo(field, value);
+      case "<=" -> ignoreCase && field.getJavaType().equals(String.class)
+        ? cb.notEqual(cb.lower(field.as(String.class)), value.toString().toLowerCase())
+        : cb.lessThanOrEqualTo(field, value);
       case "==", "=" -> ignoreCase && field.getJavaType().equals(String.class)
         ? cb.equal(cb.lower(field.as(String.class)), value.toString().toLowerCase())
         : cb.equal(field, value);
