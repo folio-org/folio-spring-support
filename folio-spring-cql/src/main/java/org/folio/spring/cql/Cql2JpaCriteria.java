@@ -373,11 +373,11 @@ public class Cql2JpaCriteria<E> {
                                 CriteriaBuilder cb, boolean ignoreCase) {
     if (NOT_EQUALS_OPERATOR.equals(comparator)) {
       return ignoreCase
-        ? cb.notLike(cb.lower(field), cql2like(term).toLowerCase())
+        ? cb.notLike(cb.lower(field), cql2like(term).toLowerCase(), '\\')
         : cb.notLike(field, cql2like(term), '\\');
     } else {
       return ignoreCase
-        ? cb.like(cb.lower(field), cql2like(term).toLowerCase())
+        ? cb.like(cb.lower(field), cql2like(term).toLowerCase(), '\\')
         : cb.like(field, cql2like(term), '\\');
     }
   }
