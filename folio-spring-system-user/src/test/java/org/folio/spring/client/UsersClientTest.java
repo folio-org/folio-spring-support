@@ -31,6 +31,7 @@ public class UsersClientTest {
       User.class
     );
 
+    // we want someOtherProperty moved under extraProperties for deserialization
     assertThat(user)
       .extracting("id", "username", "active", "personal.lastName", "extraProperties.someOtherProperty")
       .containsExactly("id", "username", true, "Smith", "value");
@@ -52,8 +53,11 @@ public class UsersClientTest {
       new TypeReference<HashMap<String, Object>>() {}
     );
 
+    // we want someOtherProperty extracted out of extraProperties for serialization
     assertThat(user)
-      .extracting("id", "username", "active", "personal.lastName", "extraProperties.someOtherProperty")
+      .extracting("id", "username", "active", "personal.lastName", "someOtherProperty")
       .containsExactly("id", "username", true, "Smith", "value");
+
+    assertThat(user).doesNotContainKey("extraProperties");
   }
 }
