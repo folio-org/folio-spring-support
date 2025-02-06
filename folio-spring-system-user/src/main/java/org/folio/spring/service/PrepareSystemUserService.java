@@ -52,16 +52,28 @@ public class PrepareSystemUserService {
       assignPermissions(userId);
       saveCredentials(userId);
 
-      // a nice sanity check, to fail sooner and ensure later logins will go smoothly
-      systemUserService.authSystemUser(folioExecutionContext.getTenantId(),
-                                       systemUserProperties.username(), systemUserProperties.password());
-      log.info("System user authenticated successfully");
+      sanityCheck();
     } catch (RuntimeException e) {
       log.error("Unexpected error while preparing system user with username={}:", systemUserProperties.username(), e);
       throw e;
     }
 
     log.info("Preparing system user is completed!");
+  }
+
+  // attempt to login now, to fail sooner and ensure later logins will go smoothly
+  private void sanityCheck() {
+    try {
+      systemUserService.authSystemUser(folioExecutionContext.getTenantId(),
+                                        systemUserProperties.username(), systemUserProperties.password());
+      log.info("System user authenticated successfully");
+    } catch (FeignException e) {
+      log.error("System user authentication failed, continuing is not recommended!", e);
+      // Feb 2025: we would want to re-throw and fail the module upgrade here,
+      //   however, this broke Karate tests (as mod-authtoken may not be available when the modules
+      //   are being installed), so we are just logging the error for now. This should be revisited
+      //   once Karate tests are updated to handle this case.
+    }
   }
 
   /**
