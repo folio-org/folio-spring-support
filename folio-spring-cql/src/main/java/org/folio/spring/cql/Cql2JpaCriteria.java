@@ -280,20 +280,24 @@ public class Cql2JpaCriteria<E> {
     String comparator, CriteriaBuilder cb, boolean ignoreCase) throws QueryValidationException {
     return switch (comparator) {
       case ">" -> ignoreCase && field.getJavaType().equals(String.class)
-        ? cb.notEqual(cb.lower(field.as(String.class)), value.toString().toLowerCase())
+        ? cb.greaterThan(cb.lower(field.as(String.class)), cb.lower(cb.literal(value.toString())))
         : cb.greaterThan(field, value);
-      case "<" -> cb.lessThan(field, value);
+      case "<" ->
+        ignoreCase && field.getJavaType().equals(String.class)
+        ? cb.lessThan(cb.lower(field.as(String.class)), cb.lower(cb.literal(value.toString())))
+        :
+          cb.lessThan(field, value);
       case ">=" -> ignoreCase && field.getJavaType().equals(String.class)
-        ? cb.notEqual(cb.lower(field.as(String.class)), value.toString().toLowerCase())
+        ? cb.greaterThanOrEqualTo(cb.lower(field.as(String.class)), cb.lower(cb.literal(value.toString())))
         : cb.greaterThanOrEqualTo(field, value);
       case "<=" -> ignoreCase && field.getJavaType().equals(String.class)
-        ? cb.notEqual(cb.lower(field.as(String.class)), value.toString().toLowerCase())
+        ? cb.lessThanOrEqualTo(cb.lower(field.as(String.class)), cb.lower(cb.literal(value.toString())))
         : cb.lessThanOrEqualTo(field, value);
       case "==", "=" -> ignoreCase && field.getJavaType().equals(String.class)
-        ? cb.equal(cb.lower(field.as(String.class)), value.toString().toLowerCase())
+        ? cb.equal(cb.lower(field.as(String.class)), cb.lower(cb.literal(value.toString())))
         : cb.equal(field, value);
       case NOT_EQUALS_OPERATOR -> ignoreCase && field.getJavaType().equals(String.class)
-        ? cb.notEqual(cb.lower(field.as(String.class)), value.toString().toLowerCase())
+        ? cb.notEqual(cb.lower(field.as(String.class)), cb.lower(cb.literal(value.toString())))
         : cb.notEqual(field, value);
       default -> throw new QueryValidationException(
         "CQL: Unsupported operator '"
@@ -379,11 +383,11 @@ public class Cql2JpaCriteria<E> {
                                 CriteriaBuilder cb, boolean ignoreCase) {
     if (NOT_EQUALS_OPERATOR.equals(comparator)) {
       return ignoreCase
-        ? cb.notLike(cb.lower(field), cql2like(term).toLowerCase(), '\\')
+        ? cb.notLike(cb.lower(field), cb.lower(cb.literal(cql2like(term))), '\\')
         : cb.notLike(field, cql2like(term), '\\');
     } else {
       return ignoreCase
-        ? cb.like(cb.lower(field), cql2like(term).toLowerCase(), '\\')
+        ? cb.like(cb.lower(field), cb.lower(cb.literal(cql2like(term))), '\\')
         : cb.like(field, cql2like(term), '\\');
     }
   }

@@ -41,6 +41,9 @@ import org.springframework.test.context.jdbc.SqlMergeMode;
 @Sql({"/sql/jpa-cql-general-it-schema.sql", "/sql/jpa-cql-general-test-data.sql"})
 class JpaCqlRepositoryIT {
 
+  private static final String CQL_COUNT_IGNORE_CASE = "(cql.allRecords=1)sortby name/sort.ascending";
+  private static final String COMMA_DELIMITER = ",";
+
   @Autowired
   private PersonRepository personRepository;
 
@@ -70,55 +73,32 @@ class JpaCqlRepositoryIT {
       .endsWith(40);
   }
 
-  @Test
+  @ParameterizedTest
+  @MethodSource
   @Sql({
     "/sql/jpa-cql-lang-ignore-case-test-data.sql"
   })
-  void testFindByCqlIgnoreCaseWhenTrueEqualOperator() {
-    var page = languageRepository.findByCqlIgnoreCase("name=Java",
-      PageRequest.of(0, 10));
+  void testFindByCqlIgnoreCase(String cql, String expected, int resultSize, int count) {
+    var page = languageRepository.findByCqlIgnoreCase(cql, PageRequest.of(0, 10));
 
     assertThat(page)
       .extracting(Language::getName)
-      .contains("Java", "jAva", "JaVa", "javA")
-      .hasSize(4);
+      .contains(expected.split(COMMA_DELIMITER))
+      .hasSize(resultSize);
 
-    assertThat(languageRepository.countIgnoreCase("(cql.allRecords=1)sortby name/sort.ascending"))
-      .isEqualTo(5);
+    assertThat(languageRepository.countIgnoreCase(CQL_COUNT_IGNORE_CASE))
+      .isEqualTo(count);
   }
 
-  @Test
-  @Sql({
-    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
-  })
-  void testFindByCqlIgnoreCaseWhenDoubleEqualOperator() {
-    var page = languageRepository.findByCqlIgnoreCase("name==Java",
-      PageRequest.of(0, 10));
-
-    assertThat(page)
-      .extracting(Language::getName)
-      .contains("Java", "jAva", "JaVa", "javA")
-      .hasSize(4);
-
-    assertThat(languageRepository.countIgnoreCase("(cql.allRecords=1)sortby name/sort.ascending"))
-      .isEqualTo(5);
-  }
-
-  @Test
-  @Sql({
-    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
-  })
-  void testFindByCqlIgnoreCaseWhenNotEqualOperator() {
-    var page = languageRepository.findByCqlIgnoreCase("name<>Java",
-      PageRequest.of(0, 10));
-
-    assertThat(page)
-      .extracting(Language::getName)
-      .contains("python")
-      .hasSize(1);
-
-    assertThat(languageRepository.countIgnoreCase("(cql.allRecords=1)sortby name/sort.ascending"))
-      .isEqualTo(5);
+  static Stream<Arguments> testFindByCqlIgnoreCase() {
+    return Stream.of(
+      Arguments.of("name=İStanBul++", "İstanbul++,istanbul++,Istanbul++", 3, 8),
+      Arguments.of("name<>İStanBul++", "Java,jAva,JaVa,javA,python", 5, 8),
+      Arguments.of("name>java", "python,", 1, 8),
+      Arguments.of("name<java", "İstanbul++,istanbul++,Istanbul++", 3, 8),
+      Arguments.of("name>=java", "Java,jAva,JaVa,javA,python", 5, 8),
+      Arguments.of("name<=java", "Java,jAva,JaVa,javA,İstanbul++,istanbul++,Istanbul++", 7, 8)
+    );
   }
 
   @Test
