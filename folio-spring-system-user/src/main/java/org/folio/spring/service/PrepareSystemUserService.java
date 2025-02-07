@@ -67,7 +67,7 @@ public class PrepareSystemUserService {
       systemUserService.authSystemUser(folioExecutionContext.getTenantId(),
                                         systemUserProperties.username(), systemUserProperties.password());
       log.info("System user authenticated successfully");
-    } catch (FeignException e) {
+    } catch (RuntimeException e) {
       log.error("System user authentication failed, continuing is not recommended!", e);
       // Feb 2025: we would want to re-throw and fail the module upgrade here,
       //   however, this broke Karate tests (as mod-authtoken may not be available when the modules
