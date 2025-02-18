@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.folio.spring.cql.domain.City;
+import org.folio.spring.cql.domain.Language;
 import org.folio.spring.cql.domain.Person;
 import org.folio.spring.cql.domain.Str;
 import org.folio.spring.cql.repo.CityRepository;
+import org.folio.spring.cql.repo.LanguageRepository;
 import org.folio.spring.cql.repo.PersonRepository;
 import org.folio.spring.cql.repo.StrRepository;
 import org.folio.spring.testing.extension.EnablePostgres;
@@ -39,6 +41,9 @@ import org.springframework.test.context.jdbc.SqlMergeMode;
 @Sql({"/sql/jpa-cql-general-it-schema.sql", "/sql/jpa-cql-general-test-data.sql"})
 class JpaCqlRepositoryIT {
 
+  private static final String CQL_COUNT_IGNORE_CASE = "(cql.allRecords=1)sortby name/sort.ascending";
+  private static final String COMMA_DELIMITER = ",";
+
   @Autowired
   private PersonRepository personRepository;
 
@@ -47,6 +52,9 @@ class JpaCqlRepositoryIT {
 
   @Autowired
   private StrRepository strRepository;
+
+  @Autowired
+  private LanguageRepository languageRepository;
 
   @Test
   void testTypesOfRepositories() {
@@ -63,6 +71,34 @@ class JpaCqlRepositoryIT {
       .extracting(Person::getAge)
       .startsWith(20)
       .endsWith(40);
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCqlIgnoreCase(String cql, String expected, int resultSize, int count) {
+    var page = languageRepository.findByCqlIgnoreCase(cql, PageRequest.of(0, 10));
+
+    assertThat(page)
+      .extracting(Language::getName)
+      .contains(expected.split(COMMA_DELIMITER))
+      .hasSize(resultSize);
+
+    assertThat(languageRepository.countIgnoreCase(CQL_COUNT_IGNORE_CASE))
+      .isEqualTo(count);
+  }
+
+  static Stream<Arguments> testFindByCqlIgnoreCase() {
+    return Stream.of(
+      Arguments.of("name=İStanBul++", "İstanbul++,istanbul++,Istanbul++", 3, 8),
+      Arguments.of("name<>İStanBul++", "Java,jAva,JaVa,javA,python", 5, 8),
+      Arguments.of("name>java", "python,", 1, 8),
+      Arguments.of("name<java", "İstanbul++,istanbul++,Istanbul++", 3, 8),
+      Arguments.of("name>=java", "Java,jAva,JaVa,javA,python", 5, 8),
+      Arguments.of("name<=java", "Java,jAva,JaVa,javA,İstanbul++,istanbul++,Istanbul++", 7, 8)
+    );
   }
 
   @Test
