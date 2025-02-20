@@ -14,6 +14,7 @@ import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 @UnitTest
 class TokenUtilsTest {
@@ -38,17 +39,16 @@ class TokenUtilsTest {
   }
 
   @ParameterizedTest
-  @CsvSource({",1970-01-01T00:00:00Z"})
-  void parseUserTokenFromCookies_negative_invalidExpiration(String accessExp, String refreshExp) {
+  @NullAndEmptySource
+  void parseUserTokenFromCookies_negative_invalidExpiration(String accessExp) {
     var authResponse = new AuthnClient.LoginResponse(accessExp, null);
     var accessToken = "acc";
-    var refreshToken = "ref";
     var cookies = List.of(new DefaultCookie(FOLIO_ACCESS_TOKEN, accessToken).toString());
 
     var ex = assertThrows(IllegalArgumentException.class,
         () -> TokenUtils.parseUserTokenFromCookies(cookies, authResponse));
 
-    assertThat(ex.getMessage()).isEqualTo("Unable to parse token expiration: null");
+    assertThat(ex.getMessage()).containsSequence("Unable to parse token expiration:");
   }
 
   @ParameterizedTest

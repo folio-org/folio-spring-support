@@ -16,9 +16,9 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = "org.folio.spring.i18n.service")
 public class TranslationConfiguration {
 
-  private String translationDirectory;
+  private final String translationDirectory;
 
-  private Locale fallbackLocale;
+  private final Locale fallbackLocale;
 
   @Autowired
   public TranslationConfiguration(

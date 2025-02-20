@@ -222,7 +222,7 @@ class TranslationMapTest {
       Arguments.of(Instant.parse("2024-01-01T23:59:59+00:00"), Locale.ENGLISH, EST, "6:59:59 PM"),
       // we should respect other locales' formatting/number systems (e.g. 24H)
       Arguments.of(Instant.parse("2024-01-01T23:59:59+00:00"), Locale.FRENCH, UTC, "23:59:59"),
-      Arguments.of(Instant.parse("2024-01-01T23:59:59+00:00"), new Locale("ar"), UTC, "11:59:59 م"),
+      Arguments.of(Instant.parse("2024-01-01T23:59:59+00:00"), Locale.of("ar"), UTC, "11:59:59 م"),
       // test other Temporals
       // LocalDate
       Arguments.of(LocalDate.of(2024, 1, 1), Locale.ENGLISH, UTC, "12:00:00 AM"),

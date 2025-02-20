@@ -16,20 +16,20 @@ import org.springframework.core.io.FileSystemResource;
 @UnitTest
 class TranslationMatchQualityTest {
 
-  protected static TranslationFile FILE_NO_NAME = new TranslationFile(
-    Arrays.asList(new FileSystemResource(""))
+  protected static final TranslationFile FILE_NO_NAME = new TranslationFile(
+    List.of(new FileSystemResource(""))
   );
-  protected static TranslationFile FILE_EN = new TranslationFile(
-    Arrays.asList(new FileSystemResource("en.json"))
+  protected static final TranslationFile FILE_EN = new TranslationFile(
+    List.of(new FileSystemResource("en.json"))
   );
-  protected static TranslationFile FILE_EN_US = new TranslationFile(
-    Arrays.asList(new FileSystemResource("en_us.json"))
+  protected static final TranslationFile FILE_EN_US = new TranslationFile(
+    List.of(new FileSystemResource("en_us.json"))
   );
 
-  protected static Locale LOCALE_EN = Locale.ENGLISH;
-  protected static Locale LOCALE_EN_US = Locale.US;
-  protected static Locale LOCALE_EN_CA = Locale.CANADA;
-  protected static Locale LOCALE_FR_FR = Locale.FRANCE;
+  protected static final Locale LOCALE_EN = Locale.ENGLISH;
+  protected static final Locale LOCALE_EN_US = Locale.US;
+  protected static final Locale LOCALE_EN_CA = Locale.CANADA;
+  protected static final Locale LOCALE_FR_FR = Locale.FRANCE;
 
   static List<Arguments> mismatchedBaseCases() {
     return Arrays.asList(

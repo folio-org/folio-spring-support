@@ -86,7 +86,7 @@ class TranslationFileLanguageExtractionTest {
   void testInstancePartsExtraction() {
     assertThat(
       "Regular en_us.json parses as an instance the same as statically",
-      new TranslationFile(Arrays.asList(new FileSystemResource("en_us.json")))
+      new TranslationFile(List.of(new FileSystemResource("en_us.json")))
         .getLanguageRegion(),
       is(equalTo(TranslationFile.getLanguageRegion("en_us.json")))
     );
@@ -95,7 +95,7 @@ class TranslationFileLanguageExtractionTest {
   @Test
   void testEmptyGetMap() {
     assertThat(
-      new TranslationFile(Arrays.asList(new FileSystemResource("invalid.json")))
+      new TranslationFile(List.of(new FileSystemResource("invalid.json")))
         .getPatterns()
         .values(),
       is(empty())

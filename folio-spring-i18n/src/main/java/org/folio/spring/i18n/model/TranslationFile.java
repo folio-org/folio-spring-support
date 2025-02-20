@@ -81,7 +81,7 @@ public record TranslationFile(List<Resource> resources) {
    */
   public LanguageRegionPair getLanguageRegion() {
     // Spring's getFilename returns only the last part, so no need to split the path
-    return getLanguageRegion(resources.get(0).getFilename());
+    return getLanguageRegion(resources.getFirst().getFilename());
   }
 
   /**

@@ -371,7 +371,7 @@ public class TranslationService {
 
       List<TranslationFile> files = localeGroups.values().stream().map(TranslationFile::new).toList();
 
-      log.info("Got translation files: " + files);
+      log.info("Got translation files: {}", files);
 
       return files;
     } catch (IOException e) {

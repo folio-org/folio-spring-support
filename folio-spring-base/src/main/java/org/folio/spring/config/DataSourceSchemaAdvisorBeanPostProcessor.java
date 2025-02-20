@@ -21,10 +21,10 @@ public class DataSourceSchemaAdvisorBeanPostProcessor implements BeanPostProcess
   public Object postProcessAfterInitialization(Object bean, String beanName) {
     if (DATASOURCE_BEAN_NAME.equals(beanName)) {
       DataSource dataSource;
-      if (bean instanceof FactoryBean) {
+      if (bean instanceof FactoryBean<?> factoryBean) {
         try {
-          if (((FactoryBean) bean).getObject() instanceof DataSource) {
-            dataSource = (DataSource) ((FactoryBean) bean).getObject();
+          if (factoryBean.getObject() instanceof DataSource dataSourceObject) {
+            dataSource = dataSourceObject;
           } else {
             throw unknownDatasourceException();
           }
