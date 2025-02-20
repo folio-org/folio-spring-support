@@ -24,15 +24,6 @@ public interface UsersClient {
   @GetMapping
   ResultList<User> query(@RequestParam("query") String query);
 
-  /**
-   * Creates a new user.
-   *
-   * @deprecated use {@link #createUser(User)} instead
-   */
-  @Deprecated(since = "4.0.0")
-  @PostMapping(consumes = APPLICATION_JSON_VALUE)
-  void saveUser(@RequestBody User user);
-
   /** Creates a new user. */
   @PostMapping(consumes = APPLICATION_JSON_VALUE)
   void createUser(@RequestBody User user);

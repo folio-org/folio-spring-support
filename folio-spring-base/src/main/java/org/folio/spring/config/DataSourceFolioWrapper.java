@@ -11,7 +11,7 @@ import org.springframework.jdbc.datasource.DelegatingDataSource;
 
 @Log4j2
 public class DataSourceFolioWrapper extends DelegatingDataSource {
-  private static final Pattern NON_WORD_CHARACTERS = Pattern.compile("[^a-zA-Z0-9_]");
+  private static final Pattern NON_WORD_CHARACTERS = Pattern.compile("\\W");
 
   private final FolioExecutionContext folioExecutionContext;
 

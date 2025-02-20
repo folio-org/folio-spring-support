@@ -1,6 +1,7 @@
 package org.folio.spring;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -52,11 +53,11 @@ public interface FolioExecutionContext {
   }
 
   default Map<String, Collection<String>> getAllHeaders() {
-    return null;
+    return Collections.emptyMap();
   }
 
   default Map<String, Collection<String>> getOkapiHeaders() {
-    return null;
+    return Collections.emptyMap();
   }
 
   default FolioModuleMetadata getFolioModuleMetadata() {

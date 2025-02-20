@@ -3,21 +3,17 @@ package org.folio.spring.scope;
 import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.getConversationIdForScope;
 import static org.folio.spring.scope.FolioExecutionScopeExecutionContextManager.getFolioExecutionScope;
 
-import java.util.Map;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.Scope;
 
+@Log4j2
 public class FolioExecutionScopeConfigurer implements Scope {
 
   @Override
   public Object get(String name, ObjectFactory<?> objectFactory) {
-    Map<String, Object> folioExecutionScope = getFolioExecutionScope();
-    Object bean = folioExecutionScope.get(name);
-    if (bean == null) {
-      folioExecutionScope.put(name, bean = objectFactory.getObject());
-    }
-
-    return bean;
+    return getFolioExecutionScope()
+      .computeIfAbsent(name, k -> objectFactory.getObject());
   }
 
   @Override
@@ -27,7 +23,7 @@ public class FolioExecutionScopeConfigurer implements Scope {
 
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
-
+    log.debug("Ignore destruction callback for {}", name);
   }
 
   @Override

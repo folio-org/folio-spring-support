@@ -1,6 +1,6 @@
 package org.folio.spring.data;
 
-import static org.apache.commons.lang3.RandomUtils.nextInt;
+import static org.apache.commons.lang3.RandomUtils.insecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -62,16 +62,15 @@ class OffsetRequestTest {
   }
 
   @Test
-  void shouldCalculatePageNumberFromOffsetAndLimit(
-      @RandomLong(min = 0, max = Integer.MAX_VALUE) long offset,
-      @RandomInt(min = 1, max = 100) int limit) {
+  void shouldCalculatePageNumberFromOffsetAndLimit(@RandomLong(min = 0, max = Integer.MAX_VALUE) long offset,
+                                                   @RandomInt(min = 1, max = 100) int limit) {
     req = new OffsetRequest(offset, limit);
 
     assertEquals(offset / limit, req.getPageNumber());
   }
 
   private static List<Integer> provideNegativeAndZeroInt() {
-    return List.of(-nextInt(1, Integer.MAX_VALUE), 0);
+    return List.of(-insecure().randomInt(1, Integer.MAX_VALUE), 0);
   }
 
   @Nested
@@ -79,9 +78,8 @@ class OffsetRequestTest {
   class NavigationWithOffsetGreater {
 
     @BeforeEach
-    void setUp(
-        @RandomLong(min = 100, max = Integer.MAX_VALUE) long offset,
-        @RandomInt(min = 1, max = 100) int limit) {
+    void setUp(@RandomLong(min = 100, max = Integer.MAX_VALUE) long offset,
+               @RandomInt(min = 1, max = 100) int limit) {
 
       req = new OffsetRequest(offset, limit);
     }
@@ -102,10 +100,10 @@ class OffsetRequestTest {
       Pageable previous = req.previous();
 
       assertEquals(new OffsetRequest(
-              req.getOffset() - req.getPageSize(),
-              req.getPageSize(),
-              req.getSort()),
-          previous);
+          req.getOffset() - req.getPageSize(),
+          req.getPageSize(),
+          req.getSort()),
+        previous);
     }
 
     @Test
@@ -120,10 +118,10 @@ class OffsetRequestTest {
       Pageable first = req.first();
 
       assertEquals(new OffsetRequest(
-              0,
-              req.getPageSize(),
-              req.getSort()),
-          first);
+          0,
+          req.getPageSize(),
+          req.getSort()),
+        first);
     }
 
     @Test
@@ -149,9 +147,8 @@ class OffsetRequestTest {
   class NavigationWithOffsetLess {
 
     @BeforeEach
-    void setUp(
-        @RandomLong(min = 0, max = 100) long offset,
-        @RandomInt(min = 100, max = 1000) int limit) {
+    void setUp(@RandomLong(min = 0, max = 100) long offset,
+               @RandomInt(min = 100, max = 1000) int limit) {
 
       req = new OffsetRequest(offset, limit);
     }
@@ -161,10 +158,10 @@ class OffsetRequestTest {
       Pageable next = req.next();
 
       assertEquals(new OffsetRequest(
-              req.getOffset() + req.getPageSize(),
-              req.getPageSize(),
-              req.getSort()),
-          next);
+          req.getOffset() + req.getPageSize(),
+          req.getPageSize(),
+          req.getSort()),
+        next);
     }
 
     @Test
@@ -186,10 +183,10 @@ class OffsetRequestTest {
       Pageable first = req.first();
 
       assertEquals(new OffsetRequest(
-              0,
-              req.getPageSize(),
-              req.getSort()),
-          first);
+          0,
+          req.getPageSize(),
+          req.getSort()),
+        first);
     }
 
     @Test

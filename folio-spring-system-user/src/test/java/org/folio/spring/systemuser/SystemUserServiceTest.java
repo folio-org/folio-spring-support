@@ -313,16 +313,6 @@ class SystemUserServiceTest {
   }
 
   @Test
-  void overloaded_authSystemUser_when_loginExpiry_notFoundException_loginLegacReturnsNull() {
-    when(contextBuilder.forSystemUser(any(), any())).thenReturn(context);
-    var systemUserService = systemUserService(systemUserProperties());
-    assertThatThrownBy(() -> systemUserService
-      .authSystemUser("diku", "username", "password"))
-      .isInstanceOf(SystemUserAuthorizationException.class)
-      .hasMessage(CANNOT_RETRIEVE_OKAPI_TOKEN_FOR_USERNAME_AND_DIKU);
-  }
-
-  @Test
   void overloaded_authSystemUser_when_loginExpiryReturnsNull() {
     when(contextBuilder.forSystemUser(any(), any())).thenReturn(context);
     var systemUserService = systemUserService(systemUserProperties());

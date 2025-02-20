@@ -14,7 +14,7 @@ import org.junit.Test;
 @UnitTest
 public class UsersClientTest {
 
-  private ObjectMapper objectMapper = new ObjectMapper();
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Test
   public void testDeserialization() throws JsonProcessingException {

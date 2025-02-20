@@ -1,4 +1,5 @@
-## 8.3.0 In progress
+## 9.0.0 In progress
+* [FOLSPRINGS-188](https://folio-org.atlassian.net/browse/FOLSPRINGS-188) Upgrade to Java 21
 * [FOLSPRINGS-178](https://folio-org.atlassian.net/browse/FOLSPRINGS-178) spring-cloud-starter-openfeign 4.1.4 fixing spring-security-crypto Authorization Bypass
 
 ### folio-spring-system-user

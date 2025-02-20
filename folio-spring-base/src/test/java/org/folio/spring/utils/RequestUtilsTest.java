@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.folio.spring.testing.type.UnitTest;
 import org.jeasy.random.randomizers.collection.ListRandomizer;
 import org.jeasy.random.randomizers.collection.MapRandomizer;
@@ -124,7 +123,7 @@ class RequestUtilsTest {
   }
 
   private static List<String> flattenValues(Map<String, Collection<String>> headers) {
-    return headers.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+    return headers.values().stream().flatMap(Collection::stream).toList();
   }
 
   private static Map<String, Collection<String>> keysToLowercase(Map<String, Collection<String>> headers) {
