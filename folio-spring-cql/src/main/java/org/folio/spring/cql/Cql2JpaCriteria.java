@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -68,14 +69,14 @@ public class Cql2JpaCriteria<E> {
    * @param cql the query to convert
    * @return {@link CriteriaQuery} for selection
    */
-  public CriteriaQuery<E> toCollectCriteria(String cql, boolean ignoreCase) {
+  public CriteriaQuery<E> toCollectCriteria(String cql) {
     try {
       var node = new CQLParser().parse(cql);
 
       var cb = em.getCriteriaBuilder();
       var query = cb.createQuery(domainClass);
       var root = query.from(domainClass);
-      var predicate = createPredicate(node, root, cb, query, ignoreCase);
+      var predicate = createPredicate(node, root, cb, query);
 
       query.where(predicate);
       return query;
@@ -106,7 +107,7 @@ public class Cql2JpaCriteria<E> {
    * @param cql the query to convert
    * @return {@link CriteriaQuery} for count
    */
-  public CriteriaQuery<Long> toCountCriteria(String cql, boolean ignoreCase) {
+  public CriteriaQuery<Long> toCountCriteria(String cql) {
     try {
       var node = new CQLParser().parse(cql);
 
@@ -114,7 +115,7 @@ public class Cql2JpaCriteria<E> {
       var query = cb.createQuery(Long.class);
       var root = query.from(domainClass);
       query.select(cb.count(root));
-      var predicate = createPredicate(node, root, cb, query, ignoreCase);
+      var predicate = createPredicate(node, root, cb, query);
       query.orderBy(Collections.emptyList());
       root.getFetches().clear();
       query.where(predicate);
@@ -152,7 +153,7 @@ public class Cql2JpaCriteria<E> {
     return (root, query, criteriaBuilder) -> {
       try {
         var node = new CQLParser().parse(cql);
-        return createPredicate(node, root, criteriaBuilder, query, false);
+        return createPredicate(node, root, criteriaBuilder, query);
       } catch (IOException | CQLParseException | QueryValidationException e) {
         throw new CqlQueryValidationException(e);
       }
@@ -170,23 +171,22 @@ public class Cql2JpaCriteria<E> {
     return (root, query, criteriaBuilder) -> {
       try {
         var node = new CQLParser().parse(cql);
-        return createPredicate(node, root, criteriaBuilder, criteriaBuilder.createQuery(Long.class), false);
+        return createPredicate(node, root, criteriaBuilder, criteriaBuilder.createQuery(Long.class));
       } catch (IOException | CQLParseException | QueryValidationException e) {
         throw new CqlQueryValidationException(e);
       }
     };
   }
 
-  private <T> Predicate createPredicate(CQLNode node, Root<E> root, CriteriaBuilder cb,
-    CriteriaQuery<T> query, boolean ignoreCase)
+  private <T> Predicate createPredicate(CQLNode node, Root<E> root, CriteriaBuilder cb, CriteriaQuery<T> query)
     throws QueryValidationException {
     Predicate predicates;
     if (node instanceof CQLSortNode sortNode) {
       var orders = toOrders(sortNode, root, cb);
       query.orderBy(orders);
-      predicates = process(sortNode.getSubtree(), cb, root, query, ignoreCase);
+      predicates = process(sortNode.getSubtree(), cb, root, query);
     } else {
-      predicates = process(node, cb, root, query, ignoreCase);
+      predicates = process(node, cb, root, query);
     }
     return predicates;
   }
@@ -205,10 +205,10 @@ public class Cql2JpaCriteria<E> {
     return orders;
   }
 
-  private Predicate process(CQLNode node, CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query,
-    boolean ignoreCase) throws QueryValidationException {
+  private Predicate process(CQLNode node, CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query)
+    throws QueryValidationException {
     if (node instanceof CQLTermNode cqlTermNode) {
-      return processTerm(cqlTermNode, cb, root, query, ignoreCase);
+      return processTerm(cqlTermNode, cb, root, query);
     } else if (node instanceof CQLBooleanNode cqlBooleanNode) {
       return processBoolean(cqlBooleanNode, cb, root, query);
     } else {
@@ -219,8 +219,7 @@ public class Cql2JpaCriteria<E> {
   private Predicate processBoolean(CQLBooleanNode node, CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query)
     throws QueryValidationException {
     if (node instanceof CQLAndNode) {
-      return cb.and(process(node.getLeftOperand(), cb, root, query, false),
-        process(node.getRightOperand(), cb, root, query, false));
+      return cb.and(process(node.getLeftOperand(), cb, root, query), process(node.getRightOperand(), cb, root, query));
     } else if (node instanceof CQLOrNode) {
       if (node.getRightOperand().getClass() == CQLTermNode.class) {
         // special case for the query the UI uses most often, before the user has
@@ -229,22 +228,21 @@ public class Cql2JpaCriteria<E> {
         if (ASTERISKS_SIGN.equals(rightOperand.getTerm()) && "=".equals(rightOperand.getRelation().getBase())
           && isEmpty(rightOperand.getRelation().getModifiers())) {
           log.debug("pgFT(): Simplifying =* OR =* ");
-          return process(node.getLeftOperand(), cb, root, query, false);
+          return process(node.getLeftOperand(), cb, root, query);
         }
       }
-      return cb.or(process(node.getLeftOperand(), cb, root, query, false),
-        process(node.getRightOperand(), cb, root, query, false));
+      return cb.or(process(node.getLeftOperand(), cb, root, query), process(node.getRightOperand(), cb, root, query));
     } else if (node instanceof CQLNotNode) {
       return
-        cb.and(process(node.getLeftOperand(), cb, root, query, false),
-          cb.not(process(node.getRightOperand(), cb, root, query, false)));
+        cb.and(process(node.getLeftOperand(), cb, root, query),
+          cb.not(process(node.getRightOperand(), cb, root, query)));
     } else {
       throw createUnsupportedException(node);
     }
   }
 
-  private Predicate processTerm(CQLTermNode node, CriteriaBuilder cb, Root<E> root,
-    CriteriaQuery<?> query, boolean ignoreCase) throws QueryValidationException {
+  private Predicate processTerm(CQLTermNode node, CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query)
+    throws QueryValidationException {
     var fieldName = node.getIndex();
     if (StringUtils.startsWithIgnoreCase(fieldName, "cql")) {
       if ("cql.allRecords".equalsIgnoreCase(fieldName)) {
@@ -259,7 +257,7 @@ public class Cql2JpaCriteria<E> {
     if (!isEmpty(cqlModifiers.getRelationModifiers())) {
       query.distinct(true);
     }
-    return indexNode(field, node, cqlModifiers, cb, ignoreCase);
+    return indexNode(field, node, cqlModifiers, cb);
   }
 
   private Path<?> getPath(CQLTermNode node, Root<E> root) {
@@ -277,38 +275,44 @@ public class Cql2JpaCriteria<E> {
   }
 
   private static <G extends Comparable<? super G>> Predicate toPredicate(Expression<G> field, G value,
-    String comparator, CriteriaBuilder cb, boolean ignoreCase) throws QueryValidationException {
+      String comparator, CriteriaBuilder cb) throws QueryValidationException {
+
     return switch (comparator) {
-      case ">" -> ignoreCase && field.getJavaType().equals(String.class)
-        ? cb.greaterThan(cb.lower(field.as(String.class)), cb.lower(cb.literal(value.toString())))
-        : cb.greaterThan(field, value);
-      case "<" ->
-        ignoreCase && field.getJavaType().equals(String.class)
-        ? cb.lessThan(cb.lower(field.as(String.class)), cb.lower(cb.literal(value.toString())))
-        :
-          cb.lessThan(field, value);
-      case ">=" -> ignoreCase && field.getJavaType().equals(String.class)
-        ? cb.greaterThanOrEqualTo(cb.lower(field.as(String.class)), cb.lower(cb.literal(value.toString())))
-        : cb.greaterThanOrEqualTo(field, value);
-      case "<=" -> ignoreCase && field.getJavaType().equals(String.class)
-        ? cb.lessThanOrEqualTo(cb.lower(field.as(String.class)), cb.lower(cb.literal(value.toString())))
-        : cb.lessThanOrEqualTo(field, value);
-      case "==", "=" -> ignoreCase && field.getJavaType().equals(String.class)
-        ? cb.equal(cb.lower(field.as(String.class)), cb.lower(cb.literal(value.toString())))
-        : cb.equal(field, value);
-      case NOT_EQUALS_OPERATOR -> ignoreCase && field.getJavaType().equals(String.class)
-        ? cb.notEqual(cb.lower(field.as(String.class)), cb.lower(cb.literal(value.toString())))
-        : cb.notEqual(field, value);
-      default -> throw new QueryValidationException(
-        "CQL: Unsupported operator '"
-          + comparator
-          + "', "
-          + " only supports '=', '==', and '<>' (possibly with right truncation)");
+      case ">" -> cb.greaterThan(field, value);
+      case "<" -> cb.lessThan(field, value);
+      case ">=" -> cb.greaterThanOrEqualTo(field, value);
+      case "<=" -> cb.lessThanOrEqualTo(field, value);
+      case "==", "=" -> cb.equal(field, value);
+      case NOT_EQUALS_OPERATOR -> cb.notEqual(field, value);
+      default -> throw unsupportedOperatorException(comparator);
     };
   }
 
+  private static <G extends Comparable<? super G>> Predicate toPredicate(Expression<G> field, Expression<G> value,
+      String comparator, CriteriaBuilder cb) throws QueryValidationException {
+
+    return switch (comparator) {
+      case ">" -> cb.greaterThan(field, value);
+      case "<" -> cb.lessThan(field, value);
+      case ">=" -> cb.greaterThanOrEqualTo(field, value);
+      case "<=" -> cb.lessThanOrEqualTo(field, value);
+      case "==", "=" -> cb.equal(field, value);
+      case NOT_EQUALS_OPERATOR -> cb.notEqual(field, value);
+      default -> throw unsupportedOperatorException(comparator);
+    };
+  }
+
+  private static QueryValidationException unsupportedOperatorException(String operator) {
+    return new QueryValidationException(
+        "CQL: Unsupported operator '"
+            + operator
+            + "', "
+            + " only supports '=', '==', and '<>' (possibly with right truncation)");
+  }
+
   private Predicate indexNode(Path<?> field, CQLTermNode node, CqlModifiers modifiers,
-                              CriteriaBuilder cb, boolean ignoreCase) throws QueryValidationException {
+                              CriteriaBuilder cb) throws QueryValidationException {
+
     if (!isEmpty(modifiers.getRelationModifiers())) {
       return buildModifiersQuery(field, modifiers, cb);
     }
@@ -322,10 +326,10 @@ public class Cql2JpaCriteria<E> {
 
     return switch (comparator) {
       case "=" -> modifiers.getCqlTermFormat() == NUMBER
-        ? queryBySql(field, term, comparator, cb, ignoreCase)
-        : buildQuery(field, term, comparator, cb, ignoreCase);
-      case "adj", "all", "any", "==", NOT_EQUALS_OPERATOR -> buildQuery(field, term, comparator, cb, ignoreCase);
-      case "<", ">", "<=", ">=" -> queryBySql(field, node.getTerm(), comparator, cb, ignoreCase);
+        ? queryBySql(field, term, comparator, cb)
+        : buildQuery(field, term, comparator, cb);
+      case "adj", "all", "any", "==", NOT_EQUALS_OPERATOR -> buildQuery(field, term, comparator, cb);
+      case "<", ">", "<=", ">=" -> queryBySql(field, node.getTerm(), comparator, cb);
       default -> throw new CQLFeatureUnsupportedException("Relation " + comparator + " not implemented yet: " + node);
     };
   }
@@ -341,12 +345,12 @@ public class Cql2JpaCriteria<E> {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   private Predicate buildQuery(Path<?> field, Comparable term, String comparator,
-                               CriteriaBuilder cb, boolean ignoreCase) throws QueryValidationException {
+                               CriteriaBuilder cb) throws QueryValidationException {
     boolean isString = String.class.equals(field.getJavaType());
     if (isString) {
-      return queryByLike((Path<String>) field, (String) term, comparator, cb, ignoreCase);
+      return queryByLike((Path<String>) field, (String) term, comparator, cb);
     } else {
-      return queryBySql(field, term, comparator, cb, ignoreCase);
+      return queryBySql(field, term, comparator, cb);
     }
   }
 
@@ -358,7 +362,7 @@ public class Cql2JpaCriteria<E> {
       var fieldName = getFieldNameByModifier(field, modifier);
       var fieldValue = modifier.getValue();
 
-      result = cb.and(result, queryBySql(field.get(fieldName), fieldValue, modifier.getComparison(), cb, false));
+      result = cb.and(result, queryBySql(field.get(fieldName), fieldValue, modifier.getComparison(), cb));
     }
 
     return result;
@@ -379,16 +383,16 @@ public class Cql2JpaCriteria<E> {
   /**
    * Create an SQL expression using LIKE query syntax.
    */
-  private static Predicate queryByLike(Path<String> field, String term, String comparator,
-                                CriteriaBuilder cb, boolean ignoreCase) {
+  private Predicate queryByLike(Path<String> field0, String term0, String comparator,
+                                CriteriaBuilder cb) {
+
+    var wrapper = wrapper(field0, cb);
+    var field = wrapper.apply(field0);
+    var term = wrapper.apply(cb.literal(cql2like(term0)));
     if (NOT_EQUALS_OPERATOR.equals(comparator)) {
-      return ignoreCase
-        ? cb.notLike(cb.lower(field), cb.lower(cb.literal(cql2like(term))), '\\')
-        : cb.notLike(field, cql2like(term), '\\');
+      return cb.notLike(field, term, '\\');
     } else {
-      return ignoreCase
-        ? cb.like(cb.lower(field), cb.lower(cb.literal(cql2like(term))), '\\')
-        : cb.like(field, cql2like(term), '\\');
+      return cb.like(field, term, '\\');
     }
   }
 
@@ -400,15 +404,45 @@ public class Cql2JpaCriteria<E> {
   }
 
   /**
+   * Wrap the field with functions lower and/or f_unaccent as needed.
+   */
+  private UnaryOperator<Expression<String>> wrapper(Expression<String> field, CriteriaBuilder cb) {
+    if (!field.getJavaType().equals(String.class)) {
+      return UnaryOperator.identity();
+    }
+    var respectAccents = domainClass.getAnnotation(RespectAccents.class) != null;
+    var respectCase = domainClass.getAnnotation(RespectCase.class) != null;
+    if (respectAccents) {
+      if (respectCase) {
+        return UnaryOperator.identity();
+      } else {
+        return cb::lower;
+      }
+    } else {
+      if (respectCase) {
+        return expression -> cb.function("f_unaccent", String.class, expression);
+      } else {
+        return expression -> cb.lower(cb.function("f_unaccent", String.class, expression));
+      }
+    }
+  }
+
+  /**
    * Create an SQL expression using SQL as is syntax.
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
-  private static Predicate queryBySql(Expression field, Comparable term, String comparator,
-                                      CriteriaBuilder cb, boolean ignoreCase) throws QueryValidationException {
-    var value = (String) term;
+  private Predicate queryBySql(Expression field, Comparable term, String comparator,
+      CriteriaBuilder cb) throws QueryValidationException {
 
+    var value = (String) term;
     var javaType = field.getJavaType();
-    if (Number.class.equals(javaType)) {
+
+    if (String.class.equals(javaType)) {
+      UnaryOperator<Expression<String>> wrapper = wrapper(field, cb);
+      field = wrapper.apply(field);
+      var termExpression = wrapper.apply(cb.literal(cql2like(term.toString())));
+      return toPredicate(field, termExpression, comparator, cb);
+    } else if (Number.class.equals(javaType)) {
       term = Integer.parseInt(value);
     } else if (UUID.class.equals(javaType)) {
       term = UUID.fromString(value);
@@ -431,7 +465,7 @@ public class Cql2JpaCriteria<E> {
       field = field.as(String.class);
     }
 
-    return toPredicate(field, term, comparator, cb, ignoreCase);
+    return toPredicate(field, term, comparator, cb);
   }
 
   private static CQLFeatureUnsupportedException createUnsupportedException(CQLNode node) {

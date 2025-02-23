@@ -11,10 +11,16 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.folio.spring.cql.domain.City;
 import org.folio.spring.cql.domain.Language;
+import org.folio.spring.cql.domain.LanguageRespectAccents;
+import org.folio.spring.cql.domain.LanguageRespectCase;
+import org.folio.spring.cql.domain.LanguageRespectCaseRespectAccents;
 import org.folio.spring.cql.domain.Person;
 import org.folio.spring.cql.domain.Str;
 import org.folio.spring.cql.repo.CityRepository;
 import org.folio.spring.cql.repo.LanguageRepository;
+import org.folio.spring.cql.repo.LanguageRespectAccentsRepository;
+import org.folio.spring.cql.repo.LanguageRespectCaseRepository;
+import org.folio.spring.cql.repo.LanguageRespectCaseRespectAccentsRepository;
 import org.folio.spring.cql.repo.PersonRepository;
 import org.folio.spring.cql.repo.StrRepository;
 import org.folio.spring.testing.extension.EnablePostgres;
@@ -41,9 +47,6 @@ import org.springframework.test.context.jdbc.SqlMergeMode;
 @Sql({"/sql/jpa-cql-general-it-schema.sql", "/sql/jpa-cql-general-test-data.sql"})
 class JpaCqlRepositoryIT {
 
-  private static final String CQL_COUNT_IGNORE_CASE = "(cql.allRecords=1)sortby name/sort.ascending";
-  private static final String COMMA_DELIMITER = ",";
-
   @Autowired
   private PersonRepository personRepository;
 
@@ -55,6 +58,15 @@ class JpaCqlRepositoryIT {
 
   @Autowired
   private LanguageRepository languageRepository;
+
+  @Autowired
+  private LanguageRespectAccentsRepository languageRespectAccentsRepository;
+
+  @Autowired
+  private LanguageRespectCaseRepository languageRespectCaseRepository;
+
+  @Autowired
+  private LanguageRespectCaseRespectAccentsRepository languageRespectCaseRespectAccentsRepository;
 
   @Test
   void testTypesOfRepositories() {
@@ -78,26 +90,93 @@ class JpaCqlRepositoryIT {
   @Sql({
     "/sql/jpa-cql-lang-ignore-case-test-data.sql"
   })
-  void testFindByCqlIgnoreCase(String cql, String expected, int resultSize, int count) {
-    var page = languageRepository.findByCqlIgnoreCase(cql, PageRequest.of(0, 10));
+  void testFindByCqlIgnoreCaseIgnoreAccents(String cql, String expected) {
+    var page = languageRepository.findByCql(cql, PageRequest.of(0, 10));
+    var expectedNames = splitByComma(expected);
 
     assertThat(page)
       .extracting(Language::getName)
-      .contains(expected.split(COMMA_DELIMITER))
-      .hasSize(resultSize);
+      .containsExactlyInAnyOrder(expectedNames);
 
-    assertThat(languageRepository.countIgnoreCase(CQL_COUNT_IGNORE_CASE))
-      .isEqualTo(count);
+    assertThat(languageRepository.count(cql))
+      .isEqualTo(expectedNames.length);
   }
 
-  static Stream<Arguments> testFindByCqlIgnoreCase() {
+  static Stream<Arguments> testFindByCqlIgnoreCaseIgnoreAccents() {
     return Stream.of(
-      Arguments.of("name=İStanBul++", "İstanbul++,istanbul++,Istanbul++", 3, 8),
-      Arguments.of("name<>İStanBul++", "Java,jAva,JaVa,javA,python", 5, 8),
-      Arguments.of("name>java", "python,", 1, 8),
-      Arguments.of("name<java", "İstanbul++,istanbul++,Istanbul++", 3, 8),
-      Arguments.of("name>=java", "Java,jAva,JaVa,javA,python", 5, 8),
-      Arguments.of("name<=java", "Java,jAva,JaVa,javA,İstanbul++,istanbul++,Istanbul++", 7, 8)
+      Arguments.of("name=İStanBul++", "İstanbul++,istanbul++,Istanbul++"),
+      Arguments.of("name<>İStanBul++", "Jâva,Java,JaVa,javA,python"),
+      Arguments.of("name>java", "python,"),
+      Arguments.of("name<java", "İstanbul++,istanbul++,Istanbul++"),
+      Arguments.of("name>=java", "Jâva,Java,JaVa,javA,python"),
+      Arguments.of("name<=java", "Jâva,Java,JaVa,javA,İstanbul++,istanbul++,Istanbul++")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCqlIgnoreCaseRespectAccents(String cql, String expected) {
+    var page = languageRespectAccentsRepository.findByCql(cql, PageRequest.of(0, 10));
+    var expectedNames = splitByComma(expected);
+
+    assertThat(page)
+      .extracting(LanguageRespectAccents::getName)
+      .containsExactlyInAnyOrder(expectedNames);
+  }
+
+  static Stream<Arguments> testFindByCqlIgnoreCaseRespectAccents() {
+    return Stream.of(
+        Arguments.of("name==Java", "Java,JaVa,javA"),
+        Arguments.of("name==Jâva", "Jâva"),
+        Arguments.of("name==JÂVA", "Jâva")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCqlRespectCaseIgnoreAccents(String cql, String expected) {
+    var page = languageRespectCaseRepository.findByCql(cql, PageRequest.of(0, 10));
+    var expectedNames = splitByComma(expected);
+
+    assertThat(page)
+      .extracting(LanguageRespectCase::getName)
+      .containsExactlyInAnyOrder(expectedNames);
+  }
+
+  static Stream<Arguments> testFindByCqlRespectCaseIgnoreAccents() {
+    return Stream.of(
+        Arguments.of("name==İstanbul++", "İstanbul++,Istanbul++"),
+        Arguments.of("name==istanbul++", "istanbul++"),
+        Arguments.of("name==Jâva", "Jâva,Java"),
+        Arguments.of("name==Java", "Jâva,Java")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCqlRespectCaseRespectAccents(String cql, String expected) {
+    var page = languageRespectCaseRespectAccentsRepository.findByCql(cql, PageRequest.of(0, 10));
+    var expectedNames = splitByComma(expected);
+
+    assertThat(page)
+      .extracting(LanguageRespectCaseRespectAccents::getName)
+      .containsExactlyInAnyOrder(expectedNames);
+  }
+
+  static Stream<Arguments> testFindByCqlRespectCaseRespectAccents() {
+    return Stream.of(
+      Arguments.of("name==İstanbul++", "İstanbul++"),
+      Arguments.of("name==Jâva", "Jâva"),
+      Arguments.of("name==Java", "Java")
     );
   }
 
@@ -394,4 +473,7 @@ class JpaCqlRepositoryIT {
       .containsExactlyInAnyOrderElementsOf(expected);
   }
 
+  private static String[] splitByComma(String s) {
+    return s.split(",");
+  }
 }

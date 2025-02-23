@@ -32,8 +32,19 @@ public class FolioSpringLiquibase extends SpringLiquibase {
       try (var connection = getDataSource().getConnection()) {
         try (var statement = connection.createStatement()) {
           log.debug("creating [{}] schema", defaultSchema);
-          statement.execute("create schema if not exists " + defaultSchema + ";");
+          statement.execute("create schema if not exists " + defaultSchema);
+          // use advisory lock for concurrent installs of multiple modules
+          // https://folio-org.atlassian.net/browse/RMB-957
+          // https://github.com/folio-org/raml-module-builder/blob/v35.3.0/domain-models-runtime/src/main/resources/templates/db_scripts/extensions.ftl
+          statement.execute("DO $$ BEGIN PERFORM pg_advisory_xact_lock(20201101, 1234567890); "
+              + "CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public; "
+              + "END $$");
+          // https://github.com/folio-org/raml-module-builder/blob/v35.3.0/domain-models-runtime/src/main/resources/templates/db_scripts/general_functions.ftl#L89-L94
+          statement.execute("CREATE OR REPLACE FUNCTION " + defaultSchema + ".f_unaccent(text) "
+              + "RETURNS text AS $$ SELECT public.unaccent('public.unaccent', $1) "
+              + "$$ LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT");
         }
+
       } catch (SQLException e) {
         log.error("Default schema " + defaultSchema + " has not been created.", e);
       }
