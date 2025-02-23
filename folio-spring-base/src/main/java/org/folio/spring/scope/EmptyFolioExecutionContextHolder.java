@@ -1,8 +1,10 @@
 package org.folio.spring.scope;
 
+import lombok.Getter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 
+@Getter
 public class EmptyFolioExecutionContextHolder {
 
   private final EmptyFolioExecutionContext emptyFolioExecutionContext;
@@ -11,21 +13,6 @@ public class EmptyFolioExecutionContextHolder {
     this.emptyFolioExecutionContext = new EmptyFolioExecutionContext(folioModuleMetadata);
   }
 
-  public EmptyFolioExecutionContext getEmptyFolioExecutionContext() {
-    return emptyFolioExecutionContext;
-  }
-
-  private static final class EmptyFolioExecutionContext implements FolioExecutionContext {
-
-    private final FolioModuleMetadata folioModuleMetadata;
-
-    private EmptyFolioExecutionContext(FolioModuleMetadata folioModuleMetadata) {
-      this.folioModuleMetadata = folioModuleMetadata;
-    }
-
-    @Override
-    public FolioModuleMetadata getFolioModuleMetadata() {
-      return folioModuleMetadata;
-    }
-  }
+  private record EmptyFolioExecutionContext(FolioModuleMetadata getFolioModuleMetadata)
+    implements FolioExecutionContext { }
 }

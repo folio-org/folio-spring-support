@@ -30,6 +30,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -75,9 +76,14 @@ class JpaCqlRepositoryIT {
     assertThat(strRepository).isInstanceOf(JpaCqlRepository.class);
   }
 
-  @Test
-  void testSelectAllRecordsWithSort() {
-    var page = personRepository.findByCql("(cql.allRecords=1)sortby age/sort.ascending", PageRequest.of(0, 10));
+  @ValueSource(strings = {
+    "name=John or age<21",
+    "name=* sortby age/sort.ascending",
+    "(cql.allRecords=1)sortby age/sort.ascending"
+  })
+  @ParameterizedTest
+  void testSelectAll(String cql) {
+    var page = personRepository.findByCql(cql, PageRequest.of(0, 10));
     assertThat(page)
       .hasSize(3)
       .extracting(Person::getAge)
@@ -241,7 +247,7 @@ class JpaCqlRepositoryIT {
   void testSelectAllRecordsByNonSpecifiedField(String query, int expectedSize, String excludedNames,
                                                String includedNames) {
     var expectedNames = Optional.ofNullable(includedNames).map(names -> names.split(";")).orElse(new String[0]);
-    var notExpectedNames = Optional.ofNullable(excludedNames).map(names -> names.split(";")).orElse(new String[]{""});
+    var notExpectedNames = Optional.ofNullable(excludedNames).map(names -> names.split(";")).orElse(new String[] {""});
     var page = personRepository.findByCql(query, PageRequest.of(0, 10));
     assertThat(page)
       .hasSize(expectedSize)
@@ -264,16 +270,6 @@ class JpaCqlRepositoryIT {
       .hasSize(2)
       .extracting(Person::getName)
       .contains("John");
-  }
-
-  @Test
-  void testSelectAllRecordsWithAsterisks() {
-    var page = personRepository.findByCql("name=* sortby age/sort.ascending", PageRequest.of(0, 10));
-    assertThat(page)
-      .hasSize(3)
-      .extracting(Person::getAge)
-      .startsWith(20)
-      .endsWith(40);
   }
 
   @ParameterizedTest
@@ -315,16 +311,6 @@ class JpaCqlRepositoryIT {
       .hasSize(2)
       .extracting(Person::getName)
       .contains("John");
-  }
-
-  @Test
-  void testSelectAllRecordsByNameOrAge() {
-    var page = personRepository.findByCql("name=John or age<21", PageRequest.of(0, 10));
-    assertThat(page)
-      .hasSize(3)
-      .extracting(Person::getAge)
-      .startsWith(20)
-      .endsWith(40);
   }
 
   @Test
@@ -431,20 +417,19 @@ class JpaCqlRepositoryIT {
         LocalDate.parse("2001-01-02").atStartOfDay());
   }
 
-
   static Stream<Arguments> testLikeMasking() {
     return Stream.of(
-        Arguments.arguments("a", List.of("a")),
-        Arguments.arguments("a?", List.of("ab")),
-        Arguments.arguments("a*", List.of("a", "ab", "abc")),
-        Arguments.arguments("\\*", List.of("*")),
-        Arguments.arguments("\\?", List.of("?")),
-        Arguments.arguments("%", List.of("%")),
-        Arguments.arguments("_", List.of("_")),
-        Arguments.arguments("\\\\", List.of("\\")),
-        Arguments.arguments("'", List.of("'")),
-        Arguments.arguments("\\\"", List.of("\""))
-        );
+      Arguments.arguments("a", List.of("a")),
+      Arguments.arguments("a?", List.of("ab")),
+      Arguments.arguments("a*", List.of("a", "ab", "abc")),
+      Arguments.arguments("\\*", List.of("*")),
+      Arguments.arguments("\\?", List.of("?")),
+      Arguments.arguments("%", List.of("%")),
+      Arguments.arguments("_", List.of("_")),
+      Arguments.arguments("\\\\", List.of("\\")),
+      Arguments.arguments("'", List.of("'")),
+      Arguments.arguments("\\\"", List.of("\""))
+    );
   }
 
   @ParameterizedTest
@@ -458,10 +443,10 @@ class JpaCqlRepositoryIT {
 
   static Stream<Arguments> testNotLikeMasking() {
     return Stream.of(
-        Arguments.arguments("?", List.of("ab", "abc")),
-        Arguments.arguments("_", List.of("a", "ab", "abc", "*", "?", "%", "\"", "'", "\\")),
-        Arguments.arguments("'", List.of("a", "ab", "abc", "*", "?", "%", "_", "\"", "\\"))
-        );
+      Arguments.arguments("?", List.of("ab", "abc")),
+      Arguments.arguments("_", List.of("a", "ab", "abc", "*", "?", "%", "\"", "'", "\\")),
+      Arguments.arguments("'", List.of("a", "ab", "abc", "*", "?", "%", "_", "\"", "\\"))
+    );
   }
 
   @ParameterizedTest

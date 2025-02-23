@@ -207,37 +207,44 @@ public class Cql2JpaCriteria<E> {
 
   private Predicate process(CQLNode node, CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query)
     throws QueryValidationException {
-    if (node instanceof CQLTermNode cqlTermNode) {
-      return processTerm(cqlTermNode, cb, root, query);
-    } else if (node instanceof CQLBooleanNode cqlBooleanNode) {
-      return processBoolean(cqlBooleanNode, cb, root, query);
-    } else {
-      throw createUnsupportedException(node);
+    switch (node) {
+      case CQLTermNode cqlTermNode -> {
+        return processTerm(cqlTermNode, cb, root, query);
+      }
+      case CQLBooleanNode cqlBooleanNode -> {
+        return processBoolean(cqlBooleanNode, cb, root, query);
+      }
+      default -> throw createUnsupportedException(node);
     }
   }
 
   private Predicate processBoolean(CQLBooleanNode node, CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query)
     throws QueryValidationException {
-    if (node instanceof CQLAndNode) {
-      return cb.and(process(node.getLeftOperand(), cb, root, query), process(node.getRightOperand(), cb, root, query));
-    } else if (node instanceof CQLOrNode) {
-      if (node.getRightOperand().getClass() == CQLTermNode.class) {
-        // special case for the query the UI uses most often, before the user has
-        // typed in anything: title=* OR contributors*= OR identifier=*
-        var rightOperand = (CQLTermNode) (node.getRightOperand());
-        if (ASTERISKS_SIGN.equals(rightOperand.getTerm()) && "=".equals(rightOperand.getRelation().getBase())
-          && isEmpty(rightOperand.getRelation().getModifiers())) {
-          log.debug("pgFT(): Simplifying =* OR =* ");
-          return process(node.getLeftOperand(), cb, root, query);
-        }
+    switch (node) {
+      case CQLAndNode cqlAndNode -> {
+        return cb.and(process(cqlAndNode.getLeftOperand(), cb, root, query),
+          process(cqlAndNode.getRightOperand(), cb, root, query));
       }
-      return cb.or(process(node.getLeftOperand(), cb, root, query), process(node.getRightOperand(), cb, root, query));
-    } else if (node instanceof CQLNotNode) {
-      return
-        cb.and(process(node.getLeftOperand(), cb, root, query),
-          cb.not(process(node.getRightOperand(), cb, root, query)));
-    } else {
-      throw createUnsupportedException(node);
+      case CQLOrNode cqlOrNode -> {
+        if (cqlOrNode.getRightOperand().getClass() == CQLTermNode.class) {
+          // special case for the query the UI uses most often, before the user has
+          // typed in anything: title=* OR contributors*= OR identifier=*
+          var rightOperand = (CQLTermNode) (cqlOrNode.getRightOperand());
+          if (ASTERISKS_SIGN.equals(rightOperand.getTerm()) && "=".equals(rightOperand.getRelation().getBase())
+              && isEmpty(rightOperand.getRelation().getModifiers())) {
+            log.debug("pgFT(): Simplifying =* OR =* ");
+            return process(cqlOrNode.getLeftOperand(), cb, root, query);
+          }
+        }
+        return cb.or(process(cqlOrNode.getLeftOperand(), cb, root, query),
+          process(cqlOrNode.getRightOperand(), cb, root, query));
+      }
+      case CQLNotNode cqlNotNode -> {
+        return
+          cb.and(process(cqlNotNode.getLeftOperand(), cb, root, query),
+            cb.not(process(cqlNotNode.getRightOperand(), cb, root, query)));
+      }
+      default -> throw createUnsupportedException(node);
     }
   }
 
@@ -377,7 +384,7 @@ public class Cql2JpaCriteria<E> {
     if (isEmpty(fieldNamesForAttribute) || fieldNamesForAttribute.size() > 1) {
       throw new CqlQueryValidationException(format("Query contains nonExisting field [%s]", typeName));
     }
-    return fieldNamesForAttribute.get(0);
+    return fieldNamesForAttribute.getFirst();
   }
 
   /**

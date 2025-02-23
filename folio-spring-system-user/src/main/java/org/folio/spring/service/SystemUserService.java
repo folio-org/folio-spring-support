@@ -89,7 +89,7 @@ public class SystemUserService {
       log.info("Token for system user has been issued [tenantId={}][username={}]", tenantId, username);
       return token;
     } catch (Exception exp) {
-      log.error("Unexpected error occurred while setting folio context" + exp);
+      log.error("Unexpected error occurred while setting folio context", exp);
       throw new SystemUserAuthorizationException(TOKEN_FAILED_MSG + username + " [tenantId=" + tenantId + "]");
     }
   }
@@ -136,11 +136,11 @@ public class SystemUserService {
       var response = authnClient.login(credentials);
       var tokenHeaders = response.getHeaders().get(XOkapiHeaders.TOKEN);
 
-      if (isNull(tokenHeaders) || isNull(tokenHeaders.get(0))) {
+      if (isNull(tokenHeaders) || isNull(tokenHeaders.getFirst())) {
         throw new SystemUserAuthorizationException(TOKEN_FAILED_MSG + credentials.username());
       }
 
-      return UserToken.builder().accessToken(tokenHeaders.get(0)).accessTokenExpiration(Instant.MAX).build();
+      return UserToken.builder().accessToken(tokenHeaders.getFirst()).accessTokenExpiration(Instant.MAX).build();
     } catch (FeignException fex) {
       if (fex.status() == HttpStatus.NOT_FOUND.value()) {
         log.error("Login with legacy end-point not found.");

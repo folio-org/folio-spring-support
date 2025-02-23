@@ -45,7 +45,7 @@ class TranslationServiceGetFilesTest {
       hasSize(1)
     );
 
-    Map<String, String> map = files.get(0).getPatterns();
+    Map<String, String> map = files.getFirst().getPatterns();
 
     assertThat(map, hasEntry("mod-foo.whoami", "foo"));
     assertThat(map, hasEntry("mod-bar.whoami", "bar"));
@@ -110,7 +110,7 @@ class TranslationServiceGetFilesTest {
     TranslationService service = getService("nonexistent");
     assertThrows(
       IllegalStateException.class,
-      () -> service.getAvailableTranslationFiles(),
+      service::getAvailableTranslationFiles,
       "Nonexistent folder should result in an error"
     );
   }

@@ -23,15 +23,15 @@ class FolioExecutionContextTest {
       new FolioExecutionScopeConfig(new EmptyFolioExecutionContextHolder(null));
 
   @Test
-  void shouldReturnNullsForDefaultImplementation() {
+  void shouldReturnNullOrEmptysForDefaultImplementation() {
     assertThat(context).satisfies(ctx -> {
       assertNull(ctx.getTenantId());
       assertNull(ctx.getOkapiUrl());
       assertNull(ctx.getToken());
       assertNull(ctx.getUserId());
       assertNull(ctx.getRequestId());
-      assertNull(ctx.getAllHeaders());
-      assertNull(ctx.getOkapiHeaders());
+      assertThat(ctx.getAllHeaders()).isEmpty();
+      assertThat(ctx.getOkapiHeaders()).isEmpty();
       assertNull(ctx.getFolioModuleMetadata());
     });
   }
@@ -40,12 +40,10 @@ class FolioExecutionContextTest {
   void executeCanThrow() {
     assertTenantId().isNull();
     var fooContext = folioExecutionContext("foo");
-    var e = assertThrows(RuntimeException.class, () -> {
-      fooContext.execute(() -> {
-        assertTenantId().isEqualTo("foo");
-        throw new RuntimeException("catch me if you can");
-      });
-    });
+    var e = assertThrows(RuntimeException.class, () -> fooContext.execute(() -> {
+      assertTenantId().isEqualTo("foo");
+      throw new RuntimeException("catch me if you can");
+    }));
     assertTenantId().isNull();
     assertThat(e.getMessage()).isEqualTo("catch me if you can");
   }

@@ -1,9 +1,12 @@
 package org.folio.spring.i18n.service;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -45,7 +48,7 @@ class TranslationServiceResolutionTest {
       arguments(Locale.CANADA, "mod-foo.en_only", "[mod-foo] In en_ca!"),
       // fallback to best matching language
       arguments(
-        new Locale("es", "sp"),
+        Locale.of("es", "sp"),
         "mod-foo.es_only",
         "[mod-foo] In es base!"
       ),
@@ -59,7 +62,9 @@ class TranslationServiceResolutionTest {
   void testGetTranslationPresent(Locale locale, String key, String expected) {
     TranslationService service = getService("multiple");
 
-    assertThat(service.getTranslation(locale, null).get(key), is(expected));
+    var translation = service.getTranslation(locale, null);
+    assertNotNull(translation);
+    assertThat(translation.get(key), is(expected));
   }
 
   @Test
@@ -74,15 +79,15 @@ class TranslationServiceResolutionTest {
       new PathMatchingResourcePatternResolver(),
       new TranslationConfiguration(
         "/test-translations/test-normal/",
-        new Locale("test", "")
+        Locale.of("test", "")
       )
     );
 
-    assertThat(service.getCurrentLocale(), is(new Locale("test", "")));
+    assertThat(service.getCurrentLocale(), is(Locale.of("test", "")));
 
     assertThat(
       service.getFallbackTranslation().getLocale(),
-      is(new Locale("test", ""))
+      is(Locale.of("test", ""))
     );
   }
 
@@ -90,7 +95,7 @@ class TranslationServiceResolutionTest {
   void testDefaultLocaleFallback() {
     TranslationService service = getService("multiple");
 
-    Locale.setDefault(new Locale("test", ""));
+    Locale.setDefault(Locale.of("test", ""));
     assertThat(
       service.getFallbackTranslation().getLocale(),
       is(Locale.ENGLISH)
@@ -105,7 +110,7 @@ class TranslationServiceResolutionTest {
     Locale.setDefault(Locale.FRANCE);
     assertThrows(
       IllegalStateException.class,
-      () -> service.getFallbackTranslation(),
+      service::getFallbackTranslation,
       "No available translations causes an IllegalStateException"
     );
   }
@@ -121,12 +126,12 @@ class TranslationServiceResolutionTest {
       // we don't have en_test, but we'd rather pick the user's first requested language
       // over a better fitting secondary language
       arguments(
-        Arrays.asList(new Locale("en", "test"), Locale.FRANCE),
-        new Locale("en", "test")
+        Arrays.asList(Locale.of("en", "test"), Locale.FRANCE),
+        Locale.of("en", "test")
       ),
       // test default (Locale.ENGLISH in TranslationConfiguration)
-      arguments(Arrays.asList(Locale.CHINESE), Locale.ENGLISH),
-      arguments(Arrays.asList(), Locale.ENGLISH)
+      arguments(singletonList(Locale.CHINESE), Locale.ENGLISH),
+      arguments(emptyList(), Locale.ENGLISH)
     );
   }
 
@@ -218,7 +223,7 @@ class TranslationServiceResolutionTest {
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setPreferredLocales(
-      Arrays.asList(Locale.ENGLISH)
+      singletonList(Locale.ENGLISH)
     );
     RequestContextHolder.setRequestAttributes(
       new ServletRequestAttributes(request)
@@ -230,7 +235,7 @@ class TranslationServiceResolutionTest {
     );
 
     request.setPreferredLocales(
-      Arrays.asList(Locale.FRENCH)
+      singletonList(Locale.FRENCH)
     );
     RequestContextHolder.setRequestAttributes(
       new ServletRequestAttributes(request)
@@ -248,7 +253,7 @@ class TranslationServiceResolutionTest {
     TranslationService service = getService("multiple");
 
     MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setPreferredLocales(Arrays.asList(Locale.US));
+    request.setPreferredLocales(singletonList(Locale.US));
     RequestContextHolder.setRequestAttributes(
       new ServletRequestAttributes(request)
     );
@@ -259,7 +264,7 @@ class TranslationServiceResolutionTest {
     );
 
     request = new MockHttpServletRequest();
-    request.setPreferredLocales(Arrays.asList(Locale.FRENCH));
+    request.setPreferredLocales(singletonList(Locale.FRENCH));
     RequestContextHolder.setRequestAttributes(
       new ServletRequestAttributes(request)
     );
@@ -271,7 +276,7 @@ class TranslationServiceResolutionTest {
   }
 
   @AfterEach
-  public void cleanup() {
+  void cleanup() {
     RequestContextHolder.resetRequestAttributes();
   }
 }

@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.folio</groupId>
     <artifactId>folio-spring-support</artifactId>
-    <version>8.3.0-SNAPSHOT</version>
+    <version>9.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>folio-spring-testing</artifactId>
@@ -98,15 +98,6 @@
     <dependency>
       <groupId>org.jeasy</groupId>
       <artifactId>easy-random-core</artifactId>
-    </dependency>
-
-    <!-- Remove classgraph dependency when easy-random-core ships with a classgraph version >= 4.8.112
-         https://nvd.nist.gov/vuln/detail/CVE-2021-47621
-    -->
-    <dependency>
-      <groupId>io.github.classgraph</groupId>
-      <artifactId>classgraph</artifactId>
-      <version>${classgraph.version}</version>
     </dependency>
 
     <dependency>

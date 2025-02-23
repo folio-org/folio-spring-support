@@ -35,7 +35,7 @@ public class TokenUtils {
             .map(ServerCookieDecoder.STRICT::decodeAll)
             .flatMap(Collection::stream).toList();
 
-    var accessToken = getTokenFromCookies(FOLIO_ACCESS_TOKEN, cookies);
+    var accessToken = getTokenFromCookies(cookies);
 
     return UserToken.builder()
         .accessToken(accessToken)
@@ -55,12 +55,12 @@ public class TokenUtils {
     return now.plus(customTtl);
   }
 
-  private String getTokenFromCookies(String cookieName, List<Cookie> cookies) {
+  private String getTokenFromCookies(List<Cookie> cookies) {
     return cookies
         .stream()
-        .filter(cookie -> cookieName.equals(cookie.name()))
+        .filter(cookie -> FOLIO_ACCESS_TOKEN.equals(cookie.name()))
         .findFirst().map(Cookie::value)
-        .orElseThrow(() -> new IllegalArgumentException("No cookie found for name: " + cookieName));
+        .orElseThrow(() -> new IllegalArgumentException("No cookie found for name: " + FOLIO_ACCESS_TOKEN));
   }
 
   private static Instant parseExpiration(String expireDate) {

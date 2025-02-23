@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -55,7 +56,8 @@ class DatabaseCleanupExtensionTest {
     when(applicationContext.getBean(FolioModuleMetadata.class)).thenReturn(folioModuleMetadata);
     when(folioModuleMetadata.getModuleName()).thenReturn("mod-test");
     when(folioModuleMetadata.getDBSchemaName(anyString())).thenAnswer(in -> in.getArgument(0) + "-mod-test");
-    when(jdbcTemplate.query(anyString(), any(RowMapper.class))).thenReturn(List.of("tenant1", "tenant2"));
+    when(jdbcTemplate.query(anyString(), ArgumentMatchers.<RowMapper<Object>>any())).thenReturn(
+      List.of("tenant1", "tenant2"));
     doNothing().when(jdbcTemplate).execute(captor.capture());
 
     new DatabaseCleanupExtension().afterEach(context);
@@ -67,14 +69,6 @@ class DatabaseCleanupExtensionTest {
       "delete from tenant2-mod-test.table1;",
       "delete from tenant2-mod-test.table2;"
     );
-  }
-
-  static class TestClass {
-
-    @DatabaseCleanup(tables = {"table1", "table2"})
-    void testMethod() {
-
-    }
   }
 
   class StubTestContext implements TestContext {
@@ -107,17 +101,17 @@ class DatabaseCleanupExtensionTest {
 
     @Override
     public void markApplicationContextDirty(DirtiesContext.HierarchyMode hierarchyMode) {
-
+      // stub test context method
     }
 
     @Override
     public void updateState(Object testInstance, Method testMethod, Throwable testException) {
-
+      // stub test context method
     }
 
     @Override
     public void setAttribute(String name, Object value) {
-
+      // stub test context method
     }
 
     @Override
@@ -138,6 +132,14 @@ class DatabaseCleanupExtensionTest {
     @Override
     public String[] attributeNames() {
       return new String[0];
+    }
+  }
+
+  static class TestClass {
+
+    @DatabaseCleanup(tables = {"table1", "table2"})
+    void testMethod() {
+      // stub test class method
     }
   }
 }
