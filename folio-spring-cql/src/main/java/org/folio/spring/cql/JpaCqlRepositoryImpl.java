@@ -35,7 +35,7 @@ public class JpaCqlRepositoryImpl<T, I> extends SimpleJpaRepository<T, I> implem
 
   @Override
   public Page<T> findByCql(String cql, Pageable pageable) {
-    var criteria = cql2JpaCriteria.toCollectCriteria(cql, false);
+    var criteria = cql2JpaCriteria.toCollectCriteria(cql);
     List<T> resultList = em
       .createQuery(criteria)
       .setFirstResult((int) pageable.getOffset())
@@ -45,25 +45,9 @@ public class JpaCqlRepositoryImpl<T, I> extends SimpleJpaRepository<T, I> implem
   }
 
   @Override
-  public Page<T> findByCqlIgnoreCase(String cql, Pageable pageable, boolean ignoreCase) {
-    var criteria = cql2JpaCriteria.toCollectCriteria(cql, ignoreCase);
-    List<T> resultList = em
-      .createQuery(criteria)
-      .setFirstResult((int) pageable.getOffset())
-      .setMaxResults(pageable.getPageSize())
-      .getResultList();
-    return PageableExecutionUtils.getPage(resultList, pageable, () -> countIgnoreCase(cql, true));
-  }
-
-  @Override
   public long count(String cql) {
-    var criteria = cql2JpaCriteria.toCountCriteria(cql, false);
+    var criteria = cql2JpaCriteria.toCountCriteria(cql);
     return em.createQuery(criteria).getSingleResult();
   }
 
-  @Override
-  public long countIgnoreCase(String cql, boolean ignoreCase) {
-    var criteria = cql2JpaCriteria.toCountCriteria(cql, ignoreCase);
-    return em.createQuery(criteria).getSingleResult();
-  }
 }

@@ -1,3 +1,8 @@
+CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;
+CREATE OR REPLACE FUNCTION f_unaccent(text) RETURNS text AS $$
+  SELECT public.unaccent('public.unaccent', $1)
+$$ LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT;
+
 DROP TABLE IF EXISTS
   city,
   person,
