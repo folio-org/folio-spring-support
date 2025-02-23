@@ -1,14 +1,20 @@
 package org.folio.spring.cql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.context.jdbc.SqlMergeMode.MergeMode.MERGE;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.folio.cql2pgjson.exception.QueryValidationException;
 import org.folio.spring.cql.domain.City;
 import org.folio.spring.cql.domain.Language;
 import org.folio.spring.cql.domain.LanguageRespectAccents;
@@ -394,21 +400,28 @@ class JpaCqlRepositoryIT {
     );
   }
 
-  @Test
-  void testUnsupportedFeatureQuery() {
-    org.junit.jupiter.api.Assertions.assertThrows(CqlQueryValidationException.class,
-      () -> personRepository.count("name prox Jon")
-    );
+  @ParameterizedTest
+  @CsvSource(textBlock = """
+      name prox Jon,   CQLProxNode
+      city.name%Kyiv,  CQLTermNode
+      age within 0 18, Relation within not implemented
+      """)
+  void testFindByCqlThrowsCqlQueryValidationException(String cql, String message) {
+    var offsetRequest = PageRequest.of(0, 10);
+    assertThatThrownBy(() -> personRepository.findByCql(cql, offsetRequest))
+      .isInstanceOf(CqlQueryValidationException.class)
+      .hasMessageContaining(message);
   }
 
-  @Test
-  void testWithUnsupportedQueryOperator() {
-    var offsetRequest = PageRequest.of(0, 10);
-    var thrown = org.junit.jupiter.api.Assertions.assertThrows(CqlQueryValidationException.class,
-      () -> personRepository.findByCql("city.name%Kyiv", offsetRequest)
-    );
-
-    org.junit.jupiter.api.Assertions.assertTrue(thrown.getMessage().contains("Not implemented yet"));
+  @ParameterizedTest
+  @ValueSource(classes = { String.class, Integer.class })
+  void testQueryByCqlThrowsUnsupportedOperatorException(Class<?> theClass) {
+    var cql2JpaCriteria = new Cql2JpaCriteria<>(LanguageRespectCaseRespectAccents.class, null);
+    Expression<String> expression = when(mock(Expression.class).getJavaType()).thenReturn(theClass).getMock();
+    var cb = mock(CriteriaBuilder.class);
+    assertThatThrownBy(() -> cql2JpaCriteria.queryBySql(expression, "term", "~", cb))
+      .isInstanceOf(QueryValidationException.class)
+      .hasMessageContaining("Unsupported operator '~'");
   }
 
   @Test
