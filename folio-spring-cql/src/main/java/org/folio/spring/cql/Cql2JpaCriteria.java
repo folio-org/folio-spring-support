@@ -393,7 +393,7 @@ public class Cql2JpaCriteria<E> {
   private Predicate queryByLike(Path<String> field0, String term0, String comparator,
                                 CriteriaBuilder cb) {
 
-    var wrapper = wrapper(field0, cb);
+    var wrapper = wrapper(cb);
     var field = wrapper.apply(field0);
     var term = wrapper.apply(cb.literal(cql2like(term0)));
     if (NOT_EQUALS_OPERATOR.equals(comparator)) {
@@ -411,12 +411,9 @@ public class Cql2JpaCriteria<E> {
   }
 
   /**
-   * Wrap the field with functions lower and/or f_unaccent as needed.
+   * A wrapper with functions lower and/or f_unaccent as needed for {@link #domainClass}.
    */
-  private UnaryOperator<Expression<String>> wrapper(Expression<String> field, CriteriaBuilder cb) {
-    if (!field.getJavaType().equals(String.class)) {
-      return UnaryOperator.identity();
-    }
+  private UnaryOperator<Expression<String>> wrapper(CriteriaBuilder cb) {
     var respectAccents = domainClass.getAnnotation(RespectAccents.class) != null;
     var respectCase = domainClass.getAnnotation(RespectCase.class) != null;
     if (respectAccents) {
@@ -438,14 +435,14 @@ public class Cql2JpaCriteria<E> {
    * Create an SQL expression using SQL as is syntax.
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
-  private Predicate queryBySql(Expression field, Comparable term, String comparator,
+  Predicate queryBySql(Expression field, Comparable term, String comparator,
       CriteriaBuilder cb) throws QueryValidationException {
 
     var value = (String) term;
     var javaType = field.getJavaType();
 
     if (String.class.equals(javaType)) {
-      UnaryOperator<Expression<String>> wrapper = wrapper(field, cb);
+      UnaryOperator<Expression<String>> wrapper = wrapper(cb);
       field = wrapper.apply(field);
       var termExpression = wrapper.apply(cb.literal(cql2like(term.toString())));
       return toPredicate(field, termExpression, comparator, cb);
