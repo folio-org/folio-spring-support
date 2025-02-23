@@ -1,5 +1,11 @@
-## 8.3.0 In progress
+## 9.0.0 In progress
+
+Breaking change, new default: A CQL search in a `String` field ignores case (= is case insensitive) and ignores accents by default; this is for consistency with <a href="https://github.com/folio-org/raml-module-builder?tab=readme-ov-file#the-post-tenant-api">RMB based modules</a>. Use the annotations `@RespectCase` and/or `@RespectAccents` in the entity class to change this new default.
+
 * [FOLSPRINGS-178](https://folio-org.atlassian.net/browse/FOLSPRINGS-178) spring-cloud-starter-openfeign 4.1.4 fixing spring-security-crypto Authorization Bypass
+
+### cql submodule
+* [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries
 
 ### folio-spring-system-user
 * [FOLSPRINGS-180](https://folio-org.atlassian.net/browse/FOLSPRINGS-180) Token expiration off by 1 minute in test
