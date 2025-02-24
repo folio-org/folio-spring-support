@@ -97,7 +97,7 @@ class JpaCqlRepositoryIT {
       .endsWith(40);
   }
 
-  @Test
+  @ParameterizedTest
   @MethodSource
   @Sql({
     "/sql/jpa-cql-lang-ignore-case-test-data.sql"
