@@ -3,6 +3,13 @@
 ### cql submodule
 * [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries - backport, opt in only
 
+When enabling case insensitive and/or accents ignoring CQL queries update database indices accordingly, for example:
+
+```
+DROP INDEX IF EXISTS idx_medreq_requester_barcode;
+CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.mediated_request(lower(f_unaccent(requester_barcode)));
+```
+
 ## 8.2.2 2024-12-11
 * [FOLSPRINGS-174](https://folio-org.atlassian.net/browse/FOLSPRINGS-174) x-okapi-tenant header duplication
 * [FOLSPRINGS-178](https://folio-org.atlassian.net/browse/FOLSPRINGS-178) spring-cloud-starter-openfeign 4.1.4 fixing spring-security-crypto Authorization Bypass
