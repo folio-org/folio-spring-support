@@ -12,7 +12,8 @@ public class MinioContainerExtension implements BeforeAllCallback, AfterAllCallb
   static final String ACCESS_KEY_PROPERTY_NAME = "folio.remote-storage.accessKey";
   static final String SECRET_KEY_PROPERTY_NAME = "folio.remote-storage.secretKey";
   private static final String MINIO_IMAGE = "minio/minio:RELEASE.2024-01-18T22-51-28Z";
-  private static final MinIOContainer CONTAINER = new MinIOContainer(MINIO_IMAGE);
+  private static final MinIOContainer CONTAINER = new MinIOContainer(MINIO_IMAGE)
+    .withStartupAttempts(3);
 
   public void beforeAll(ExtensionContext context) {
     if (!CONTAINER.isRunning()) {

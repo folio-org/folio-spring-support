@@ -21,7 +21,8 @@ public class PostgresContainerExtension implements BeforeAllCallback, AfterAllCa
   private static final String POSTGRES_IMAGE = postgresImage(System.getenv());
 
   private static final PostgreSQLContainer<?> CONTAINER = new PostgreSQLContainer<>(POSTGRES_IMAGE)
-    .withDatabaseName("folio_test").withUsername("folio_admin").withPassword("password");
+    .withDatabaseName("folio_test").withUsername("folio_admin").withPassword("password")
+    .withStartupAttempts(3);
 
   /**
    * Starts the PostgreSQL container before all tests if it's not already running.

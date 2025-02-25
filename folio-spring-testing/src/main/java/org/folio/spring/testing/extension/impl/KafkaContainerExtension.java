@@ -18,7 +18,8 @@ public class KafkaContainerExtension implements BeforeAllCallback, AfterAllCallb
   private static final String SPRING_PROPERTY_NAME = "spring.kafka.bootstrap-servers";
   private static final DockerImageName KAFKA_IMAGE = parse("apache/kafka-native:3.8.0");
   private static final KafkaContainer CONTAINER = new KafkaContainer(KAFKA_IMAGE)
-    .withEnv("KAFKA_AUTO_CREATE_TOPICS_ENABLE", "false");
+    .withEnv("KAFKA_AUTO_CREATE_TOPICS_ENABLE", "false")
+    .withStartupAttempts(3);
 
   /**
    * Starts the Kafka container before all tests if it's not already running.
