@@ -20,7 +20,8 @@ import org.springframework.test.context.jdbc.Sql;
 @EnablePostgres
 @ContextConfiguration(classes = JpaCqlConfiguration.class)
 @EnableAutoConfiguration(exclude = FlywayAutoConfiguration.class)
-@Sql({"/sql/jpa-cql-modifiers-it-schema.sql", "/sql/jpa-cql-modifiers-test-data.sql"})
+@Sql({"/sql/jpa-cql-general-it-schema.sql",
+      "/sql/jpa-cql-modifiers-it-schema.sql", "/sql/jpa-cql-modifiers-test-data.sql"})
 class JpaCqlModifiersIT {
 
   @Autowired
