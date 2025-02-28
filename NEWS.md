@@ -1,4 +1,6 @@
-## 9.0.0 In progress
+## 9.1.0 IN PROGRESS
+
+## 9.0.0 2025-02-28
 * [FOLSPRINGS-188](https://folio-org.atlassian.net/browse/FOLSPRINGS-188) Upgrade to Java 21
 * [FOLSPRINGS-178](https://folio-org.atlassian.net/browse/FOLSPRINGS-178) spring-cloud-starter-openfeign 4.1.4 fixing spring-security-crypto Authorization Bypass
 
@@ -10,7 +12,7 @@
 
 In the module descriptor add `users.item.put` to the `modulePermissions` list of the `POST /_/tenant` endpoint ([FOLSPRINGS-183](https://folio-org.atlassian.net/browse/FOLSPRINGS-183)).
 
-## 8.2.1 In progress
+## 8.2.1 2024-10-23
 ### Testing submodule
 * [FOLSPRINGS-172](https://folio-org.atlassian.net/browse/FOLSPRINGS-172) Bump to postgres:16-alpine, suggest adding .github/workflows/postgres.yml
 
