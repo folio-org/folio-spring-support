@@ -11,7 +11,7 @@
 
   <groupId>org.folio</groupId>
   <artifactId>folio-spring-support</artifactId>
-  <version>9.1.0-SNAPSHOT</version>
+  <version>10.0.0-SNAPSHOT</version>
   <name>folio-spring-support</name>
   <description>This is a library (jar) that contains the basic functionality and main dependencies required for
     development FOLIO modules using
