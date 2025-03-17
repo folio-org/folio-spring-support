@@ -31,11 +31,14 @@ import org.folio.spring.cql.repo.PersonRepository;
 import org.folio.spring.cql.repo.StrRepository;
 import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.type.IntegrationTest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -74,6 +77,16 @@ class JpaCqlRepositoryIT {
   @Autowired
   private LanguageRespectCaseRespectAccentsRepository languageRespectCaseRespectAccentsRepository;
 
+  @BeforeEach
+  void enableCaseAccentsHandling() {
+    Cql2JpaCriteria.setCaseAccentsHandlingEnabled(true);
+  }
+
+  @AfterAll
+  static void disableCaseAccentsHandling() {
+    Cql2JpaCriteria.setCaseAccentsHandlingEnabled(false);
+  }
+
   @Test
   void testTypesOfRepositories() {
     assertThat(personRepository).isInstanceOf(JpaCqlRepository.class);
@@ -89,6 +102,15 @@ class JpaCqlRepositoryIT {
       .extracting(Person::getAge)
       .startsWith(20)
       .endsWith(40);
+  }
+
+  @Test
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testDisabled() {
+    Cql2JpaCriteria.setCaseAccentsHandlingEnabled(false);
+    assertThat(languageRepository.count("name==Java")).isOne();
   }
 
   @ParameterizedTest

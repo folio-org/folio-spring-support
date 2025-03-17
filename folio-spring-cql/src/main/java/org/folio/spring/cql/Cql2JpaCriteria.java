@@ -54,6 +54,7 @@ public class Cql2JpaCriteria<E> {
   private static final String NOT_EQUALS_OPERATOR = "<>";
   private static final String ASTERISKS_SIGN = "*";
   private static final Pattern DATES_RANGE_PATTERN = Pattern.compile("\\d{4}(-\\d{2}){2}:\\d{4}(-\\d{2}){2}");
+  private static boolean caseAccentsHandlingEnabled = false;
 
   private final Class<E> domainClass;
   private final EntityManager em;
@@ -404,9 +405,32 @@ public class Cql2JpaCriteria<E> {
   }
 
   /**
+   * Enable or disable the handling of case and accents.
+   *
+   * <p>If disabled the comparison is case sensitive and respects accents, and
+   * the annotations {@link IgnoreAccents}, {@link IgnoreCase}, {@link RespectAccents}, {@link RespectCase}
+   * are ignored.
+   *
+   * <p>If enabled the comparison is case insensitive and ignores accents, but this
+   * can be changed using the annotations {@link IgnoreAccents}, {@link IgnoreCase}, {@link RespectAccents},
+   * {@link RespectCase}.
+   *
+   * <p>For releases up to and including Sunflower it is disabled by default.
+   *
+   * <p>From Trillium on it is enabled by default and the method {@link #setCaseAccentsHandlingEnabled(boolean)}
+   * is removed.
+   */
+  public static void setCaseAccentsHandlingEnabled(boolean enabled) {
+    caseAccentsHandlingEnabled = enabled;
+  }
+
+  /**
    * A wrapper with functions lower and/or f_unaccent as needed for {@link #domainClass}.
    */
   private UnaryOperator<Expression<String>> wrapper(CriteriaBuilder cb) {
+    if (!caseAccentsHandlingEnabled) {
+      return UnaryOperator.identity();
+    }
     var respectAccents = domainClass.getAnnotation(RespectAccents.class) != null;
     var respectCase = domainClass.getAnnotation(RespectCase.class) != null;
     if (respectAccents) {
