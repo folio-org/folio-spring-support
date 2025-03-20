@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +54,7 @@ public class Cql2JpaCriteria<E> {
   private static final String NOT_EQUALS_OPERATOR = "<>";
   private static final String ASTERISKS_SIGN = "*";
   private static final Pattern DATES_RANGE_PATTERN = Pattern.compile("\\d{4}(-\\d{2}){2}:\\d{4}(-\\d{2}){2}");
+  private static boolean caseAccentsHandlingEnabled = false;
 
   private final Class<E> domainClass;
   private final EntityManager em;
@@ -206,44 +208,37 @@ public class Cql2JpaCriteria<E> {
 
   private Predicate process(CQLNode node, CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query)
     throws QueryValidationException {
-    switch (node) {
-      case CQLTermNode cqlTermNode -> {
-        return processTerm(cqlTermNode, cb, root, query);
-      }
-      case CQLBooleanNode cqlBooleanNode -> {
-        return processBoolean(cqlBooleanNode, cb, root, query);
-      }
-      default -> throw createUnsupportedException(node);
+    if (node instanceof CQLTermNode cqlTermNode) {
+      return processTerm(cqlTermNode, cb, root, query);
+    } else if (node instanceof CQLBooleanNode cqlBooleanNode) {
+      return processBoolean(cqlBooleanNode, cb, root, query);
+    } else {
+      throw createUnsupportedException(node);
     }
   }
 
   private Predicate processBoolean(CQLBooleanNode node, CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query)
     throws QueryValidationException {
-    switch (node) {
-      case CQLAndNode cqlAndNode -> {
-        return cb.and(process(cqlAndNode.getLeftOperand(), cb, root, query),
-          process(cqlAndNode.getRightOperand(), cb, root, query));
-      }
-      case CQLOrNode cqlOrNode -> {
-        if (cqlOrNode.getRightOperand().getClass() == CQLTermNode.class) {
-          // special case for the query the UI uses most often, before the user has
-          // typed in anything: title=* OR contributors*= OR identifier=*
-          var rightOperand = (CQLTermNode) (cqlOrNode.getRightOperand());
-          if (ASTERISKS_SIGN.equals(rightOperand.getTerm()) && "=".equals(rightOperand.getRelation().getBase())
-              && isEmpty(rightOperand.getRelation().getModifiers())) {
-            log.debug("pgFT(): Simplifying =* OR =* ");
-            return process(cqlOrNode.getLeftOperand(), cb, root, query);
-          }
+    if (node instanceof CQLAndNode) {
+      return cb.and(process(node.getLeftOperand(), cb, root, query), process(node.getRightOperand(), cb, root, query));
+    } else if (node instanceof CQLOrNode) {
+      if (node.getRightOperand().getClass() == CQLTermNode.class) {
+        // special case for the query the UI uses most often, before the user has
+        // typed in anything: title=* OR contributors*= OR identifier=*
+        var rightOperand = (CQLTermNode) (node.getRightOperand());
+        if (ASTERISKS_SIGN.equals(rightOperand.getTerm()) && "=".equals(rightOperand.getRelation().getBase())
+          && isEmpty(rightOperand.getRelation().getModifiers())) {
+          log.debug("pgFT(): Simplifying =* OR =* ");
+          return process(node.getLeftOperand(), cb, root, query);
         }
-        return cb.or(process(cqlOrNode.getLeftOperand(), cb, root, query),
-          process(cqlOrNode.getRightOperand(), cb, root, query));
       }
-      case CQLNotNode cqlNotNode -> {
-        return
-          cb.and(process(cqlNotNode.getLeftOperand(), cb, root, query),
-            cb.not(process(cqlNotNode.getRightOperand(), cb, root, query)));
-      }
-      default -> throw createUnsupportedException(node);
+      return cb.or(process(node.getLeftOperand(), cb, root, query), process(node.getRightOperand(), cb, root, query));
+    } else if (node instanceof CQLNotNode) {
+      return
+        cb.and(process(node.getLeftOperand(), cb, root, query),
+          cb.not(process(node.getRightOperand(), cb, root, query)));
+    } else {
+      throw createUnsupportedException(node);
     }
   }
 
@@ -281,7 +276,8 @@ public class Cql2JpaCriteria<E> {
   }
 
   private static <G extends Comparable<? super G>> Predicate toPredicate(Expression<G> field, G value,
-    String comparator, CriteriaBuilder cb) throws QueryValidationException {
+      String comparator, CriteriaBuilder cb) throws QueryValidationException {
+
     return switch (comparator) {
       case ">" -> cb.greaterThan(field, value);
       case "<" -> cb.lessThan(field, value);
@@ -289,17 +285,34 @@ public class Cql2JpaCriteria<E> {
       case "<=" -> cb.lessThanOrEqualTo(field, value);
       case "==", "=" -> cb.equal(field, value);
       case NOT_EQUALS_OPERATOR -> cb.notEqual(field, value);
-      default -> throw new QueryValidationException(
-        "CQL: Unsupported operator '"
-          + comparator
-          + "', "
-          + " only supports '=', '==', and '<>' (possibly with right truncation)");
+      default -> throw unsupportedOperatorException(comparator);
     };
   }
 
+  private static <G extends Comparable<? super G>> Predicate toPredicate(Expression<G> field, Expression<G> value,
+      String comparator, CriteriaBuilder cb) throws QueryValidationException {
+
+    return switch (comparator) {
+      case ">" -> cb.greaterThan(field, value);
+      case "<" -> cb.lessThan(field, value);
+      case ">=" -> cb.greaterThanOrEqualTo(field, value);
+      case "<=" -> cb.lessThanOrEqualTo(field, value);
+      case "==", "=" -> cb.equal(field, value);
+      case NOT_EQUALS_OPERATOR -> cb.notEqual(field, value);
+      default -> throw unsupportedOperatorException(comparator);
+    };
+  }
+
+  private static QueryValidationException unsupportedOperatorException(String operator) {
+    return new QueryValidationException(
+        "CQL: Unsupported operator '"
+            + operator
+            + "', "
+            + " only supports '=', '==', and '<>' (possibly with right truncation)");
+  }
+
   private Predicate indexNode(Path<?> field, CQLTermNode node, CqlModifiers modifiers,
-                              CriteriaBuilder cb)
-    throws QueryValidationException {
+                              CriteriaBuilder cb) throws QueryValidationException {
 
     if (!isEmpty(modifiers.getRelationModifiers())) {
       return buildModifiersQuery(field, modifiers, cb);
@@ -371,12 +384,16 @@ public class Cql2JpaCriteria<E> {
   /**
    * Create an SQL expression using LIKE query syntax.
    */
-  private static Predicate queryByLike(Path<String> field, String term, String comparator,
+  private Predicate queryByLike(Path<String> field0, String term0, String comparator,
                                 CriteriaBuilder cb) {
+
+    var wrapper = wrapper(cb);
+    var field = wrapper.apply(field0);
+    var term = wrapper.apply(cb.literal(cql2like(term0)));
     if (NOT_EQUALS_OPERATOR.equals(comparator)) {
-      return cb.notLike(field, cql2like(term), '\\');
+      return cb.notLike(field, term, '\\');
     } else {
-      return cb.like(field, cql2like(term), '\\');
+      return cb.like(field, term, '\\');
     }
   }
 
@@ -388,15 +405,65 @@ public class Cql2JpaCriteria<E> {
   }
 
   /**
+   * Enable or disable the handling of case and accents.
+   *
+   * <p>If disabled the comparison is case sensitive and respects accents, and
+   * the annotations {@link IgnoreAccents}, {@link IgnoreCase}, {@link RespectAccents}, {@link RespectCase}
+   * are ignored.
+   *
+   * <p>If enabled the comparison is case insensitive and ignores accents, but this
+   * can be changed using the annotations {@link IgnoreAccents}, {@link IgnoreCase}, {@link RespectAccents},
+   * {@link RespectCase}.
+   *
+   * <p>For releases up to and including Sunflower it is disabled by default.
+   *
+   * <p>From Trillium on it is enabled by default and the method {@link #setCaseAccentsHandlingEnabled(boolean)}
+   * is removed.
+   */
+  public static void setCaseAccentsHandlingEnabled(boolean enabled) {
+    caseAccentsHandlingEnabled = enabled;
+  }
+
+  /**
+   * A wrapper with functions lower and/or f_unaccent as needed for {@link #domainClass}.
+   */
+  private UnaryOperator<Expression<String>> wrapper(CriteriaBuilder cb) {
+    if (!caseAccentsHandlingEnabled) {
+      return UnaryOperator.identity();
+    }
+    var respectAccents = domainClass.getAnnotation(RespectAccents.class) != null;
+    var respectCase = domainClass.getAnnotation(RespectCase.class) != null;
+    if (respectAccents) {
+      if (respectCase) {
+        return UnaryOperator.identity();
+      } else {
+        return cb::lower;
+      }
+    } else {
+      if (respectCase) {
+        return expression -> cb.function("f_unaccent", String.class, expression);
+      } else {
+        return expression -> cb.lower(cb.function("f_unaccent", String.class, expression));
+      }
+    }
+  }
+
+  /**
    * Create an SQL expression using SQL as is syntax.
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
-  private static Predicate queryBySql(Expression field, Comparable term, String comparator,
-                                      CriteriaBuilder cb) throws QueryValidationException {
-    var value = (String) term;
+  Predicate queryBySql(Expression field, Comparable term, String comparator,
+      CriteriaBuilder cb) throws QueryValidationException {
 
+    var value = (String) term;
     var javaType = field.getJavaType();
-    if (Number.class.equals(javaType)) {
+
+    if (String.class.equals(javaType)) {
+      UnaryOperator<Expression<String>> wrapper = wrapper(cb);
+      field = wrapper.apply(field);
+      var termExpression = wrapper.apply(cb.literal(cql2like(term.toString())));
+      return toPredicate(field, termExpression, comparator, cb);
+    } else if (Number.class.equals(javaType)) {
       term = Integer.parseInt(value);
     } else if (UUID.class.equals(javaType)) {
       term = UUID.fromString(value);
