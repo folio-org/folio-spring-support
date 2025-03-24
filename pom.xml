@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.3</version> <!-- also change spring-boot.version -->
+    <version>3.4.4</version> <!-- also change spring-boot.version -->
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
 
@@ -30,22 +30,22 @@
 
   <properties>
     <java.version>21</java.version>
-    <spring-boot.version>3.4.3</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
-    <spring-cloud-starter-openfeign.version>4.2.0</spring-cloud-starter-openfeign.version>
+    <spring-boot.version>3.4.4</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
+    <spring-cloud-starter-openfeign.version>4.2.1</spring-cloud-starter-openfeign.version>
     <maven-compat.version>3.9.9</maven-compat.version>
     <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
-    <swagger-annotations.version>2.2.28</swagger-annotations.version>
+    <swagger-annotations.version>2.2.29</swagger-annotations.version>
     <feign-okhttp.version>13.5</feign-okhttp.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <folio-util.version>35.4.0</folio-util.version>
     <rhino.version>1.8.0</rhino.version>
-    <icu4j.version>76.1</icu4j.version>
+    <icu4j.version>77.1</icu4j.version>
     <commons-lang3.version>3.17.0</commons-lang3.version>
 
     <!-- Test dependencies versions -->
     <easy-random.version>5.0.0</easy-random.version>
     <mockito-inline.version>5.2.0</mockito-inline.version>
-    <wiremock.version>3.12.0</wiremock.version>
+    <wiremock.version>3.12.1</wiremock.version>
     <commons-compress.version>1.26.2</commons-compress.version>
 
     <!-- Plugins versions -->
@@ -138,7 +138,7 @@
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.21.3</version>
+              <version>10.21.4</version>
             </dependency>
           </dependencies>
           <executions>
