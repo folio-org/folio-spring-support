@@ -21,7 +21,6 @@ import org.folio.spring.cql.domain.LanguageRespectAccents;
 import org.folio.spring.cql.domain.LanguageRespectCase;
 import org.folio.spring.cql.domain.LanguageRespectCaseRespectAccents;
 import org.folio.spring.cql.domain.Person;
-import org.folio.spring.cql.domain.Status;
 import org.folio.spring.cql.domain.Str;
 import org.folio.spring.cql.repo.CityRepository;
 import org.folio.spring.cql.repo.LanguageRepository;
@@ -310,15 +309,6 @@ class JpaCqlRepositoryIT {
       .extracting(Person::getName)
       .contains("Jane");
   }
-
-//  @Test
-//  void testSelectAllRecordsByStatus() {
-//    var page = personRepository.findByCql("status=RESIDENT", PageRequest.of(0, 10));
-//    assertThat(page)
-//      .hasSize(1)
-//      .extracting(Person::getStatus)
-//      .contains(Status.RESIDENT);
-//  }
 
   @Test
   void testSelectAllRecordsByNameAndAge() {

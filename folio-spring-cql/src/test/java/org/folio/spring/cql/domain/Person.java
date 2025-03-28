@@ -13,11 +13,9 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
-
+import lombok.Data;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
-
-import lombok.Data;
 
 @Entity
 @Data
