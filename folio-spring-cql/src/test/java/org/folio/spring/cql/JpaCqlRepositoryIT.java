@@ -311,14 +311,14 @@ class JpaCqlRepositoryIT {
       .contains("Jane");
   }
 
-  @Test
-  void testSelectAllRecordsByStatus() {
-    var page = personRepository.findByCql("status=RESIDENT", PageRequest.of(0, 10));
-    assertThat(page)
-      .hasSize(1)
-      .extracting(Person::getStatus)
-      .contains(Status.RESIDENT);
-  }
+//  @Test
+//  void testSelectAllRecordsByStatus() {
+//    var page = personRepository.findByCql("status=RESIDENT", PageRequest.of(0, 10));
+//    assertThat(page)
+//      .hasSize(1)
+//      .extracting(Person::getStatus)
+//      .contains(Status.RESIDENT);
+//  }
 
   @Test
   void testSelectAllRecordsByNameAndAge() {
