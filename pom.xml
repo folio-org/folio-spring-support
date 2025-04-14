@@ -34,7 +34,7 @@
     <spring-cloud-starter-openfeign.version>4.2.1</spring-cloud-starter-openfeign.version>
     <maven-compat.version>3.9.9</maven-compat.version>
     <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
-    <swagger-annotations.version>2.2.29</swagger-annotations.version>
+    <swagger-annotations.version>2.2.30</swagger-annotations.version>
     <feign-okhttp.version>13.6</feign-okhttp.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <folio-util.version>35.4.0</folio-util.version>
