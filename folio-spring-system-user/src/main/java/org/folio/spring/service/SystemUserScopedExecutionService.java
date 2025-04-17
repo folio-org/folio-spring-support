@@ -1,5 +1,7 @@
 package org.folio.spring.service;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -37,6 +39,23 @@ public class SystemUserScopedExecutionService {
   /**
    * Executes given action in scope of system user.
    *
+   * @param tenantId - The tenant name.
+   * @param headers  - Headers to be set in the context.
+   * @param action   - Job to be executed in tenant scope.
+   * @param <T>      - Optional return value for the action.
+   * @return Result of action.
+   * @throws RuntimeException - Wrapped exception from the action.
+   */
+  @SneakyThrows
+  public <T> T executeSystemUserScoped(String tenantId, Map<String, Collection<String>> headers, Callable<T> action) {
+    try (var fex = new FolioExecutionContextSetter(folioExecutionContext(tenantId, headers))) {
+      return action.call();
+    }
+  }
+
+  /**
+   * Executes given action in scope of system user.
+   *
    * @param action - Job to be executed in tenant scope.
    * @param <T>    - Optional return value for the action.
    * @return Result of action.
@@ -63,8 +82,12 @@ public class SystemUserScopedExecutionService {
   }
 
   private FolioExecutionContext folioExecutionContext(String tenantId) {
+    return folioExecutionContext(tenantId, null);
+  }
+
+  private FolioExecutionContext folioExecutionContext(String tenantId, Map<String, Collection<String>> headers) {
     if (systemUserService == null) {
-      return contextBuilder.buildContext(tenantId);
+      return contextBuilder.buildContext(tenantId, headers);
     }
     return contextBuilder.forSystemUser(systemUserService.getAuthedSystemUser(tenantId),
                   () -> systemUserService.getAuthedSystemUser(tenantId));

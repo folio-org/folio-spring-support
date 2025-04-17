@@ -5,8 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.config.properties.FolioEnvironment;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
 import org.folio.spring.testing.type.UnitTest;
@@ -87,5 +93,43 @@ class ExecutionContextBuilderTest {
     assertThat(context.getAllHeaders()).hasSize(2);
     assertThat(context.getOkapiHeaders()).hasSize(2);
     assertThat(context.getFolioModuleMetadata()).isEqualTo(folioModuleMetadata);
+  }
+
+  @Test
+  void buildContext_withHeaders() {
+    var tenantId = "test-tenant";
+    var userId = UUID.randomUUID().toString();
+    var okapiUrl = "http://okapi:9130";
+    var headers = Map.<String, Collection<String>>of(
+      XOkapiHeaders.USER_ID, List.of(userId)
+    );
+
+    when(folioEnvironment.getOkapiUrl()).thenReturn(okapiUrl);
+
+    var context = builder.buildContext(tenantId, headers);
+
+    assertThat(context.getTenantId()).isEqualTo(tenantId);
+    assertThat(context.getOkapiUrl()).isEqualTo(okapiUrl);
+    assertThat(context.getOkapiHeaders())
+      .containsEntry(XOkapiHeaders.USER_ID, List.of(userId))
+      .containsEntry(XOkapiHeaders.URL, Set.of(okapiUrl))
+      .containsEntry(XOkapiHeaders.TENANT, Set.of(tenantId));
+  }
+
+  @Test
+  void buildContext_withNoHeaders() {
+    var tenantId = "test-tenant";
+    var okapiUrl = "http://okapi:9130";
+
+    when(folioEnvironment.getOkapiUrl()).thenReturn(okapiUrl);
+
+    var context = builder.buildContext(tenantId, null);
+
+    assertThat(context.getTenantId()).isEqualTo(tenantId);
+    assertThat(context.getOkapiUrl()).isEqualTo(okapiUrl);
+    assertThat(context.getOkapiHeaders())
+      .hasSize(2)
+      .containsEntry(XOkapiHeaders.URL, Set.of(okapiUrl))
+      .containsEntry(XOkapiHeaders.TENANT, Set.of(tenantId));
   }
 }
