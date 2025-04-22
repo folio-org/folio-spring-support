@@ -1,15 +1,17 @@
 package org.folio.spring.context;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 
+import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -37,20 +39,12 @@ public class ExecutionContextBuilder {
   }
 
   public FolioExecutionContext buildContext(String tenantId) {
-    var okapiUrl = folioEnvironment.getOkapiUrl();
-    return new DefaultFolioExecutionContext(
-      moduleMetadata,
-      Map.of(XOkapiHeaders.URL, singleton(okapiUrl), XOkapiHeaders.TENANT, singleton(tenantId))
-    );
+    return buildContext(tenantId, emptyMap());
   }
 
   public FolioExecutionContext buildContext(String tenantId, Map<String, Collection<String>> headers) {
     var okapiUrl = folioEnvironment.getOkapiUrl();
-    var contextHeaders = headers == null
-      ? new HashMap<String, Collection<String>>()
-      : headers.entrySet().stream()
-      .filter(entry -> CollectionUtils.isNotEmpty(entry.getValue()))
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    var contextHeaders = new HashMap<>(Maps.filterValues(MapUtils.emptyIfNull(headers), CollectionUtils::isNotEmpty));
     contextHeaders.put(XOkapiHeaders.URL, singleton(okapiUrl));
     contextHeaders.put(XOkapiHeaders.TENANT, singleton(tenantId));
     return new DefaultFolioExecutionContext(
