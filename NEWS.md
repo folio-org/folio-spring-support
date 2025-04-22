@@ -10,6 +10,9 @@ CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.media
 ### cql submodule
 * [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries
 
+### folio-spring-system-user
+* [FOLSPRINGS-195](https://folio-org.atlassian.net/browse/FOLSPRINGS-195) Add headers parameter to executeSystemUserScoped method
+
 ## 9.0.0 2025-02-28
 * [FOLSPRINGS-188](https://folio-org.atlassian.net/browse/FOLSPRINGS-188) Upgrade to Java 21
 * [FOLSPRINGS-178](https://folio-org.atlassian.net/browse/FOLSPRINGS-178) spring-cloud-starter-openfeign 4.1.4 fixing spring-security-crypto Authorization Bypass
