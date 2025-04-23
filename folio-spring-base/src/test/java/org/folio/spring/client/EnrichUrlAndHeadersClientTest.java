@@ -140,7 +140,7 @@ class EnrichUrlAndHeadersClientTest {
 
     final Request.Options options = new Request.Options();
 
-    final EnrichUrlAndHeadersClient client = new EnrichUrlAndHeadersClient(context);
+    final EnrichUrlAndHeadersClient client = new EnrichUrlAndHeadersClient(context, null);
 
     // best way to check for this without having to do a bunch of feign/okhttp logic
     final ApacheHttpClient mockedDelegate = mock(ApacheHttpClient.class);

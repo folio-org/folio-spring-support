@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.http.HttpHeaders;
 
@@ -20,9 +20,10 @@ public class EnrichUrlAndHeadersClient implements Client {
   private final ApacheHttpClient delegate;
   private final FolioExecutionContext folioExecutionContext;
 
-  public EnrichUrlAndHeadersClient(FolioExecutionContext folioExecutionContext) {
+  public EnrichUrlAndHeadersClient(FolioExecutionContext folioExecutionContext,
+      CloseableHttpClient closeableHttpClient) {
     this.folioExecutionContext = folioExecutionContext;
-    this.delegate = new ApacheHttpClient(HttpClients.createDefault());
+    this.delegate = new ApacheHttpClient(closeableHttpClient);
   }
 
   @Override
