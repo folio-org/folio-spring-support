@@ -1,3 +1,15 @@
+## 8.2.3 2025-04-23
+
+### cql submodule
+* [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries - backport, opt in only. To opt in call Cql2JpaCriteria.setCaseAccentsHandlingEnabled(true). Then a CQL search in a `String` field ignores case (= is case insensitive) and ignores accents by default; this is for consistency with <a href="https://github.com/folio-org/raml-module-builder?tab=readme-ov-file#the-post-tenant-api">RMB based modules</a>. Use the annotations `@RespectCase` and/or `@RespectAccents` in the entity class to change this new default.
+
+When enabling case insensitive and/or accents ignoring CQL queries update database indices accordingly, for example:
+
+```
+DROP INDEX IF EXISTS idx_medreq_requester_barcode;
+CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.mediated_request(lower(f_unaccent(requester_barcode)));
+```
+
 ## 8.2.2 2024-12-11
 * [FOLSPRINGS-174](https://folio-org.atlassian.net/browse/FOLSPRINGS-174) x-okapi-tenant header duplication
 * [FOLSPRINGS-178](https://folio-org.atlassian.net/browse/FOLSPRINGS-178) spring-cloud-starter-openfeign 4.1.4 fixing spring-security-crypto Authorization Bypass

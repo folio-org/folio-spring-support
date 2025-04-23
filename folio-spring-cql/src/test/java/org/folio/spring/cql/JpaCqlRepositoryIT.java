@@ -1,27 +1,44 @@
 package org.folio.spring.cql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.context.jdbc.SqlMergeMode.MergeMode.MERGE;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.folio.cql2pgjson.exception.QueryValidationException;
 import org.folio.spring.cql.domain.City;
+import org.folio.spring.cql.domain.Language;
+import org.folio.spring.cql.domain.LanguageRespectAccents;
+import org.folio.spring.cql.domain.LanguageRespectCase;
+import org.folio.spring.cql.domain.LanguageRespectCaseRespectAccents;
 import org.folio.spring.cql.domain.Person;
 import org.folio.spring.cql.domain.Str;
 import org.folio.spring.cql.repo.CityRepository;
+import org.folio.spring.cql.repo.LanguageRepository;
+import org.folio.spring.cql.repo.LanguageRespectAccentsRepository;
+import org.folio.spring.cql.repo.LanguageRespectCaseRepository;
+import org.folio.spring.cql.repo.LanguageRespectCaseRespectAccentsRepository;
 import org.folio.spring.cql.repo.PersonRepository;
 import org.folio.spring.cql.repo.StrRepository;
 import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.type.IntegrationTest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -48,6 +65,28 @@ class JpaCqlRepositoryIT {
   @Autowired
   private StrRepository strRepository;
 
+  @Autowired
+  private LanguageRepository languageRepository;
+
+  @Autowired
+  private LanguageRespectAccentsRepository languageRespectAccentsRepository;
+
+  @Autowired
+  private LanguageRespectCaseRepository languageRespectCaseRepository;
+
+  @Autowired
+  private LanguageRespectCaseRespectAccentsRepository languageRespectCaseRespectAccentsRepository;
+
+  @BeforeEach
+  void enableCaseAccentsHandling() {
+    Cql2JpaCriteria.setCaseAccentsHandlingEnabled(true);
+  }
+
+  @AfterAll
+  static void disableCaseAccentsHandling() {
+    Cql2JpaCriteria.setCaseAccentsHandlingEnabled(false);
+  }
+
   @Test
   void testTypesOfRepositories() {
     assertThat(personRepository).isInstanceOf(JpaCqlRepository.class);
@@ -63,6 +102,110 @@ class JpaCqlRepositoryIT {
       .extracting(Person::getAge)
       .startsWith(20)
       .endsWith(40);
+  }
+
+  @Test
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testDisabled() {
+    Cql2JpaCriteria.setCaseAccentsHandlingEnabled(false);
+    assertThat(languageRepository.count("name==Java")).isOne();
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCqlIgnoreCaseIgnoreAccents(String cql, String expected) {
+    var page = languageRepository.findByCql(cql, PageRequest.of(0, 10));
+    var expectedNames = splitByComma(expected);
+
+    assertThat(page)
+      .extracting(Language::getName)
+      .containsExactlyInAnyOrder(expectedNames);
+
+    assertThat(languageRepository.count(cql))
+      .isEqualTo(expectedNames.length);
+  }
+
+  static Stream<Arguments> testFindByCqlIgnoreCaseIgnoreAccents() {
+    return Stream.of(
+      Arguments.of("name=İStanBul++", "İstanbul++,istanbul++,Istanbul++"),
+      Arguments.of("name<>İStanBul++", "Jâva,Java,JaVa,javA,python"),
+      Arguments.of("name>java", "python,"),
+      Arguments.of("name<java", "İstanbul++,istanbul++,Istanbul++"),
+      Arguments.of("name>=java", "Jâva,Java,JaVa,javA,python"),
+      Arguments.of("name<=java", "Jâva,Java,JaVa,javA,İstanbul++,istanbul++,Istanbul++")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCqlIgnoreCaseRespectAccents(String cql, String expected) {
+    var page = languageRespectAccentsRepository.findByCql(cql, PageRequest.of(0, 10));
+    var expectedNames = splitByComma(expected);
+
+    assertThat(page)
+      .extracting(LanguageRespectAccents::getName)
+      .containsExactlyInAnyOrder(expectedNames);
+  }
+
+  static Stream<Arguments> testFindByCqlIgnoreCaseRespectAccents() {
+    return Stream.of(
+        Arguments.of("name==Java", "Java,JaVa,javA"),
+        Arguments.of("name==Jâva", "Jâva"),
+        Arguments.of("name==JÂVA", "Jâva")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCqlRespectCaseIgnoreAccents(String cql, String expected) {
+    var page = languageRespectCaseRepository.findByCql(cql, PageRequest.of(0, 10));
+    var expectedNames = splitByComma(expected);
+
+    assertThat(page)
+      .extracting(LanguageRespectCase::getName)
+      .containsExactlyInAnyOrder(expectedNames);
+  }
+
+  static Stream<Arguments> testFindByCqlRespectCaseIgnoreAccents() {
+    return Stream.of(
+        Arguments.of("name==İstanbul++", "İstanbul++,Istanbul++"),
+        Arguments.of("name==istanbul++", "istanbul++"),
+        Arguments.of("name==Jâva", "Jâva,Java"),
+        Arguments.of("name==Java", "Jâva,Java")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  @Sql({
+    "/sql/jpa-cql-lang-ignore-case-test-data.sql"
+  })
+  void testFindByCqlRespectCaseRespectAccents(String cql, String expected) {
+    var page = languageRespectCaseRespectAccentsRepository.findByCql(cql, PageRequest.of(0, 10));
+    var expectedNames = splitByComma(expected);
+
+    assertThat(page)
+      .extracting(LanguageRespectCaseRespectAccents::getName)
+      .containsExactlyInAnyOrder(expectedNames);
+  }
+
+  static Stream<Arguments> testFindByCqlRespectCaseRespectAccents() {
+    return Stream.of(
+      Arguments.of("name==İstanbul++", "İstanbul++"),
+      Arguments.of("name==Jâva", "Jâva"),
+      Arguments.of("name==Java", "Java")
+    );
   }
 
   @Test
@@ -279,21 +422,28 @@ class JpaCqlRepositoryIT {
     );
   }
 
-  @Test
-  void testUnsupportedFeatureQuery() {
-    org.junit.jupiter.api.Assertions.assertThrows(CqlQueryValidationException.class,
-      () -> personRepository.count("name prox Jon")
-    );
+  @ParameterizedTest
+  @CsvSource(textBlock = """
+      name prox Jon,   CQLProxNode
+      city.name%Kyiv,  CQLTermNode
+      age within 0 18, Relation within not implemented
+      """)
+  void testFindByCqlThrowsCqlQueryValidationException(String cql, String message) {
+    var offsetRequest = PageRequest.of(0, 10);
+    assertThatThrownBy(() -> personRepository.findByCql(cql, offsetRequest))
+      .isInstanceOf(CqlQueryValidationException.class)
+      .hasMessageContaining(message);
   }
 
-  @Test
-  void testWithUnsupportedQueryOperator() {
-    var offsetRequest = PageRequest.of(0, 10);
-    var thrown = org.junit.jupiter.api.Assertions.assertThrows(CqlQueryValidationException.class,
-      () -> personRepository.findByCql("city.name%Kyiv", offsetRequest)
-    );
-
-    org.junit.jupiter.api.Assertions.assertTrue(thrown.getMessage().contains("Not implemented yet"));
+  @ParameterizedTest
+  @ValueSource(classes = { String.class, Integer.class })
+  void testQueryByCqlThrowsUnsupportedOperatorException(Class<?> theClass) {
+    var cql2JpaCriteria = new Cql2JpaCriteria<>(LanguageRespectCaseRespectAccents.class, null);
+    Expression<String> expression = when(mock(Expression.class).getJavaType()).thenReturn(theClass).getMock();
+    var cb = mock(CriteriaBuilder.class);
+    assertThatThrownBy(() -> cql2JpaCriteria.queryBySql(expression, "term", "~", cb))
+      .isInstanceOf(QueryValidationException.class)
+      .hasMessageContaining("Unsupported operator '~'");
   }
 
   @Test
@@ -358,4 +508,7 @@ class JpaCqlRepositoryIT {
       .containsExactlyInAnyOrderElementsOf(expected);
   }
 
+  private static String[] splitByComma(String s) {
+    return s.split(",");
+  }
 }
