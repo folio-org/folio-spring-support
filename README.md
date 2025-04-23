@@ -12,6 +12,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 - [Code structure](#code-structure)
 - [Execution Context](#execution-context)
 - [Properties](#properties)
+- [Env variables](#env-variables)
 - [CQL support](#cql-support)
 - [Logging](#logging)
   - [Default logging format](#default-logging-format)
@@ -132,6 +133,12 @@ void businessMethod(String tenantId) {
 | `folio.logging.request.level`                         | Specifies logging level for incoming requests                                                                                                                                                                         | `basic`       | `none, basic, headers, full` |
 | `folio.logging.feign.enabled`                         | Turn on logging for outgoing requests in feign clients                                                                                                                                                                | `true`        | `true or false`              |
 | `folio.logging.feign.level`                           | Specifies logging level for outgoing requests                                                                                                                                                                         | `basic`       | `none, basic, headers, full` |
+
+## Env variables
+| Property             | Description                                                                                             | Default | 
+|----------------------|---------------------------------------------------------------------------------------------------------|---------| 
+| `HTTP_MAX_TOTAL`     | This setting defines the total number of HTTP connections that the client can maintain across all hosts | 200     |
+| `HTTP_MAX_PER_ROUTE` | This limits the number of simultaneous connections to a single host                                     | 50      | 
 
 ## CQL support
 
