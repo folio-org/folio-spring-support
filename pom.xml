@@ -11,7 +11,7 @@
 
   <groupId>org.folio</groupId>
   <artifactId>folio-spring-support</artifactId>
-  <version>8.2.3-SNAPSHOT</version>
+  <version>8.2.3</version>
   <name>folio-spring-support</name>
   <description>This is a library (jar) that contains the basic functionality and main dependencies required for
     development FOLIO modules using
@@ -351,7 +351,7 @@
     <url>https://github.com/folio-org/folio-spring-support</url>
     <connection>scm:git:git@github.com:folio-org/folio-spring-support.git</connection>
     <developerConnection>scm:git:git@github.com:folio-org/folio-spring-support.git</developerConnection>
-    <tag>release/v8.2</tag>
+    <tag>v8.2.3</tag>
   </scm>
 
   <repositories>
