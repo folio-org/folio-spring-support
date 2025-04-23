@@ -2,6 +2,9 @@ package org.folio.spring.config;
 
 import feign.Client;
 import feign.Logger;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.client.EnrichUrlAndHeadersClient;
 import org.slf4j.LoggerFactory;
@@ -16,10 +19,30 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConditionalOnMissingBean(value = Client.class)
 public class FeignClientConfiguration {
+
+  @Value("${feign.httpclient.max-connections}")
+  private int maxTotal;
+
+  @Value("${feign.httpclient.max-connections-per-route}")
+  private int maxPerRoute;
+
   @Bean
   public Client enrichUrlAndHeadersClient(@Autowired FolioExecutionContext folioExecutionContext,
-    @Autowired okhttp3.OkHttpClient okHttpClient) {
-    return new EnrichUrlAndHeadersClient(folioExecutionContext, okHttpClient);
+    @Autowired CloseableHttpClient closeableHttpClient) {
+    return new EnrichUrlAndHeadersClient(folioExecutionContext, closeableHttpClient);
+  }
+
+  @Bean
+  public PoolingHttpClientConnectionManager poolingConnectionManager() {
+    PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+    cm.setDefaultMaxPerRoute(maxPerRoute);
+    cm.setMaxTotal(maxTotal);
+    return cm;
+  }
+
+  @Bean
+  public CloseableHttpClient closeableHttpClient(PoolingHttpClientConnectionManager cm) {
+    return HttpClients.custom().setConnectionManager(cm).build();
   }
 
   @Bean

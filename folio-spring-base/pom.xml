@@ -94,8 +94,8 @@
 
     <dependency>
       <groupId>io.github.openfeign</groupId>
-      <artifactId>feign-okhttp</artifactId>
-      <version>${feign-okhttp.version}</version>
+      <artifactId>feign-httpclient</artifactId>
+      <version>${feign-httpclient.version}</version>
     </dependency>
 
     <!-- OAS generation -->

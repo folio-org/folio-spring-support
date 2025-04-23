@@ -35,7 +35,7 @@
     <maven-compat.version>3.9.9</maven-compat.version>
     <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
     <swagger-annotations.version>2.2.28</swagger-annotations.version>
-    <feign-okhttp.version>13.5</feign-okhttp.version>
+    <feign-httpclient.version>13.5</feign-httpclient.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <folio-util.version>35.3.0</folio-util.version>
     <rhino.version>1.8.0</rhino.version>
