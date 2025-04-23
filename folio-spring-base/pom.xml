@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.folio</groupId>
     <artifactId>folio-spring-support</artifactId>
-    <version>10.0.0-SNAPSHOT</version>
+    <version>11.1.1-SNAPSHOT</version>
   </parent>
 
   <name>folio-spring-base</name>
@@ -92,10 +92,16 @@
       <artifactId>liquibase-core</artifactId>
     </dependency>
 
+<!--    <dependency>-->
+<!--      <groupId>io.github.openfeign</groupId>-->
+<!--      <artifactId>feign-okhttp</artifactId>-->
+<!--      <version>${feign-okhttp.version}</version>-->
+<!--    </dependency>-->
+
     <dependency>
       <groupId>io.github.openfeign</groupId>
-      <artifactId>feign-okhttp</artifactId>
-      <version>${feign-okhttp.version}</version>
+      <artifactId>feign-httpclient</artifactId>
+      <version>13.5</version>
     </dependency>
 
     <!-- OAS generation -->

@@ -3,25 +3,26 @@ package org.folio.spring.client;
 import feign.Client;
 import feign.Request;
 import feign.Response;
-import feign.okhttp.OkHttpClient;
+import feign.httpclient.ApacheHttpClient;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.impl.client.HttpClients;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.http.HttpHeaders;
 
 @Log4j2
 public class EnrichUrlAndHeadersClient implements Client {
 
-  private final OkHttpClient delegate;
+  private final ApacheHttpClient delegate;
   private final FolioExecutionContext folioExecutionContext;
 
-  public EnrichUrlAndHeadersClient(FolioExecutionContext folioExecutionContext, okhttp3.OkHttpClient okHttpClient) {
+  public EnrichUrlAndHeadersClient(FolioExecutionContext folioExecutionContext) {
     this.folioExecutionContext = folioExecutionContext;
-    this.delegate = new OkHttpClient(okHttpClient);
+    this.delegate = new ApacheHttpClient(HttpClients.createDefault());
   }
 
   @Override

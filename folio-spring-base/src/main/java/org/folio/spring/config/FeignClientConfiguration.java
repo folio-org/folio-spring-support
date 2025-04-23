@@ -17,9 +17,8 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnMissingBean(value = Client.class)
 public class FeignClientConfiguration {
   @Bean
-  public Client enrichUrlAndHeadersClient(@Autowired FolioExecutionContext folioExecutionContext,
-    @Autowired okhttp3.OkHttpClient okHttpClient) {
-    return new EnrichUrlAndHeadersClient(folioExecutionContext, okHttpClient);
+  public Client enrichUrlAndHeadersClient(@Autowired FolioExecutionContext folioExecutionContext) {
+    return new EnrichUrlAndHeadersClient(folioExecutionContext);
   }
 
   @Bean

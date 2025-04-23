@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 
 import feign.Request;
 import feign.Response;
-import feign.okhttp.OkHttpClient;
+import feign.httpclient.ApacheHttpClient;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -140,10 +140,10 @@ class EnrichUrlAndHeadersClientTest {
 
     final Request.Options options = new Request.Options();
 
-    final EnrichUrlAndHeadersClient client = new EnrichUrlAndHeadersClient(context, null);
+    final EnrichUrlAndHeadersClient client = new EnrichUrlAndHeadersClient(context);
 
     // best way to check for this without having to do a bunch of feign/okhttp logic
-    final OkHttpClient mockedDelegate = mock(OkHttpClient.class);
+    final ApacheHttpClient mockedDelegate = mock(ApacheHttpClient.class);
     ReflectionTestUtils.setField(client, "delegate", mockedDelegate);
 
     when(mockedDelegate.execute(any(Request.class), eq(options)))

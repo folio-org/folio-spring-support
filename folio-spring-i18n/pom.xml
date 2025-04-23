@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.folio</groupId>
     <artifactId>folio-spring-support</artifactId>
-    <version>10.0.0-SNAPSHOT</version>
+    <version>11.1.1-SNAPSHOT</version>
   </parent>
 
   <name>folio-spring-i18n</name>
