@@ -7,6 +7,9 @@ DROP INDEX IF EXISTS idx_medreq_requester_barcode;
 CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.mediated_request(lower(f_unaccent(requester_barcode)));
 ```
 
+### folio-spring-base
+* [FOLSPRINGS-197](https://folio-org.atlassian.net/browse/FOLSPRINGS-197) Migrate Log4j plugin registration to annotation processor
+
 ### cql submodule
 * [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries
 
