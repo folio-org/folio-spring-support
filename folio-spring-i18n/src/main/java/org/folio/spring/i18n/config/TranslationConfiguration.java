@@ -1,5 +1,6 @@
 package org.folio.spring.i18n.config;
 
+import java.util.List;
 import java.util.Locale;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +17,21 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = "org.folio.spring.i18n.service")
 public class TranslationConfiguration {
 
-  private final String translationDirectory;
+  private final List<String> translationDirectories;
 
   private final Locale fallbackLocale;
 
   @Autowired
   public TranslationConfiguration(
-    @Value("/translations/") String translationDirectory,
+    @Value("#{'/translations/,/custom-translations/'.split(',')}") List<String> translationDirectories,
     @Value("#{T(java.util.Locale).ENGLISH}") Locale fallbackLocale
   ) {
-    this.translationDirectory = translationDirectory;
+    this.translationDirectories = translationDirectories;
     this.fallbackLocale = fallbackLocale;
+  }
+
+  // BC with versions prior to 10.0.0
+  public TranslationConfiguration(String translationDirectory, Locale fallbackLocale) {
+    this(List.of(translationDirectory), fallbackLocale);
   }
 }

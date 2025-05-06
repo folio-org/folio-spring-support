@@ -362,10 +362,14 @@ public class TranslationService {
    */
   protected List<TranslationFile> getAvailableTranslationFiles() {
     try {
-      Map<String, List<Resource>> localeGroups = Arrays
-        .stream(
-          resourceResolver.getResources(String.format(TRANSLATIONS_CLASSPATH, configuration.getTranslationDirectory()))
-        )
+      List<Resource> resources = new ArrayList<>();
+
+      for (String dir : configuration.getTranslationDirectories()) {
+        resources.addAll(Arrays.asList(resourceResolver.getResources(String.format(TRANSLATIONS_CLASSPATH, dir))));
+      }
+
+      Map<String, List<Resource>> localeGroups = resources
+        .stream()
         .filter(Resource::isReadable)
         .collect(Collectors.groupingBy(Resource::getFilename));
 
