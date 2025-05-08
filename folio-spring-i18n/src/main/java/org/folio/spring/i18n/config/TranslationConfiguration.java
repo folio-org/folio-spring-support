@@ -30,7 +30,7 @@ public class TranslationConfiguration {
     this.fallbackLocale = fallbackLocale;
   }
 
-  // BC with versions prior to 10.0.0
+  // compatibility with versions prior to 10.0.0
   public TranslationConfiguration(String translationDirectory, Locale fallbackLocale) {
     this(List.of(translationDirectory), fallbackLocale);
   }
