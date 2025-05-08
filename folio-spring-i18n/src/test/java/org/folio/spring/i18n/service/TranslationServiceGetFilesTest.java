@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,9 +23,9 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 @UnitTest
 class TranslationServiceGetFilesTest {
 
-  private TranslationService getService(String path) {
+  private TranslationService getService(String... paths) {
     TranslationConfiguration translationConfiguration = new TranslationConfiguration(
-      "/test-translations/test-" + path + "/",
+      Arrays.stream(paths).map(path -> "/test-translations/test-" + path + "/").toList(),
       Locale.ENGLISH
     );
 
@@ -55,6 +56,28 @@ class TranslationServiceGetFilesTest {
     // ensure keys are only part of their respective modules
     assertThat(map, not(hasKey("mod-foo.bar-only")));
     assertThat(map, not(hasKey("mod-bar.foo-only")));
+  }
+
+
+  @Test
+  void testMapContentsMultipleDirectories() {
+    List<TranslationFile> files = getService("normal", "combined")
+      .getAvailableTranslationFiles();
+
+    assertThat(
+      "test-normal has exactly one TranslationFile (two modules, but only one locale)",
+      files,
+      hasSize(1)
+    );
+
+    Map<String, String> map = files.getFirst().getPatterns();
+
+    assertThat(map, hasEntry("mod-foo.whoami", "foo"));
+    assertThat(map, hasEntry("mod-bar.whoami", "bar"));
+    assertThat(map, hasEntry("mod-foo.foo-only", "present"));
+    assertThat(map, hasEntry("mod-bar.bar-only", "present"));
+    assertThat(map, hasEntry("mod-bar.combined-file-only", "present!"));
+    assertThat(map, hasEntry("mod-baz.combined-file-only", "baz present!"));
   }
 
   @Test

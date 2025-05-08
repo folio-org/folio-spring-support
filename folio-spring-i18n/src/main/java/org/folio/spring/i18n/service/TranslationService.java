@@ -354,6 +354,15 @@ public class TranslationService {
       .orElseGet(this::getFallbackTranslation);
   }
 
+
+  private Resource[] getResources(String dir) {
+    try {
+      return resourceResolver.getResources(String.format(TRANSLATIONS_CLASSPATH, dir));
+    } catch (IOException e) {
+      throw log.throwing(new IllegalStateException("Could not retrieve translation files for dir: " + dir, e));
+    }
+  }
+
   /**
    * Get all available translations in the classpath.
    *
@@ -361,22 +370,18 @@ public class TranslationService {
    * @throws IllegalStateException if the translation files cannot be found
    */
   protected List<TranslationFile> getAvailableTranslationFiles() {
-    try {
-      Map<String, List<Resource>> localeGroups = Arrays
-        .stream(
-          resourceResolver.getResources(String.format(TRANSLATIONS_CLASSPATH, configuration.getTranslationDirectory()))
-        )
-        .filter(Resource::isReadable)
-        .collect(Collectors.groupingBy(Resource::getFilename));
+    Map<String, List<Resource>> localeGroups = configuration.getTranslationDirectories()
+      .stream()
+      .map(this::getResources)
+      .flatMap(Arrays::stream)
+      .filter(Resource::isReadable)
+      .collect(Collectors.groupingBy(Resource::getFilename));
 
-      List<TranslationFile> files = localeGroups.values().stream().map(TranslationFile::new).toList();
+    List<TranslationFile> files = localeGroups.values().stream().map(TranslationFile::new).toList();
 
-      log.info("Got translation files: {}", files);
+    log.info("Got translation files: {}", files);
 
-      return files;
-    } catch (IOException e) {
-      throw log.throwing(new IllegalStateException("Could not retrieve translation files", e));
-    }
+    return files;
   }
 
   /**

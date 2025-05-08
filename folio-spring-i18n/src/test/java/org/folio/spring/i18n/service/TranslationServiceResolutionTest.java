@@ -31,7 +31,7 @@ class TranslationServiceResolutionTest {
 
   private TranslationService getService(String path) {
     TranslationConfiguration translationConfiguration = new TranslationConfiguration(
-      "/test-translations/test-" + path + "/",
+      List.of("/test-translations/test-" + path + "/"),
       Locale.ENGLISH
     );
 
@@ -78,7 +78,7 @@ class TranslationServiceResolutionTest {
     TranslationService service = new TranslationService(
       new PathMatchingResourcePatternResolver(),
       new TranslationConfiguration(
-        "/test-translations/test-normal/",
+        List.of("/test-translations/test-normal/"),
         Locale.of("test", "")
       )
     );
