@@ -265,10 +265,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-          <configuration>
-            <release>${java.version}</release>
-            <compilerArgument>-proc:full</compilerArgument>
-            <annotationProcessorPaths>
+        <configuration>
+          <release>${java.version}</release>
+          <compilerArgument>-proc:full</compilerArgument>
+          <annotationProcessorPaths>
             <path>
               <groupId>org.projectlombok</groupId>
               <artifactId>lombok</artifactId>
@@ -283,6 +283,11 @@
               <groupId>org.mapstruct</groupId>
               <artifactId>mapstruct-processor</artifactId>
               <version>${mapstruct.version}</version>
+            </path>
+            <path>
+              <groupId>org.apache.logging.log4j</groupId>
+              <artifactId>log4j-core</artifactId>
+              <version>${log4j2.version}</version>
             </path>
           </annotationProcessorPaths>
         </configuration>
