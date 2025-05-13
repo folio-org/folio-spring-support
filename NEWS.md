@@ -13,6 +13,9 @@ CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.media
 ### cql submodule
 * [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries
 
+### folio-spring-i18n
+* [FOLSPRINGS-198](https://folio-org.atlassian.net/browse/FOLSPRINGS-198) Add support for searching multiple translation directories
+
 ### folio-spring-system-user
 * [FOLSPRINGS-195](https://folio-org.atlassian.net/browse/FOLSPRINGS-195) Add headers parameter to executeSystemUserScoped method
 
