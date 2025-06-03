@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.folio.spring.cql.domain.User;
 import org.folio.spring.cql.repo.UserRepository;
 import org.folio.spring.testing.extension.EnablePostgres;
+import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 
 
+@IntegrationTest
 @SpringBootTest
 @EnablePostgres
 @ContextConfiguration(classes = JpaCqlConfiguration.class)
