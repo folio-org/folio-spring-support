@@ -359,7 +359,8 @@ public class TranslationService {
     try {
       return resourceResolver.getResources(String.format(TRANSLATIONS_CLASSPATH, dir));
     } catch (IOException e) {
-      throw log.throwing(new IllegalStateException("Could not retrieve translation files for dir: " + dir, e));
+      log.error("Could not retrieve translation files for dir: {}", dir, e);
+      return new Resource[0];
     }
   }
 

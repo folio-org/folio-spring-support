@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.List;
@@ -129,12 +128,11 @@ class TranslationServiceGetFilesTest {
   }
 
   @Test
-  void testExceptional() {
+  void testNonexistentDirectoryReturnsEmptyList() {
     TranslationService service = getService("nonexistent");
-    assertThrows(
-      IllegalStateException.class,
-      service::getAvailableTranslationFiles,
-      "Nonexistent folder should result in an error"
-    );
+
+    var actual = service.getAvailableTranslationFiles();
+
+    assertThat(actual, is(empty()));
   }
 }
