@@ -1,3 +1,8 @@
+## 8.2.4 2025-11-18
+
+### folio-spring-base
+* [FOLSPRINGS-200](https://folio-org.atlassian.net/browse/FOLSPRINGS-200) commons-fileupload 1.6.0 fixing DoS from unlimited multipart headers CVE-2025-48976
+
 ## 8.2.3 2025-04-23
 
 ### cql submodule

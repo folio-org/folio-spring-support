@@ -41,6 +41,7 @@
     <rhino.version>1.7.15</rhino.version>
     <icu4j.version>75.1</icu4j.version>
     <commons-lang3.version>3.17.0</commons-lang3.version>
+    <commons-fileupload.version>1.6.0</commons-fileupload.version>
 
     <!-- Test dependencies versions -->
     <classgraph.version>4.8.177</classgraph.version>
