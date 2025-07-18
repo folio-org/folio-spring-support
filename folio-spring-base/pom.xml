@@ -70,6 +70,16 @@
       <artifactId>spring-cloud-starter-openfeign</artifactId>
     </dependency>
 
+    <!-- Fix DoS from unlimited multipart headers CVE-2025-48976 https://github.com/advisories/GHSA-vv7r-c36w-3prj
+         Remove this <dependency> entry and the ${commons-fileupload.version} property
+         when spring-cloud-starter-openfeign ships with a fixed version.
+    -->
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>${commons-fileupload.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
