@@ -19,6 +19,7 @@ CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.media
 
 ### folio-spring-system-user
 * [FOLSPRINGS-195](https://folio-org.atlassian.net/browse/FOLSPRINGS-195) Add headers parameter to executeSystemUserScoped method
+* [FOLSPRINGS-201](https://folio-org.atlassian.net/browse/FOLSPRINGS-195) Deprecate folio-spring-system-user submodule
 
 ## 9.0.0 2025-02-28
 * [FOLSPRINGS-188](https://folio-org.atlassian.net/browse/FOLSPRINGS-188) Upgrade to Java 21

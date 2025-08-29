@@ -1,5 +1,7 @@
 # Documentation for folio-spring-system-user features
 
+This submodule is deprecated.
+
 ## Creation
 
 If module need system user to communicate with other modules then it's required to create the system

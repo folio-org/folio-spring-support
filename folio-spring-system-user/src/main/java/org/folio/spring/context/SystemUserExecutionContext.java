@@ -23,6 +23,7 @@ import org.folio.spring.utils.TokenUtils;
  * information about the system user, and is not associated with any particular request.
  */
 @Log4j2
+@Deprecated(since = "10.0.0", forRemoval = true)
 public class SystemUserExecutionContext implements FolioExecutionContext {
 
   private final FolioModuleMetadata moduleMetadata;

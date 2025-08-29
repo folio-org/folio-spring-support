@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
 @Data
+@Deprecated(since = "10.0.0", forRemoval = true)
 @Validated
 @Configuration
 @NoArgsConstructor

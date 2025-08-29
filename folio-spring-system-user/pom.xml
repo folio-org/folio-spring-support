@@ -10,7 +10,7 @@
 
   <name>folio-spring-system-user</name>
   <artifactId>folio-spring-system-user</artifactId>
-  <description />
+  <description>Deprecated: This module is no longer maintained.</description>
 
   <dependencies>
     <dependency>

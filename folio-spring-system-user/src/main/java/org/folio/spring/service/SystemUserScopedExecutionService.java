@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
+@Deprecated(since = "10.0.0", forRemoval = true)
 @RequiredArgsConstructor
 public class SystemUserScopedExecutionService {
 

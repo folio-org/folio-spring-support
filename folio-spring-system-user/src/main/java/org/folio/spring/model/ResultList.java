@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Deprecated(since = "10.0.0", forRemoval = true)
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
 @JsonIgnoreProperties("resultInfo")
