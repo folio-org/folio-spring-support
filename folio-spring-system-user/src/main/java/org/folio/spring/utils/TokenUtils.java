@@ -11,6 +11,7 @@ import org.folio.spring.client.AuthnClient;
 import org.folio.spring.model.SystemUser;
 import org.folio.spring.model.UserToken;
 
+@Deprecated(since = "10.0.0", forRemoval = true)
 @UtilityClass
 public class TokenUtils {
 

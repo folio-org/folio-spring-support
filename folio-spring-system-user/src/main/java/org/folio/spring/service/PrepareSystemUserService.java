@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 
 @Log4j2
+@Deprecated(since = "10.0.0", forRemoval = true)
 @RequiredArgsConstructor
 public class PrepareSystemUserService {
 

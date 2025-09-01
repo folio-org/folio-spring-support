@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+@Deprecated(since = "10.0.0", forRemoval = true)
 @FeignClient(name = "folio-spring-base-permissions-client", url = "perms/users")
 public interface PermissionsClient {
 

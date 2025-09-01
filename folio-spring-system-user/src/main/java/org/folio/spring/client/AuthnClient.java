@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+@Deprecated(since = "10.0.0", forRemoval = true)
 @FeignClient(name = "folio-spring-base-authn-client", url = "authn")
 public interface AuthnClient {
 

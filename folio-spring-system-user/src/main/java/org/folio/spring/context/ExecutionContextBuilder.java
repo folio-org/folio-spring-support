@@ -20,6 +20,7 @@ import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.model.SystemUser;
 import org.springframework.stereotype.Component;
 
+@Deprecated(since = "10.0.0", forRemoval = true)
 @Component
 @RequiredArgsConstructor
 public class ExecutionContextBuilder {

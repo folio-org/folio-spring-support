@@ -29,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.CollectionUtils;
 
 @Log4j2
+@Deprecated(since = "10.0.0", forRemoval = true)
 @RequiredArgsConstructor
 public class SystemUserService {
 

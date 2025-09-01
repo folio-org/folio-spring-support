@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 
 @Data
 @Validated
+@Deprecated(since = "10.0.0", forRemoval = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @ConfigurationProperties("folio.system-user")

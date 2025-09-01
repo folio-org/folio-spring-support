@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+@Deprecated(since = "10.0.0", forRemoval = true)
 @FeignClient(name = "folio-spring-base-users-client", url = "users")
 public interface UsersClient {
   /** Searches for user(s) by CQL query. */
