@@ -124,7 +124,7 @@ public class FolioExecutionScopeExecutionContextManager {
         var stackTrace = ExceptionUtils.getStackTrace(new Exception());
         log.trace(EXECUTION_SCOPE_NOT_SET_UP_MSG + " {}", stackTrace);
       }
-      log.warn(EXECUTION_SCOPE_NOT_SET_UP_MSG);
+      log.debug(EXECUTION_SCOPE_NOT_SET_UP_MSG);
       return fallBackFolioExecutionScope;
     }
     return folioExecutionScope;
