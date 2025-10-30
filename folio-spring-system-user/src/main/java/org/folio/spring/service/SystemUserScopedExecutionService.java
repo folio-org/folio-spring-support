@@ -86,9 +86,14 @@ public class SystemUserScopedExecutionService {
     return folioExecutionContext(tenantId, null);
   }
 
+  /**
+   * Build execution context for system user of given tenant if system user service is available.
+   * Otherwise, build execution context using provided tenantId, headers.
+   * Passes userId from current execution context in case it's missing in provided headers.
+   * */
   private FolioExecutionContext folioExecutionContext(String tenantId, Map<String, Collection<String>> headers) {
     if (systemUserService == null) {
-      return contextBuilder.buildContext(tenantId, headers);
+      return contextBuilder.buildContext(tenantId, executionContext.getUserId(), headers);
     }
     return contextBuilder.forSystemUser(systemUserService.getAuthedSystemUser(tenantId),
                   () -> systemUserService.getAuthedSystemUser(tenantId));

@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import org.folio.spring.DefaultFolioExecutionContext;
@@ -86,7 +87,8 @@ class SystemUserScopedExecutionServiceTest {
 
   @Test
   void executeSystemUserScoped_positive_systemUserServiceIsNull() {
-    when(contextBuilder.buildContext(TENANT_ID, null)).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
+    when(contextBuilder.buildContext(TENANT_ID, null, null))
+      .thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
 
     systemUserScopedExecutionService.setSystemUserService(null);
     var actual = systemUserScopedExecutionService.executeSystemUserScoped(TENANT_ID, () -> "result");
@@ -122,9 +124,11 @@ class SystemUserScopedExecutionServiceTest {
   }
 
   @Test
-  void executeSystemUserScoped_positive_withHeadersAndSystemUserServiceIsNull() {
+  void executeSystemUserScoped_positive_withHeadersAndUserIdAndSystemUserServiceIsNull() {
     var headers = Map.<String, Collection<String>>of(XOkapiHeaders.USER_ID, List.of("user id"));
-    when(contextBuilder.buildContext(TENANT_ID, headers))
+    var userId = UUID.randomUUID();
+    when(folioExecutionContext.getUserId()).thenReturn(userId);
+    when(contextBuilder.buildContext(TENANT_ID, userId, headers))
       .thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
 
     systemUserScopedExecutionService.setSystemUserService(null);
@@ -148,7 +152,8 @@ class SystemUserScopedExecutionServiceTest {
 
   @Test
   void executeAsyncSystemUserScoped_positive_systemUserServiceIsNull() {
-    when(contextBuilder.buildContext(TENANT_ID, null)).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
+    when(contextBuilder.buildContext(TENANT_ID, null, null))
+      .thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
     var runnableMock = mock(Runnable.class);
 
     systemUserScopedExecutionService.setSystemUserService(null);
@@ -174,7 +179,8 @@ class SystemUserScopedExecutionServiceTest {
   @Test
   void executeSystemUserScopedFromContext_positive_systemUserServiceIsNull() {
     when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
-    when(contextBuilder.buildContext(TENANT_ID, null)).thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
+    when(contextBuilder.buildContext(TENANT_ID, null, null))
+      .thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
 
     systemUserScopedExecutionService.setSystemUserService(null);
     var actual = systemUserScopedExecutionService.executeSystemUserScoped(() -> "result");

@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import lombok.RequiredArgsConstructor;
@@ -44,10 +45,20 @@ public class ExecutionContextBuilder {
   }
 
   public FolioExecutionContext buildContext(String tenantId, Map<String, Collection<String>> headers) {
+    return buildContext(tenantId, null, headers);
+  }
+
+  /**
+   * Uses userId from provided headers if present, otherwise uses the provided userId.
+   * */
+  public FolioExecutionContext buildContext(String tenantId, UUID userId, Map<String, Collection<String>> headers) {
     var okapiUrl = folioEnvironment.getOkapiUrl();
     var contextHeaders = new HashMap<>(Maps.filterValues(MapUtils.emptyIfNull(headers), CollectionUtils::isNotEmpty));
     contextHeaders.put(XOkapiHeaders.URL, singleton(okapiUrl));
     contextHeaders.put(XOkapiHeaders.TENANT, singleton(tenantId));
+    if (userId != null) {
+      contextHeaders.computeIfAbsent(XOkapiHeaders.USER_ID, k -> singleton(userId.toString()));
+    }
     return new DefaultFolioExecutionContext(
       moduleMetadata,
       contextHeaders
