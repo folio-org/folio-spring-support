@@ -34,12 +34,12 @@
     <spring-cloud-starter-openfeign.version>4.3.0</spring-cloud-starter-openfeign.version>
     <maven-compat.version>3.9.11</maven-compat.version>
     <jackson-databind-nullable.version>0.2.8</jackson-databind-nullable.version>
-    <swagger-annotations.version>2.2.39</swagger-annotations.version>
+    <swagger-annotations.version>2.2.40</swagger-annotations.version>
     <feign-okhttp.version>13.6</feign-okhttp.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <folio-util.version>35.4.0</folio-util.version>
     <rhino.version>1.8.0</rhino.version>
-    <icu4j.version>77.1</icu4j.version>
+    <icu4j.version>78.1</icu4j.version>
     <commons-fileupload.version>1.6.0</commons-fileupload.version>
     <commons-lang3.version>3.19.0</commons-lang3.version>
 
@@ -51,7 +51,7 @@
 
     <!-- Plugins versions -->
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
-    <openapi-generator.version>7.16.0</openapi-generator.version>
+    <openapi-generator.version>7.17.0</openapi-generator.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
     <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
   </properties>
