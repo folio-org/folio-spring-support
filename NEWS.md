@@ -1,4 +1,9 @@
-## 9.0.1 2026-03-20
+## 9.0.2 2025-11-18
+
+### folio-spring-base
+* [FOLSPRINGS-200](https://folio-org.atlassian.net/browse/FOLSPRINGS-200) commons-fileupload 1.6.0 fixing DoS from unlimited multipart headers CVE-2025-48976
+
+## 9.0.1 2025-03-20
 
 ### cql submodule
 * [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries - backport, opt in only. To opt in call Cql2JpaCriteria.setCaseAccentsHandlingEnabled(true). Then a CQL search in a `String` field ignores case (= is case insensitive) and ignores accents by default; this is for consistency with <a href="https://github.com/folio-org/raml-module-builder?tab=readme-ov-file#the-post-tenant-api">RMB based modules</a>. Use the annotations `@RespectCase` and/or `@RespectAccents` in the entity class to change this new default.
