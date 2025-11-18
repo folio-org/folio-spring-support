@@ -11,7 +11,7 @@
 
   <groupId>org.folio</groupId>
   <artifactId>folio-spring-support</artifactId>
-  <version>8.2.4-SNAPSHOT</version>
+  <version>8.2.5-SNAPSHOT</version>
   <name>folio-spring-support</name>
   <description>This is a library (jar) that contains the basic functionality and main dependencies required for
     development FOLIO modules using
@@ -41,6 +41,7 @@
     <rhino.version>1.7.15</rhino.version>
     <icu4j.version>75.1</icu4j.version>
     <commons-lang3.version>3.17.0</commons-lang3.version>
+    <commons-fileupload.version>1.6.0</commons-fileupload.version>
 
     <!-- Test dependencies versions -->
     <classgraph.version>4.8.177</classgraph.version>
