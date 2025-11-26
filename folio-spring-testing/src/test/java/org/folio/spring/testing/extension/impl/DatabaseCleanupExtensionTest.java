@@ -13,6 +13,7 @@ import lombok.SneakyThrows;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.testing.extension.DatabaseCleanup;
 import org.folio.spring.testing.type.UnitTest;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -41,24 +42,7 @@ class DatabaseCleanupExtensionTest {
   @SneakyThrows
   @Test
   void testDeletingDataFromTables() {
-    ExtensionContext context = mock(ExtensionContext.class);
-    ExtensionContext.Store store = mock(ExtensionContext.Store.class);
-    TestContextBootstrapper testContextBootstrapper = mock(TestContextBootstrapper.class);
-    TestContext testContext = new StubTestContext();
-    when(testContextBootstrapper.buildTestContext()).thenReturn(testContext);
-    TestContextManager testContextManager = new TestContextManager(testContextBootstrapper);
-    when(context.getRoot()).thenReturn(context);
-    when(context.getStore(any())).thenReturn(store);
-    when(context.getRequiredTestClass()).thenAnswer(i -> TestClass.class);
-    when(context.getRequiredTestMethod()).thenReturn(TestClass.class.getDeclaredMethod("testMethod"));
-    when(store.getOrComputeIfAbsent(any(), any(), any())).thenReturn(testContextManager);
-    when(applicationContext.getBean(JdbcTemplate.class)).thenReturn(jdbcTemplate);
-    when(applicationContext.getBean(FolioModuleMetadata.class)).thenReturn(folioModuleMetadata);
-    when(folioModuleMetadata.getModuleName()).thenReturn("mod-test");
-    when(folioModuleMetadata.getDBSchemaName(anyString())).thenAnswer(in -> in.getArgument(0) + "-mod-test");
-    when(jdbcTemplate.query(anyString(), ArgumentMatchers.<RowMapper<Object>>any())).thenReturn(
-      List.of("tenant1", "tenant2"));
-    doNothing().when(jdbcTemplate).execute(captor.capture());
+    var context = mockContext();
 
     new DatabaseCleanupExtension().afterEach(context);
 
@@ -69,6 +53,28 @@ class DatabaseCleanupExtensionTest {
       "delete from tenant2-mod-test.table1;",
       "delete from tenant2-mod-test.table2;"
     );
+  }
+
+  private @NotNull ExtensionContext mockContext() throws NoSuchMethodException {
+    ExtensionContext context = mock(ExtensionContext.class);
+    ExtensionContext.Store store = mock(ExtensionContext.Store.class);
+    TestContextBootstrapper testContextBootstrapper = mock(TestContextBootstrapper.class);
+    TestContext testContext = new StubTestContext();
+    when(testContextBootstrapper.buildTestContext()).thenReturn(testContext);
+    TestContextManager testContextManager = new TestContextManager(testContextBootstrapper);
+    when(context.getRoot()).thenReturn(context);
+    when(context.getStore(any())).thenReturn(store);
+    when(context.getRequiredTestClass()).thenAnswer(i -> TestClass.class);
+    when(context.getRequiredTestMethod()).thenReturn(TestClass.class.getDeclaredMethod("testMethod"));
+    when(store.computeIfAbsent(any(), any(), any())).thenReturn(testContextManager);
+    when(applicationContext.getBean(JdbcTemplate.class)).thenReturn(jdbcTemplate);
+    when(applicationContext.getBean(FolioModuleMetadata.class)).thenReturn(folioModuleMetadata);
+    when(folioModuleMetadata.getModuleName()).thenReturn("mod-test");
+    when(folioModuleMetadata.getDBSchemaName(anyString())).thenAnswer(in -> in.getArgument(0) + "-mod-test");
+    when(jdbcTemplate.query(anyString(), ArgumentMatchers.<RowMapper<Object>>any())).thenReturn(
+      List.of("tenant1", "tenant2"));
+    doNothing().when(jdbcTemplate).execute(captor.capture());
+    return context;
   }
 
   class StubTestContext implements TestContext {

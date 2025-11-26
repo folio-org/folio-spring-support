@@ -59,5 +59,4 @@ class DefaultExceptionHandlerTest {
           assertEquals(MediaType.TEXT_PLAIN, res.getHeaders().getContentType());
         });
   }
-
 }

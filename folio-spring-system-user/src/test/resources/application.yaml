@@ -5,3 +5,9 @@ spring:
       hibernate:
         format_sql:true
         highlight_sql:true
+folio:
+  logging:
+    request:
+      enabled: true
+    exchange:
+      enabled: true

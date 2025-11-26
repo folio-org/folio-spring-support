@@ -12,14 +12,10 @@
   <artifactId>folio-spring-i18n</artifactId>
   <description>Translation support for FOLIO backend modules</description>
 
-  <properties>
-    <maven.compiler.release>17</maven.compiler.release>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <artifactId>spring-boot-starter-webmvc</artifactId>
       <exclusions>
         <exclusion>
           <groupId>org.springframework.boot</groupId>

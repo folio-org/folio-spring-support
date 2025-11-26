@@ -78,5 +78,4 @@ class DefaultFolioExecutionContextTest {
 
     assertThat(actual).satisfies(contextRequirements);
   }
-
 }

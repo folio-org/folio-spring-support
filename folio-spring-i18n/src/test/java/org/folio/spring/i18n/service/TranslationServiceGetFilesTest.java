@@ -57,7 +57,6 @@ class TranslationServiceGetFilesTest {
     assertThat(map, not(hasKey("mod-bar.foo-only")));
   }
 
-
   @Test
   void testMapContentsMultipleDirectories() {
     List<TranslationFile> files = getService("normal", "combined")

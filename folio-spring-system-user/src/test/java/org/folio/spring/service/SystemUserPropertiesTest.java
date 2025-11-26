@@ -21,5 +21,4 @@ class SystemUserPropertiesTest {
       .isThrownBy(() -> new SystemUserProperties("username", null, "lastname", "path"))
       .withMessage("system user password must be configured to be non-empty");
   }
-
 }

@@ -187,6 +187,4 @@ class ExecutionContextBuilderTest {
       .containsEntry(XOkapiHeaders.URL, Set.of(TEST_OKAPI_URL))
       .containsEntry(XOkapiHeaders.TENANT, Set.of(TEST_TENANT_ID));
   }
-
-
 }

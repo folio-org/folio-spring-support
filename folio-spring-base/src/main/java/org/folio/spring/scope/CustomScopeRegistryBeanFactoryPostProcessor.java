@@ -12,5 +12,4 @@ public class CustomScopeRegistryBeanFactoryPostProcessor implements BeanFactoryP
   public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
     beanFactory.registerScope(FOLIO_EXECUTION, new FolioExecutionScopeConfigurer());
   }
-
 }

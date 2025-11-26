@@ -7,9 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Data;
 import org.springframework.data.domain.Sort;
@@ -43,8 +41,7 @@ public class UserAttribute {
   private UUID uuidValue;
 
   @Column(name = "date_value")
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date dateValue;
+  private LocalDateTime dateValue;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")

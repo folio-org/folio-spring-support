@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
 import org.folio.spring.testing.type.UnitTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 @UnitTest
 public class UsersClientTest {
