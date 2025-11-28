@@ -54,5 +54,4 @@ public class FolioSpringConfiguration {
     @Autowired @Lazy FolioExecutionContext folioExecutionContext) {
     return new DataSourceSchemaAdvisorBeanPostProcessor(folioExecutionContext);
   }
-
 }

@@ -13,7 +13,7 @@ import org.folio.spring.integration.XOkapiHeaders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.web.servlet.filter.OrderedFilter;
+import org.springframework.boot.servlet.filter.OrderedFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -47,5 +47,4 @@ public class TenantOkapiHeaderValidationFilter extends GenericFilterBean impleme
   public int getOrder() {
     return REQUEST_WRAPPER_FILTER_MAX_ORDER + 1;
   }
-
 }

@@ -4,7 +4,7 @@ import java.util.Map;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
  * JUnit 5 extension for managing a PostgreSQL Docker container.
@@ -20,7 +20,7 @@ public class PostgresContainerExtension implements BeforeAllCallback, AfterAllCa
   private static final String POSTGRES_DEFAULT_IMAGE = "postgres:16-alpine";
   private static final String POSTGRES_IMAGE = postgresImage(System.getenv());
 
-  private static final PostgreSQLContainer<?> CONTAINER = new PostgreSQLContainer<>(POSTGRES_IMAGE)
+  private static final PostgreSQLContainer CONTAINER = new PostgreSQLContainer(POSTGRES_IMAGE)
     .withDatabaseName("folio_test").withUsername("folio_admin").withPassword("password")
     .withStartupAttempts(3);
 

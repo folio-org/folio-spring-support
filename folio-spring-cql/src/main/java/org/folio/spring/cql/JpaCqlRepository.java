@@ -10,5 +10,5 @@ public interface JpaCqlRepository<T, I> extends JpaRepository<T, I> {
 
   Page<T> findByCql(String cql, Pageable pageable);
 
-  long count(String cql);
+  long countByCql(String cql);
 }

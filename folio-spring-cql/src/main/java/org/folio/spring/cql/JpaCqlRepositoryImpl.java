@@ -18,8 +18,7 @@ public class JpaCqlRepositoryImpl<T, I> extends SimpleJpaRepository<T, I> implem
   private final EntityManager em;
   private final Cql2JpaCriteria<T> cql2JpaCriteria;
 
-  public JpaCqlRepositoryImpl(JpaEntityInformation<T, I> entityInformation,
-                              EntityManager entityManager) {
+  public JpaCqlRepositoryImpl(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
     super(entityInformation, entityManager);
     this.domainClass = entityInformation.getJavaType();
     this.em = entityManager;
@@ -41,13 +40,12 @@ public class JpaCqlRepositoryImpl<T, I> extends SimpleJpaRepository<T, I> implem
       .setFirstResult((int) pageable.getOffset())
       .setMaxResults(pageable.getPageSize())
       .getResultList();
-    return PageableExecutionUtils.getPage(resultList, pageable, () -> count(cql));
+    return PageableExecutionUtils.getPage(resultList, pageable, () -> countByCql(cql));
   }
 
   @Override
-  public long count(String cql) {
+  public long countByCql(String cql) {
     var criteria = cql2JpaCriteria.toCountCriteria(cql);
     return em.createQuery(criteria).getSingleResult();
   }
-
 }

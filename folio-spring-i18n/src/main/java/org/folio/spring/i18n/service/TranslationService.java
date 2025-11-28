@@ -354,7 +354,6 @@ public class TranslationService {
       .orElseGet(this::getFallbackTranslation);
   }
 
-
   private Resource[] getResources(String dir) {
     try {
       return resourceResolver.getResources(String.format(TRANSLATIONS_CLASSPATH, dir));

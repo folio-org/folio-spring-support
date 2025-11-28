@@ -12,9 +12,10 @@ import java.time.Instant;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
 import org.folio.spring.utils.MultiReadHttpServletRequestWrapper;
+import org.folio.spring.utils.RequestLoggingLevel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.web.servlet.filter.OrderedFilter;
+import org.springframework.boot.servlet.filter.OrderedFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.ContentCachingResponseWrapper;
@@ -26,13 +27,13 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
   name = "enabled",
   havingValue = "true"
 )
-public class LoggingRequestFilter extends GenericFilterBean implements OrderedFilter {
+public class IncomingRequestLoggingFilter extends GenericFilterBean implements OrderedFilter {
 
   private static final String START_TIME_ATTR = "startTime";
 
-  private final Level level;
+  private final RequestLoggingLevel level;
 
-  public LoggingRequestFilter(@Value("${folio.logging.request.level: BASIC}") Level level) {
+  public IncomingRequestLoggingFilter(@Value("${folio.logging.request.level: BASIC}") RequestLoggingLevel level) {
     this.level = level;
   }
 
@@ -68,7 +69,7 @@ public class LoggingRequestFilter extends GenericFilterBean implements OrderedFi
       request.getQueryString()
     );
 
-    if (level.ordinal() >= Level.HEADERS.ordinal()) {
+    if (level.ordinal() >= RequestLoggingLevel.HEADERS.ordinal()) {
       var headerNames = request.getHeaderNames();
       while (headerNames.hasMoreElements()) {
         var headerName = headerNames.nextElement();
@@ -76,12 +77,12 @@ public class LoggingRequestFilter extends GenericFilterBean implements OrderedFi
       }
     }
 
-    if (level.ordinal() == Level.FULL.ordinal()) {
+    if (level.ordinal() == RequestLoggingLevel.FULL.ordinal()) {
       var body = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
-      log.debug("Body: {}", body);
+      log.debug("Request body: {}", body);
     }
 
-    if (level.ordinal() > Level.BASIC.ordinal()) {
+    if (level.ordinal() > RequestLoggingLevel.BASIC.ordinal()) {
       log.debug("---> END HTTP");
     }
   }
@@ -95,9 +96,9 @@ public class LoggingRequestFilter extends GenericFilterBean implements OrderedFi
       Instant.now().toEpochMilli() - startTime
     );
 
-    if (level.ordinal() == Level.FULL.ordinal()) {
+    if (level.ordinal() == RequestLoggingLevel.FULL.ordinal()) {
       var body = new String(response.getContentAsByteArray(), response.getCharacterEncoding());
-      log.debug("Body: {}", body);
+      log.debug("Response body: {}", body);
       log.debug("<--- END HTTP");
     }
   }
@@ -109,12 +110,4 @@ public class LoggingRequestFilter extends GenericFilterBean implements OrderedFi
   private MultiReadHttpServletRequestWrapper wrapRequest(ServletRequest request) {
     return new MultiReadHttpServletRequestWrapper((HttpServletRequest) request);
   }
-
-  enum Level {
-    NONE,
-    BASIC,
-    HEADERS,
-    FULL
-  }
-
 }

@@ -11,14 +11,13 @@ spring:
         show_sql:true
         format_sql:true
         highlight_sql:true
-  cloud:
-    openfeign:
-      okhttp:
-        enabled: true
 folio:
+  exchange:
+    enabled: true
   logging:
     request:
       enabled: true
-    feign:
+      level: full
+    exchange:
       enabled: true
-      level: basic
+      level: full

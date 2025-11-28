@@ -3,6 +3,7 @@ package org.folio.spring.config;
 import javax.sql.DataSource;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
@@ -18,7 +19,7 @@ public class DataSourceSchemaAdvisorBeanPostProcessor implements BeanPostProcess
   }
 
   @Override
-  public Object postProcessAfterInitialization(Object bean, String beanName) {
+  public Object postProcessAfterInitialization(@NonNull Object bean, @NonNull String beanName) {
     if (DATASOURCE_BEAN_NAME.equals(beanName)) {
       DataSource dataSource;
       if (bean instanceof FactoryBean<?> factoryBean) {
@@ -44,5 +45,4 @@ public class DataSourceSchemaAdvisorBeanPostProcessor implements BeanPostProcess
     return new IllegalStateException(
       "Bean with dataSource name should be instance of DataSource or FactoryBean");
   }
-
 }

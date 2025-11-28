@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.spring.FolioExecutionContext;
+import org.jspecify.annotations.NonNull;
 import org.springframework.jdbc.datasource.DelegatingDataSource;
 
 @Log4j2
@@ -42,12 +43,12 @@ public class DataSourceFolioWrapper extends DelegatingDataSource {
   }
 
   @Override
-  public Connection getConnection() throws SQLException {
+  public @NonNull Connection getConnection() throws SQLException {
     return prepareConnectionSafe(obtainTargetDataSource().getConnection());
   }
 
   @Override
-  public Connection getConnection(String username, String password) throws SQLException {
+  public @NonNull Connection getConnection(String username, String password) throws SQLException {
     return prepareConnectionSafe(obtainTargetDataSource().getConnection(username, password));
   }
 }

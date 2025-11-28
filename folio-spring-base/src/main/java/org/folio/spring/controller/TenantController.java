@@ -78,5 +78,4 @@ public class TenantController implements TenantApi {
   private boolean isDisableJob(TenantAttributes tenantAttributes) {
     return StringUtils.isBlank(tenantAttributes.getModuleTo()) && tenantAttributes.getPurge();
   }
-
 }

@@ -6,7 +6,6 @@ import static org.folio.spring.utils.TokenUtils.tokenAboutToExpire;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import feign.FeignException;
 import java.time.Instant;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +26,7 @@ import org.folio.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.HttpStatusCodeException;
 
 @Log4j2
 @Deprecated(since = "10.0.0", forRemoval = true)
@@ -142,13 +142,13 @@ public class SystemUserService {
       }
 
       return UserToken.builder().accessToken(tokenHeaders.getFirst()).accessTokenExpiration(Instant.MAX).build();
-    } catch (FeignException fex) {
-      if (fex.status() == HttpStatus.NOT_FOUND.value()) {
+    } catch (HttpStatusCodeException ex) {
+      if (ex.getStatusCode().value() == HttpStatus.NOT_FOUND.value()) {
         log.error("Login with legacy end-point not found.");
       } else {
-        log.error(LOGIN_LEGACY_UNEXPECTED_MSG, fex);
+        log.error(LOGIN_LEGACY_UNEXPECTED_MSG, ex);
       }
-      throw new SystemUserAuthorizationException(TOKEN_FAILED_MSG + credentials.username(), fex);
+      throw new SystemUserAuthorizationException(TOKEN_FAILED_MSG + credentials.username(), ex);
     }
   }
 
@@ -169,13 +169,13 @@ public class SystemUserService {
       }
 
       return parseUserTokenFromCookies(cookieHeaders, response.getBody());
-    } catch (FeignException fex) {
-      if (fex.status() == HttpStatus.NOT_FOUND.value()) {
+    } catch (HttpStatusCodeException ex) {
+      if (ex.getStatusCode().value() == HttpStatus.NOT_FOUND.value()) {
         log.error("Login with expiry end-point not found. calling login with legacy end-point.");
         return null;
       } else {
-        log.error(LOGIN_EXPIRY_UNEXPECTED_MSG, fex);
-        throw new SystemUserAuthorizationException(TOKEN_FAILED_MSG + credentials.username(), fex);
+        log.error(LOGIN_EXPIRY_UNEXPECTED_MSG, ex);
+        throw new SystemUserAuthorizationException(TOKEN_FAILED_MSG + credentials.username(), ex);
       }
     }
   }

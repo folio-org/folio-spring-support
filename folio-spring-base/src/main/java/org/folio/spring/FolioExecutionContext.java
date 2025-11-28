@@ -13,7 +13,7 @@ import org.folio.spring.scope.FolioExecutionContextSetter;
  * Folio Spring Base populates this data using
  * {@link org.folio.spring.scope.filter.FolioExecutionScopeFilter FolioExecutionScopeFilter}.
  *
- * <p>It is used by {@link org.folio.spring.client.EnrichUrlAndHeadersClient EnrichUrlAndHeadersClient},
+ * <p>It is used by {@link org.folio.spring.client.EnrichUrlAndHeadersInterceptor EnrichUrlAndHeadersInterceptor},
  * to provide right tenant id and other headers for outgoing REST requests.
  *
  * <p>It is also used in {@link org.folio.spring.config.DataSourceSchemaAdvisorBeanPostProcessor

@@ -11,27 +11,23 @@ import lombok.Singular;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.folio.spring.model.ResultList;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.service.annotation.GetExchange;
+import org.springframework.web.service.annotation.HttpExchange;
+import org.springframework.web.service.annotation.PostExchange;
+import org.springframework.web.service.annotation.PutExchange;
 
 @Deprecated(since = "10.0.0", forRemoval = true)
-@FeignClient(name = "folio-spring-base-users-client", url = "users")
+@HttpExchange(url = "users", contentType = APPLICATION_JSON_VALUE)
 public interface UsersClient {
-  /** Searches for user(s) by CQL query. */
-  @GetMapping
+  @GetExchange
   ResultList<User> query(@RequestParam("query") String query);
 
-  /** Creates a new user. */
-  @PostMapping(consumes = APPLICATION_JSON_VALUE)
-  void createUser(@RequestBody User user);
+  @PostExchange
+  void createUser(User user);
 
-  /** Updates an existing user. */
-  @PutMapping(value = "{user.id}", consumes = APPLICATION_JSON_VALUE)
-  void updateUser(@RequestBody User user);
+  @PutExchange("{user.id}")
+  void updateUser(User user);
 
   @Value
   @Jacksonized
@@ -45,11 +41,6 @@ public interface UsersClient {
     private String expirationDate;
     private Personal personal;
 
-    /**
-     * Stores all the extra properties from the incoming JSON that we do not specifically use in this library.
-     * We must store these to be able to update the user (in the case of re-activation), otherwise all additional
-     * information from mod-users will be lost when re-serializing.
-     */
     @JsonAnySetter
     @Singular("extraProperties")
     private Map<String, Object> extraProperties;

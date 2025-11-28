@@ -38,6 +38,11 @@ public class FolioExecutionScopeConfig {
   }
 
   @Bean
+  public FolioExecutionContextService folioExecutionContextService(@Autowired FolioModuleMetadata folioModuleMetadata) {
+    return new FolioExecutionContextService(folioModuleMetadata);
+  }
+
+  @Bean
   @Scope(value = FOLIO_EXECUTION, proxyMode = ScopedProxyMode.INTERFACES)
   public FolioExecutionContext folioExecutionContext() {
     var folioExecutionContext = getFolioExecutionContext();
@@ -46,5 +51,4 @@ public class FolioExecutionScopeConfig {
       ? folioExecutionContext
       : emptyFolioExecutionContextHolder.getEmptyFolioExecutionContext();
   }
-
 }

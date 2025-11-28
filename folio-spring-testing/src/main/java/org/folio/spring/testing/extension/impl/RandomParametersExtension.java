@@ -71,5 +71,4 @@ public class RandomParametersExtension implements ParameterResolver {
       throw new ParameterResolutionException("No random generator implemented for " + parameter.getName());
     }
   }
-
 }

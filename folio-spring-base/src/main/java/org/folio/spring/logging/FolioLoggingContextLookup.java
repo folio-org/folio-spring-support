@@ -13,10 +13,10 @@ import org.folio.spring.FolioExecutionContext;
 @Plugin(name = "folio", category = StrLookup.CATEGORY)
 public class FolioLoggingContextLookup implements StrLookup {
 
-  private static final String TENANT_ID_LOGGING_VAR_NAME = "tenantid";
-  private static final String REQUEST_ID_LOGGING_VAR_NAME = "requestid";
-  private static final String MODULE_ID_LOGGING_VAR_NAME = "moduleid";
-  private static final String USER_ID_LOGGING_VAR_NAME = "userid";
+  private static final String TENANT_ID_LOGGING_VAR_NAME = "tenantId";
+  private static final String REQUEST_ID_LOGGING_VAR_NAME = "requestId";
+  private static final String MODULE_ID_LOGGING_VAR_NAME = "moduleId";
+  private static final String USER_ID_LOGGING_VAR_NAME = "userId";
 
   private static final Map<String, Function<FolioExecutionContext, String>> VAR_MAP = new HashMap<>();
 
@@ -56,5 +56,4 @@ public class FolioLoggingContextLookup implements StrLookup {
     }
     return VAR_MAP.getOrDefault(key, c -> EMPTY).apply(folioExecutionContext.get());
   }
-
 }

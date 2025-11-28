@@ -1,7 +1,6 @@
 package org.folio.spring.cql;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.equalsAny;
 import static org.folio.cql2pgjson.model.CqlTermFormat.NUMBER;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -30,6 +29,7 @@ import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
 import org.folio.cql2pgjson.exception.QueryValidationException;
 import org.folio.cql2pgjson.model.CqlModifiers;
@@ -178,6 +178,44 @@ public class Cql2JpaCriteria<E> {
     };
   }
 
+  /**
+   * Create an SQL expression using SQL as is syntax.
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  Predicate queryBySql(Expression field, Comparable term, String comparator, CriteriaBuilder cb)
+    throws QueryValidationException {
+
+    var value = (String) term;
+    var javaType = field.getJavaType();
+
+    if (String.class.equals(javaType)) {
+      return processStringType(field, term, comparator, cb);
+    } else if (Number.class.equals(javaType)) {
+      term = Integer.parseInt(value);
+    } else if (UUID.class.equals(javaType)) {
+      term = UUID.fromString(value);
+    } else if (Boolean.class.equals(javaType)) {
+      term = Boolean.valueOf(value);
+    } else if (Date.class.equals(javaType) || Timestamp.class.equals(javaType)) {
+      if (isDatesRange(value)) {
+        return toFilterByDatesPredicate(field, value, cb);
+      } else {
+        var dateTime = LocalDateTime.parse(value);
+        term = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+      }
+    } else if (LocalDateTime.class.equals(javaType)) {
+      if (isDatesRange(value)) {
+        return toFilterByLocalDatesPredicate(field, value, cb);
+      } else {
+        term = LocalDateTime.parse(value);
+      }
+    } else if (javaType.isEnum()) {
+      field = field.as(String.class);
+    }
+
+    return toPredicate(field, term, comparator, cb);
+  }
+
   private <T> Predicate createPredicate(CQLNode node, Root<E> root, CriteriaBuilder cb, CriteriaQuery<T> query)
     throws QueryValidationException {
     Predicate predicates;
@@ -199,8 +237,8 @@ public class Cql2JpaCriteria<E> {
       var modifiers = new CqlModifiers(sortIndex);
       orders.add(
         CqlSort.DESCENDING.equals(modifiers.getCqlSort())
-          ? cb.desc(root.get(sortIndex.getBase()))
-          : cb.asc(root.get(sortIndex.getBase())));
+        ? cb.desc(root.get(sortIndex.getBase()))
+        : cb.asc(root.get(sortIndex.getBase())));
     }
     return orders;
   }
@@ -220,38 +258,46 @@ public class Cql2JpaCriteria<E> {
 
   private Predicate processBoolean(CQLBooleanNode node, CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query)
     throws QueryValidationException {
-    switch (node) {
-      case CQLAndNode cqlAndNode -> {
-        return cb.and(process(cqlAndNode.getLeftOperand(), cb, root, query),
-          process(cqlAndNode.getRightOperand(), cb, root, query));
-      }
-      case CQLOrNode cqlOrNode -> {
-        if (cqlOrNode.getRightOperand().getClass() == CQLTermNode.class) {
-          // special case for the query the UI uses most often, before the user has
-          // typed in anything: title=* OR contributors*= OR identifier=*
-          var rightOperand = (CQLTermNode) (cqlOrNode.getRightOperand());
-          if (ASTERISKS_SIGN.equals(rightOperand.getTerm()) && "=".equals(rightOperand.getRelation().getBase())
-              && isEmpty(rightOperand.getRelation().getModifiers())) {
-            log.debug("pgFT(): Simplifying =* OR =* ");
-            return process(cqlOrNode.getLeftOperand(), cb, root, query);
-          }
-        }
-        return cb.or(process(cqlOrNode.getLeftOperand(), cb, root, query),
-          process(cqlOrNode.getRightOperand(), cb, root, query));
-      }
-      case CQLNotNode cqlNotNode -> {
-        return
-          cb.and(process(cqlNotNode.getLeftOperand(), cb, root, query),
-            cb.not(process(cqlNotNode.getRightOperand(), cb, root, query)));
-      }
+    return switch (node) {
+      case CQLAndNode cqlAndNode -> processCqlAndNode(cb, root, query, cqlAndNode);
+      case CQLOrNode cqlOrNode -> processCqlOrNode(cb, root, query, cqlOrNode);
+      case CQLNotNode cqlNotNode -> processCqlNotNode(cb, root, query, cqlNotNode);
       default -> throw createUnsupportedException(node);
+    };
+  }
+
+  private Predicate processCqlNotNode(CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query, CQLNotNode cqlNotNode)
+    throws QueryValidationException {
+    return cb.and(process(cqlNotNode.getLeftOperand(), cb, root, query),
+      cb.not(process(cqlNotNode.getRightOperand(), cb, root, query)));
+  }
+
+  private Predicate processCqlAndNode(CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query, CQLAndNode cqlAndNode)
+    throws QueryValidationException {
+    return cb.and(process(cqlAndNode.getLeftOperand(), cb, root, query),
+      process(cqlAndNode.getRightOperand(), cb, root, query));
+  }
+
+  private Predicate processCqlOrNode(CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query, CQLOrNode cqlOrNode)
+    throws QueryValidationException {
+    if (cqlOrNode.getRightOperand().getClass() == CQLTermNode.class) {
+      // special case for the query the UI uses most often, before the user has
+      // typed in anything: title=* OR contributors*= OR identifier=*
+      var rightOperand = (CQLTermNode) (cqlOrNode.getRightOperand());
+      if (ASTERISKS_SIGN.equals(rightOperand.getTerm()) && "=".equals(rightOperand.getRelation().getBase())
+          && isEmpty(rightOperand.getRelation().getModifiers())) {
+        log.debug("pgFT(): Simplifying =* OR =* ");
+        return process(cqlOrNode.getLeftOperand(), cb, root, query);
+      }
     }
+    return cb.or(process(cqlOrNode.getLeftOperand(), cb, root, query),
+      process(cqlOrNode.getRightOperand(), cb, root, query));
   }
 
   private Predicate processTerm(CQLTermNode node, CriteriaBuilder cb, Root<E> root, CriteriaQuery<?> query)
     throws QueryValidationException {
     var fieldName = node.getIndex();
-    if (StringUtils.startsWithIgnoreCase(fieldName, "cql")) {
+    if (Strings.CI.startsWith(fieldName, "cql")) {
       if ("cql.allRecords".equalsIgnoreCase(fieldName)) {
         return cb.and();
       } else {
@@ -282,7 +328,8 @@ public class Cql2JpaCriteria<E> {
   }
 
   private static <G extends Comparable<? super G>> Predicate toPredicate(Expression<G> field, G value,
-      String comparator, CriteriaBuilder cb) throws QueryValidationException {
+                                                                         String comparator, CriteriaBuilder cb)
+    throws QueryValidationException {
 
     return switch (comparator) {
       case ">" -> cb.greaterThan(field, value);
@@ -296,7 +343,8 @@ public class Cql2JpaCriteria<E> {
   }
 
   private static <G extends Comparable<? super G>> Predicate toPredicate(Expression<G> field, Expression<G> value,
-      String comparator, CriteriaBuilder cb) throws QueryValidationException {
+                                                                         String comparator, CriteriaBuilder cb)
+    throws QueryValidationException {
 
     return switch (comparator) {
       case ">" -> cb.greaterThan(field, value);
@@ -311,10 +359,10 @@ public class Cql2JpaCriteria<E> {
 
   private static QueryValidationException unsupportedOperatorException(String operator) {
     return new QueryValidationException(
-        "CQL: Unsupported operator '"
-            + operator
-            + "', "
-            + " only supports '=', '==', and '<>' (possibly with right truncation)");
+      "CQL: Unsupported operator '"
+      + operator
+      + "', "
+      + " only supports '=', '==', and '<>' (possibly with right truncation)");
   }
 
   private Predicate indexNode(Path<?> field, CQLTermNode node, CqlModifiers modifiers,
@@ -327,14 +375,14 @@ public class Cql2JpaCriteria<E> {
     var comparator = node.getRelation().getBase().toLowerCase();
     var term = node.getTerm();
 
-    if (equalsAny(comparator, "=", "==") && StringUtils.isEmpty(term)) {
+    if (Strings.CS.equalsAny(comparator, "=", "==") && StringUtils.isEmpty(term)) {
       return definedOrDefinedAndEmptyQuery(field, comparator, cb);
     }
 
     return switch (comparator) {
       case "=" -> modifiers.getCqlTermFormat() == NUMBER
-        ? queryBySql(field, term, comparator, cb)
-        : buildQuery(field, term, comparator, cb);
+                  ? queryBySql(field, term, comparator, cb)
+                  : buildQuery(field, term, comparator, cb);
       case "adj", "all", "any", "==", NOT_EQUALS_OPERATOR -> buildQuery(field, term, comparator, cb);
       case "<", ">", "<=", ">=" -> queryBySql(field, node.getTerm(), comparator, cb);
       default -> throw new CQLFeatureUnsupportedException("Relation " + comparator + " not implemented yet: " + node);
@@ -431,45 +479,17 @@ public class Cql2JpaCriteria<E> {
     }
   }
 
-  /**
-   * Create an SQL expression using SQL as is syntax.
-   */
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  Predicate queryBySql(Expression field, Comparable term, String comparator,
-      CriteriaBuilder cb) throws QueryValidationException {
+  private Predicate processStringType(Expression field, Comparable term, String comparator, CriteriaBuilder cb)
+    throws QueryValidationException {
+    var wrapper = getExpressionUnaryOperator(cb);
+    field = wrapper.apply(field);
+    var termExpression = wrapper.apply(cb.literal(cql2like(term.toString())));
+    return toPredicate(field, termExpression, comparator, cb);
+  }
 
-    var value = (String) term;
-    var javaType = field.getJavaType();
-
-    if (String.class.equals(javaType)) {
-      UnaryOperator<Expression<String>> wrapper = wrapper(cb);
-      field = wrapper.apply(field);
-      var termExpression = wrapper.apply(cb.literal(cql2like(term.toString())));
-      return toPredicate(field, termExpression, comparator, cb);
-    } else if (Number.class.equals(javaType)) {
-      term = Integer.parseInt(value);
-    } else if (UUID.class.equals(javaType)) {
-      term = UUID.fromString(value);
-    } else if (Boolean.class.equals(javaType)) {
-      term = Boolean.valueOf(value);
-    } else if (Date.class.equals(javaType) || Timestamp.class.equals(javaType)) {
-      if (isDatesRange(value)) {
-        return toFilterByDatesPredicate(field, value, cb);
-      } else {
-        var dateTime = LocalDateTime.parse(value);
-        term = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
-      }
-    } else if (LocalDateTime.class.equals(javaType)) {
-      if (isDatesRange(value)) {
-        return toFilterByLocalDatesPredicate(field, value, cb);
-      } else {
-        term = LocalDateTime.parse(value);
-      }
-    } else if (javaType.isEnum()) {
-      field = field.as(String.class);
-    }
-
-    return toPredicate(field, term, comparator, cb);
+  private UnaryOperator<Expression<String>> getExpressionUnaryOperator(CriteriaBuilder cb) {
+    UnaryOperator<Expression<String>> wrapper = wrapper(cb);
+    return wrapper;
   }
 
   private static CQLFeatureUnsupportedException createUnsupportedException(CQLNode node) {
@@ -491,7 +511,7 @@ public class Cql2JpaCriteria<E> {
   }
 
   private static Predicate toFilterByLocalDatesPredicate(Expression<LocalDateTime> field, String value,
-    CriteriaBuilder cb) {
+                                                         CriteriaBuilder cb) {
     var dates = value.split(":");
     var dateTimeFrom = LocalDate.parse(dates[0]).atStartOfDay();
     var dateTimeTo = LocalDate.parse(dates[1]).atStartOfDay();
