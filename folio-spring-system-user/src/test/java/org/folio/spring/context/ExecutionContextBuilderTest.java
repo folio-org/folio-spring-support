@@ -19,6 +19,8 @@ import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -115,11 +117,12 @@ class ExecutionContextBuilderTest {
       .containsEntry(XOkapiHeaders.TENANT, Set.of(TEST_TENANT_ID));
   }
 
-  @Test
-  void buildContext_withNoHeaders() {
+  @NullAndEmptySource
+  @ParameterizedTest
+  void buildContext_withNoHeaders(Map<String, Collection<String>> headers) {
     when(folioEnvironment.getOkapiUrl()).thenReturn(TEST_OKAPI_URL);
 
-    var context = builder.buildContext(TEST_TENANT_ID, null);
+    var context = builder.buildContext(TEST_TENANT_ID, headers);
 
     assertThat(context.getTenantId()).isEqualTo(TEST_TENANT_ID);
     assertThat(context.getOkapiUrl()).isEqualTo(TEST_OKAPI_URL);
@@ -128,65 +131,4 @@ class ExecutionContextBuilderTest {
       .containsEntry(XOkapiHeaders.URL, Set.of(TEST_OKAPI_URL))
       .containsEntry(XOkapiHeaders.TENANT, Set.of(TEST_TENANT_ID));
   }
-
-  @Test
-  void buildContext_withBothUserIdParameterAndHeadersContainingUserId_shouldUseHeadersUserId() {
-    var userIdFromParameter = UUID.randomUUID();
-    var userIdFromHeaders = UUID.randomUUID().toString();
-    var headers = Map.<String, Collection<String>>of(
-      XOkapiHeaders.USER_ID, List.of(userIdFromHeaders)
-    );
-
-    when(folioEnvironment.getOkapiUrl()).thenReturn(TEST_OKAPI_URL);
-
-    var context = builder.buildContext(TEST_TENANT_ID, userIdFromParameter, headers);
-
-    assertThat(context.getTenantId()).isEqualTo(TEST_TENANT_ID);
-    assertThat(context.getOkapiUrl()).isEqualTo(TEST_OKAPI_URL);
-    assertThat(context.getUserId()).isEqualTo(UUID.fromString(userIdFromHeaders));
-    assertThat(context.getOkapiHeaders())
-      .containsEntry(XOkapiHeaders.USER_ID, List.of(userIdFromHeaders))
-      .containsEntry(XOkapiHeaders.URL, Set.of(TEST_OKAPI_URL))
-      .containsEntry(XOkapiHeaders.TENANT, Set.of(TEST_TENANT_ID));
-  }
-
-  @Test
-  void buildContext_withOnlyUserIdParameter_shouldUseParameterUserId() {
-    var userId = UUID.randomUUID();
-    var headers = Map.<String, Collection<String>>of();
-
-    when(folioEnvironment.getOkapiUrl()).thenReturn(TEST_OKAPI_URL);
-
-    var context = builder.buildContext(TEST_TENANT_ID, userId, headers);
-
-    assertThat(context.getTenantId()).isEqualTo(TEST_TENANT_ID);
-    assertThat(context.getOkapiUrl()).isEqualTo(TEST_OKAPI_URL);
-    assertThat(context.getUserId()).isEqualTo(userId);
-    assertThat(context.getOkapiHeaders())
-      .containsEntry(XOkapiHeaders.USER_ID, Set.of(userId.toString()))
-      .containsEntry(XOkapiHeaders.URL, Set.of(TEST_OKAPI_URL))
-      .containsEntry(XOkapiHeaders.TENANT, Set.of(TEST_TENANT_ID));
-  }
-
-  @Test
-  void buildContext_withOnlyHeadersContainingUserId_shouldUseHeadersUserId() {
-    var userIdFromHeaders = UUID.randomUUID().toString();
-    var headers = Map.<String, Collection<String>>of(
-      XOkapiHeaders.USER_ID, List.of(userIdFromHeaders)
-    );
-
-    when(folioEnvironment.getOkapiUrl()).thenReturn(TEST_OKAPI_URL);
-
-    var context = builder.buildContext(TEST_TENANT_ID, null, headers);
-
-    assertThat(context.getTenantId()).isEqualTo(TEST_TENANT_ID);
-    assertThat(context.getOkapiUrl()).isEqualTo(TEST_OKAPI_URL);
-    assertThat(context.getUserId()).isEqualTo(UUID.fromString(userIdFromHeaders));
-    assertThat(context.getOkapiHeaders())
-      .containsEntry(XOkapiHeaders.USER_ID, List.of(userIdFromHeaders))
-      .containsEntry(XOkapiHeaders.URL, Set.of(TEST_OKAPI_URL))
-      .containsEntry(XOkapiHeaders.TENANT, Set.of(TEST_TENANT_ID));
-  }
-
-
 }
