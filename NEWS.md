@@ -11,6 +11,7 @@ CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.media
 * [FOLSPRINGS-197](https://folio-org.atlassian.net/browse/FOLSPRINGS-197) Migrate Log4j plugin registration to annotation processor
 * [FOLSPRINGS-200](https://folio-org.atlassian.net/browse/FOLSPRINGS-200) commons-fileupload 1.6.0 fixing DoS from unlimited multipart headers CVE-2025-48976
 * [FOLSPRINGS-202](https://folio-org.atlassian.net/browse/FOLSPRINGS-202) change warning log to debug for execution scope not set up message
+* [FOLSPRINGS-208](https://folio-org.atlassian.net/browse/FOLSPRINGS-208) Bump Rhino from 1.8.0 to 1.8.1 fixing CVE-2025-66453
 
 ### cql submodule
 * [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries

@@ -38,7 +38,7 @@
     <feign-okhttp.version>13.6</feign-okhttp.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <folio-util.version>35.4.0</folio-util.version>
-    <rhino.version>1.8.0</rhino.version>
+    <rhino.version>1.8.1</rhino.version>
     <icu4j.version>78.1</icu4j.version>
     <commons-fileupload.version>1.6.0</commons-fileupload.version>
     <commons-lang3.version>3.19.0</commons-lang3.version>
