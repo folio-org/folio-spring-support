@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import javax.sql.DataSource;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +22,9 @@ class DataSourceSchemaAdvisorBeanPostProcessorTest {
 
   @BeforeEach
   void setUp() {
+    var folioModuleMetadata = mock(FolioModuleMetadata.class);
     var folioExecutionContext = mock(FolioExecutionContext.class);
-    postProcessor = new DataSourceSchemaAdvisorBeanPostProcessor(folioExecutionContext);
+    postProcessor = new DataSourceSchemaAdvisorBeanPostProcessor(folioExecutionContext, folioModuleMetadata);
   }
 
   @Test
