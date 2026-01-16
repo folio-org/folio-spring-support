@@ -174,6 +174,20 @@ class SystemUserScopedExecutionServiceTest {
   }
 
   @Test
+  void executeAsyncSystemUserScoped_positive_withUserIdAndSystemUserServiceIsNull() {
+    var headers = Map.<String, Collection<String>>of(XOkapiHeaders.USER_ID, List.of(USER_ID));
+    when(contextBuilder.buildContext(TENANT_ID, headers))
+      .thenReturn(new DefaultFolioExecutionContext(null, emptyMap()));
+    var runnableMock = mock(Runnable.class);
+
+    systemUserScopedExecutionService.setSystemUserService(null);
+    systemUserScopedExecutionService.executeAsyncSystemUserScoped(TENANT_ID, USER_ID, runnableMock);
+
+    verify(runnableMock).run();
+    verifyNoInteractions(systemUserService);
+  }
+
+  @Test
   void executeSystemUserScopedFromContext_positive() {
     var systemUser = SystemUser.builder().build();
     when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
