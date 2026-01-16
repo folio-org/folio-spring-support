@@ -88,6 +88,15 @@ class TenantSettingsPermissionCheckerTest {
   }
 
   @Test
+  void checkPermission_shouldThrowWhenEmptyPermissionsProvided() {
+    when(properties.isPermissionCheckEnabled()).thenReturn(true);
+    setupEmptyPermissions();
+
+    assertThatThrownBy(() -> permissionChecker.checkPermission("test-group"))
+      .isInstanceOf(TenantSettingsUnauthorizedOperationException.class);
+  }
+
+  @Test
   void checkPermissionForKey_shouldPassWhenUserHasRequiredPermission() throws Exception {
     when(properties.isPermissionCheckEnabled()).thenReturn(true);
     var permissions = List.of("test-domain.config.groups.settings.test-group.test-key.item.patch");
@@ -134,5 +143,10 @@ class TenantSettingsPermissionCheckerTest {
       Map.of(XOkapiHeaders.PERMISSIONS, List.of("[\"" + String.join("\",\"", permissions) + "\"]")));
     when(objectMapper.readValue(any(String.class), any(TypeReference.class)))
       .thenReturn(permissions);
+  }
+
+  private void setupEmptyPermissions() {
+    when(context.getOkapiHeaders()).thenReturn(
+      Map.of(XOkapiHeaders.PERMISSIONS, Collections.emptyList()));
   }
 }

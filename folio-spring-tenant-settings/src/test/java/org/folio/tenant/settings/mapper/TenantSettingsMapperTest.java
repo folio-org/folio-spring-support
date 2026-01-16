@@ -98,6 +98,23 @@ class TenantSettingsMapperTest {
   }
 
   @Test
+  void toDto_shouldMapSettingEntityWithNullValue() {
+    var entity = new SettingEntity();
+    entity.setKey("api-key");
+    entity.setValue(null);
+    entity.setType(SettingEntity.SettingType.STRING);
+    entity.setDescription("API Key");
+    entity.setGroupId("test-group");
+    entity.setCreatedDate(OffsetDateTime.now());
+    entity.setUpdatedDate(OffsetDateTime.now());
+
+    var dto = mapper.toDto(entity);
+
+    assertThat(dto.getValue()).isNull();
+    assertThat(dto.getType()).isEqualTo(Setting.TypeEnum.STRING);
+  }
+
+  @Test
   void updateEntity_shouldUpdateValueAndDescription() {
     var entity = new SettingEntity();
     entity.setValue("old-value");
@@ -142,7 +159,7 @@ class TenantSettingsMapperTest {
   }
 
   @Test
-  void updateEntity_shouldHandleNullValues() {
+  void updateEntity_shouldHandleNullValuesInRequest() {
     var entity = new SettingEntity();
     entity.setValue("original-value");
     entity.setDescription("Original description");
@@ -153,6 +170,19 @@ class TenantSettingsMapperTest {
 
     assertThat(entity.getValue()).isEqualTo("original-value");
     assertThat(entity.getDescription()).isEqualTo("Original description");
+  }
+
+  @Test
+  void updateEntity_shouldHandleNullValuesInEntity() {
+    var entity = new SettingEntity();
+    var updateRequest = new SettingUpdateRequest();
+    updateRequest.value("new-value");
+    updateRequest.description("New description");
+
+    mapper.updateEntity(entity, updateRequest);
+
+    assertThat(entity.getValue()).isEqualTo("new-value");
+    assertThat(entity.getDescription()).isEqualTo("New description");
   }
 
   @Test

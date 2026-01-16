@@ -60,7 +60,7 @@ public class TenantSettingsMapper {
    */
   public void updateEntity(SettingEntity entity, SettingUpdateRequest dto) {
     if (dto.getValue() != null) {
-      entity.setValue(convertValueToDb(dto.getValue()));
+      entity.setValue(dto.getValue().toString());
     }
 
     if (dto.getDescription() != null) {
@@ -68,19 +68,14 @@ public class TenantSettingsMapper {
     }
   }
 
-  private Object convertValueFromDb(String value, SettingEntity.SettingType type) {
+  private @Nullable Object convertValueFromDb(@Nullable String value, SettingEntity.SettingType type) {
+    if (value == null) {
+      return null;
+    }
     return switch (type) {
       case BOOLEAN -> Boolean.valueOf(value);
       case INTEGER -> Integer.valueOf(value);
       case STRING -> value;
     };
-  }
-
-  private @Nullable String convertValueToDb(@Nullable Object value) {
-    if (value == null) {
-      return null;
-    }
-
-    return value.toString();
   }
 }
