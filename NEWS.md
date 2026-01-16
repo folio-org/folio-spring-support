@@ -23,6 +23,7 @@ CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.media
 * [FOLSPRINGS-195](https://folio-org.atlassian.net/browse/FOLSPRINGS-195) Add headers parameter to executeSystemUserScoped method
 * [FOLSPRINGS-201](https://folio-org.atlassian.net/browse/FOLSPRINGS-195) Deprecate folio-spring-system-user submodule
 * [FOLSPRINGS-207](https://folio-org.atlassian.net/browse/FOLSPRINGS-207) Add executeSystemUserScoped method with userId
+* [MODELINKS-367](https://folio-org.atlassian.net/browse/MODELINKS-367) Add executeAsyncSystemUserScoped method with userId
 
 ### folio-spring-tenant-settings
 * [FOLSPRINGS-210](https://folio-org.atlassian.net/browse/FOLSPRINGS-210) Add tenant-settings submodule for managing tenant-specific configuration
