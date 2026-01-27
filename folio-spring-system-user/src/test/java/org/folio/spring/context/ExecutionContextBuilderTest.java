@@ -19,6 +19,8 @@ import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -115,11 +117,12 @@ class ExecutionContextBuilderTest {
       .containsEntry(XOkapiHeaders.TENANT, Set.of(TEST_TENANT_ID));
   }
 
-  @Test
-  void buildContext_withNoHeaders() {
+  @NullAndEmptySource
+  @ParameterizedTest
+  void buildContext_withNoHeaders(Map<String, Collection<String>> headers) {
     when(folioEnvironment.getOkapiUrl()).thenReturn(TEST_OKAPI_URL);
 
-    var context = builder.buildContext(TEST_TENANT_ID, null);
+    var context = builder.buildContext(TEST_TENANT_ID, headers);
 
     assertThat(context.getTenantId()).isEqualTo(TEST_TENANT_ID);
     assertThat(context.getOkapiUrl()).isEqualTo(TEST_OKAPI_URL);

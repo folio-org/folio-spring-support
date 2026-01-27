@@ -1,12 +1,15 @@
 package org.folio.spring.service;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.context.ExecutionContextBuilder;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.scope.FolioExecutionContextSetter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -33,6 +36,23 @@ public class SystemUserScopedExecutionService {
   @SneakyThrows
   public <T> T executeSystemUserScoped(String tenantId, Callable<T> action) {
     try (var fex = new FolioExecutionContextSetter(folioExecutionContext(tenantId))) {
+      return action.call();
+    }
+  }
+
+  /**
+   * Executes given action in scope of system user.
+   *
+   * @param tenantId - The tenant name.
+   * @param userId   - The user id.
+   * @param action   - Job to be executed in tenant scope.
+   * @param <T>      - Optional return value for the action.
+   * @return Result of action.
+   * @throws RuntimeException - Wrapped exception from the action.
+   */
+  @SneakyThrows
+  public <T> T executeSystemUserScoped(String tenantId, String userId, Callable<T> action) {
+    try (var fex = new FolioExecutionContextSetter(folioExecutionContext(tenantId, userId))) {
       return action.call();
     }
   }
@@ -82,8 +102,27 @@ public class SystemUserScopedExecutionService {
     }
   }
 
+  /**
+   * Executes given job in scope of system user asynchronously.
+   *
+   * @param tenantId - The tenant name.
+   * @param userId   - The user id.
+   * @param job      - Job to be executed in tenant scope.
+   */
+  @Async
+  public void executeAsyncSystemUserScoped(String tenantId, String userId, Runnable job) {
+    try (var fex = new FolioExecutionContextSetter(folioExecutionContext(tenantId, userId))) {
+      job.run();
+    }
+  }
+
   private FolioExecutionContext folioExecutionContext(String tenantId) {
-    return folioExecutionContext(tenantId, null);
+    return folioExecutionContext(tenantId, Collections.emptyMap());
+  }
+
+  private FolioExecutionContext folioExecutionContext(String tenantId, String userId) {
+    var headers = Map.of(XOkapiHeaders.USER_ID, (Collection<String>) List.of(userId));
+    return folioExecutionContext(tenantId, headers);
   }
 
   /**
@@ -93,7 +132,7 @@ public class SystemUserScopedExecutionService {
    * */
   private FolioExecutionContext folioExecutionContext(String tenantId, Map<String, Collection<String>> headers) {
     if (systemUserService == null) {
-      return contextBuilder.buildContext(tenantId, executionContext.getUserId(), headers);
+      return contextBuilder.buildContext(tenantId, headers);
     }
     return contextBuilder.forSystemUser(systemUserService.getAuthedSystemUser(tenantId),
                   () -> systemUserService.getAuthedSystemUser(tenantId));

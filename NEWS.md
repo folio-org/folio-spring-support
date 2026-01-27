@@ -18,6 +18,7 @@ CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.media
 * [FOLSPRINGS-197](https://folio-org.atlassian.net/browse/FOLSPRINGS-197) Migrate Log4j plugin registration to annotation processor
 * [FOLSPRINGS-200](https://folio-org.atlassian.net/browse/FOLSPRINGS-200) commons-fileupload 1.6.0 fixing DoS from unlimited multipart headers CVE-2025-48976
 * [FOLSPRINGS-202](https://folio-org.atlassian.net/browse/FOLSPRINGS-202) change warning log to debug for execution scope not set up message
+* [FOLSPRINGS-209](https://folio-org.atlassian.net/browse/FOLSPRINGS-209) Reduce logging during context switching
 
 ### cql submodule
 * [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries
@@ -28,7 +29,11 @@ CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.media
 ### folio-spring-system-user
 * [FOLSPRINGS-195](https://folio-org.atlassian.net/browse/FOLSPRINGS-195) Add headers parameter to executeSystemUserScoped method
 * [FOLSPRINGS-201](https://folio-org.atlassian.net/browse/FOLSPRINGS-195) Deprecate folio-spring-system-user submodule
-* [MODELINKS-351](https://folio-org.atlassian.net/browse/MODELINKS-351) Pass userId from current context to the new one if exists
+* [FOLSPRINGS-207](https://folio-org.atlassian.net/browse/FOLSPRINGS-207) Add executeSystemUserScoped method with userId
+* [MODELINKS-367](https://folio-org.atlassian.net/browse/MODELINKS-367) Add executeAsyncSystemUserScoped method with userId
+
+### folio-spring-tenant-settings
+* [FOLSPRINGS-210](https://folio-org.atlassian.net/browse/FOLSPRINGS-210) Add tenant-settings submodule for managing tenant-specific configuration
 
 ## 9.0.0 2025-02-28
 * [FOLSPRINGS-188](https://folio-org.atlassian.net/browse/FOLSPRINGS-188) Upgrade to Java 21

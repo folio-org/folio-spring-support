@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.5.xsd">
+
+  <!-- Tenant Settings Module Changelog -->
+  <!-- This file should be included in your main module's changelog-master.xml -->
+  <!-- Example: <include file="db/tenant-settings/changelog.xml" relativeToChangelogFile="false"/> -->
+
+  <changeSet id="1-create-setting-group-table" author="folio-spring-tenant-settings">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="setting_group"/>
+      </not>
+    </preConditions>
+
+    <comment>Create setting_group table</comment>
+
+    <createTable tableName="setting_group">
+      <column name="id" type="VARCHAR(255)">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="description" type="TEXT"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2-create-setting-table" author="folio-spring-tenant-settings">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="setting"/>
+      </not>
+    </preConditions>
+
+    <comment>Create setting table with constraints and indexes</comment>
+
+    <createTable tableName="setting">
+      <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="key" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="value" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="type" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="description" type="TEXT"/>
+      <column name="group_id" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_date" type="DATETIME"/>
+      <column name="created_by_user_id" type="UUID"/>
+      <column name="updated_date" type="DATETIME"/>
+      <column name="updated_by_user_id" type="UUID"/>
+    </createTable>
+
+    <!-- Add foreign key constraint -->
+    <addForeignKeyConstraint
+      baseTableName="setting"
+      baseColumnNames="group_id"
+      constraintName="fk_setting_group"
+      referencedTableName="setting_group"
+      referencedColumnNames="id"
+      onDelete="CASCADE"/>
+
+    <!-- Add unique constraint on group_id + key -->
+    <addUniqueConstraint tableName="setting"
+                         columnNames="group_id, key"
+                         constraintName="uk_setting_group_key"/>
+
+    <!-- Create indexes for better query performance -->
+    <createIndex indexName="idx_setting_group_id" tableName="setting">
+      <column name="group_id"/>
+    </createIndex>
+
+    <createIndex indexName="idx_setting_key" tableName="setting">
+      <column name="key"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>
