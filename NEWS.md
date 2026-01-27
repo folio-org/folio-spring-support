@@ -2,7 +2,7 @@
 
 **Breaking Changes:**
 - Migrated from OpenFeign to Spring HTTP Service Clients
-- Updated to Spring Boot 4.0.0 (requires Java 21+)
+- Updated to Spring Boot 4.0.0
 - Updated to Jackson 3.x (package changed from `com.fasterxml.jackson` to `tools.jackson`)
 
 **Migration Guide:** See [SPRING_BOOT_4_MIGRATION_GUIDE.md](doc/SPRING_BOOT_4_MIGRATION_GUIDE.md) for complete step-by-step migration instructions.
