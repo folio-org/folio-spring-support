@@ -29,7 +29,7 @@ class FolioLoggingContextLookupTest {
 
   @Test
   void testLookupWhenContextIsEmpty() {
-    var lookupVal = contextLookup.lookup("tenantid");
+    var lookupVal = contextLookup.lookup("tenantId");
     assertEquals("", lookupVal);
   }
 
@@ -47,28 +47,28 @@ class FolioLoggingContextLookupTest {
   @Test
   void testLookupForTenantId() {
     saveFolioContext();
-    var lookupVal = contextLookup.lookup("tenantid");
+    var lookupVal = contextLookup.lookup("tenantId");
     assertEquals(TEST_TENANT, lookupVal);
   }
 
   @Test
   void testLookupForUserId() {
     saveFolioContext();
-    var lookupVal = contextLookup.lookup("userid");
+    var lookupVal = contextLookup.lookup("userId");
     assertEquals(TEST_USER_ID, lookupVal);
   }
 
   @Test
   void testLookupForRequestId() {
     saveFolioContext();
-    var lookupVal = contextLookup.lookup("requestid");
+    var lookupVal = contextLookup.lookup("requestId");
     assertEquals(TEST_REQUEST_ID, lookupVal);
   }
 
   @Test
   void testLookupForModuleId() {
     saveFolioContext();
-    var lookupVal = contextLookup.lookup("moduleid");
+    var lookupVal = contextLookup.lookup("moduleId");
     assertEquals(TEST_MOD_ID, lookupVal);
   }
 
