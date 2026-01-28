@@ -121,7 +121,7 @@ public class PrepareSystemUserService {
                                                       systemUserProperties.password()));
 
       log.info("Saved credentials for user with username={}", systemUserProperties.username());
-    } catch (HttpClientErrorException.UnprocessableEntity e) {
+    } catch (HttpClientErrorException.UnprocessableContent e) {
       if (!clearExisting) {
         throw e;
       }
