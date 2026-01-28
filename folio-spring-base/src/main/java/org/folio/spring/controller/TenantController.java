@@ -66,7 +66,7 @@ public class TenantController implements TenantApi {
   }
 
   private Optional<String> getParameterValue(String paramName, List<Parameter> parameters) {
-    if (parameters == null || parameters.isEmpty()) {
+    if (parameters.isEmpty()) {
       return Optional.empty();
     }
     return parameters.stream()

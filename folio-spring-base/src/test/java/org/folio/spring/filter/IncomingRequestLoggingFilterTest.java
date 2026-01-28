@@ -154,10 +154,6 @@ class IncomingRequestLoggingFilterTest {
     return s -> assertThat(s).matches("<--- " + TEST_STATUS + " in \\d+ms");
   }
 
-  private Consumer<String> requestBody() {
-    return requestBody(null);
-  }
-
   private Consumer<String> requestBody(String testBody) {
     return s -> assertThat(s).isEqualTo("Request body: " + (testBody == null ? "" : testBody));
   }

@@ -11,6 +11,7 @@ import lombok.Singular;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.folio.spring.model.ResultList;
+import org.jspecify.annotations.Nullable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
@@ -51,7 +52,7 @@ public interface UsersClient {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Personal(String firstName, String lastName) {
+    public record Personal(@Nullable String firstName, String lastName) {
       public Personal(String lastName) {
         this(null, lastName);
       }

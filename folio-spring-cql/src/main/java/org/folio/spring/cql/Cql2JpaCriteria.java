@@ -479,17 +479,13 @@ public class Cql2JpaCriteria<E> {
     }
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private Predicate processStringType(Expression field, Comparable term, String comparator, CriteriaBuilder cb)
     throws QueryValidationException {
-    var wrapper = getExpressionUnaryOperator(cb);
+    var wrapper = wrapper(cb);
     field = wrapper.apply(field);
     var termExpression = wrapper.apply(cb.literal(cql2like(term.toString())));
     return toPredicate(field, termExpression, comparator, cb);
-  }
-
-  private UnaryOperator<Expression<String>> getExpressionUnaryOperator(CriteriaBuilder cb) {
-    UnaryOperator<Expression<String>> wrapper = wrapper(cb);
-    return wrapper;
   }
 
   private static CQLFeatureUnsupportedException createUnsupportedException(CQLNode node) {

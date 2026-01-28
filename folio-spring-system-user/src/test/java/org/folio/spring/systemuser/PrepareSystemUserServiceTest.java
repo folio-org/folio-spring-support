@@ -172,7 +172,7 @@ class PrepareSystemUserServiceTest {
     when(permissionsClient.getUserPermissions(any())).thenReturn(asSinglePage("inventory-storage.instance.item.get"));
 
     // fail on the 1st try
-    doThrow(mock(HttpClientErrorException.UnprocessableEntity.class))
+    doThrow(mock(HttpClientErrorException.UnprocessableContent.class))
         .doNothing().when(authnClient).saveCredentials(any());
 
     prepareSystemUser(systemUserProperties());
@@ -190,9 +190,9 @@ class PrepareSystemUserServiceTest {
     when(permissionsClient.getUserPermissions(any())).thenReturn(asSinglePage("inventory-storage.instance.item.get"));
 
     // fail on 1st try and retry
-    doThrow(mock(HttpClientErrorException.UnprocessableEntity.class)).when(authnClient).saveCredentials(any());
+    doThrow(mock(HttpClientErrorException.UnprocessableContent.class)).when(authnClient).saveCredentials(any());
 
-    assertThrows(HttpClientErrorException.UnprocessableEntity.class, () -> prepareSystemUser(systemUserProperties()));
+    assertThrows(HttpClientErrorException.UnprocessableContent.class, () -> prepareSystemUser(systemUserProperties()));
 
     InOrder verifier = inOrder(authnClient);
     verifier.verify(authnClient, times(1)).saveCredentials(any());
