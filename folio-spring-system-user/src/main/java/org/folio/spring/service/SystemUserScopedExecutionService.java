@@ -102,6 +102,20 @@ public class SystemUserScopedExecutionService {
     }
   }
 
+  /**
+   * Executes given job in scope of system user asynchronously.
+   *
+   * @param tenantId - The tenant name.
+   * @param userId   - The user id.
+   * @param job      - Job to be executed in tenant scope.
+   */
+  @Async
+  public void executeAsyncSystemUserScoped(String tenantId, String userId, Runnable job) {
+    try (var fex = new FolioExecutionContextSetter(folioExecutionContext(tenantId, userId))) {
+      job.run();
+    }
+  }
+
   private FolioExecutionContext folioExecutionContext(String tenantId) {
     return folioExecutionContext(tenantId, Collections.emptyMap());
   }

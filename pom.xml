@@ -26,6 +26,7 @@
     <module>folio-spring-i18n</module>
     <module>folio-spring-common</module>
     <module>folio-spring-testing</module>
+    <module>folio-spring-tenant-settings</module>
   </modules>
 
   <properties>

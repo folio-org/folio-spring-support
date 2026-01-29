@@ -1,0 +1,284 @@
+openapi: 3.0.0
+info:
+  title: Tenant Settings API
+  version: v1
+  description: API for managing tenant configuration groups and settings
+
+paths:
+  /config/groups:
+    get:
+      description: Get all configuration groups
+      operationId: getConfigGroups
+      tags:
+        - tenant-settings
+      responses:
+        "200":
+          description: List of configuration groups
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/settingGroupCollection'
+        "400":
+          $ref: '#/components/responses/badRequest'
+        "500":
+          $ref: '#/components/responses/internalServerError'
+
+  /config/groups/{groupId}/settings:
+    parameters:
+      - name: groupId
+        in: path
+        required: true
+        description: Configuration group ID
+        schema:
+          type: string
+        example: audit.authority
+    get:
+      description: Get settings for a specific configuration group
+      operationId: getGroupSettings
+      tags:
+        - tenant-settings
+      responses:
+        "200":
+          description: List of settings for the group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/settingCollection'
+        "400":
+          $ref: '#/components/responses/badRequest'
+        "404":
+          $ref: '#/components/responses/notFound'
+        "500":
+          $ref: '#/components/responses/internalServerError'
+
+  /config/groups/{groupId}/settings/{key}:
+    parameters:
+      - name: groupId
+        in: path
+        required: true
+        description: Configuration group ID
+        schema:
+          type: string
+        example: audit.authority
+      - name: key
+        in: path
+        required: true
+        description: Setting key
+        schema:
+          type: string
+        example: enabled
+    patch:
+      description: Update a specific setting in a configuration group
+      operationId: updateGroupSetting
+      tags:
+        - tenant-settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/settingUpdateRequest'
+      responses:
+        "200":
+          description: Setting updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/setting'
+        "400":
+          $ref: '#/components/responses/badRequest'
+        "404":
+          $ref: '#/components/responses/notFound'
+        "422":
+          $ref: '#/components/responses/unprocessableEntity'
+        "500":
+          $ref: '#/components/responses/internalServerError'
+
+components:
+  schemas:
+    settingGroup:
+      type: object
+      description: A configuration group
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the configuration group
+          example: audit.authority
+        name:
+          type: string
+          description: Human-readable name of the configuration group
+          example: Authority Audit Configuration
+        description:
+          type: string
+          description: Description of the configuration group
+          example: Group of configurations for audit of authority records
+      required:
+        - id
+        - name
+
+    settingGroupCollection:
+      type: object
+      description: Collection of configuration groups
+      properties:
+        settingGroups:
+          type: array
+          description: List of configuration groups
+          items:
+            $ref: '#/components/schemas/settingGroup'
+        totalRecords:
+          type: integer
+          description: Total number of configuration groups
+          example: 2
+      required:
+        - settingGroups
+        - totalRecords
+
+    metadata:
+      type: object
+      description: Metadata information
+      properties:
+        createdDate:
+          type: string
+          format: date-time
+          description: Date and time when the record was created
+          example: "2026-01-13T01:53:39.496+00:00"
+        createdByUserId:
+          type: string
+          format: uuid
+          description: ID of the user who created the record
+          example: "00000000-0000-0000-0000-000000000000"
+        updatedDate:
+          type: string
+          format: date-time
+          description: Date and time when the record was last updated
+          example: "2026-01-13T01:53:39.496+00:00"
+        updatedByUserId:
+          type: string
+          format: uuid
+          description: ID of the user who last updated the record
+          example: "00000000-0000-0000-0000-000000000000"
+
+    setting:
+      type: object
+      description: A configuration setting
+      properties:
+        key:
+          type: string
+          description: Unique key for the setting within the group
+          example: enabled
+        value:
+          type: object
+          description: Value of the setting (type depends on the type field)
+          example: true
+        type:
+          type: string
+          description: Data type of the setting value
+          enum:
+            - BOOLEAN
+            - INTEGER
+            - STRING
+          example: BOOLEAN
+        description:
+          type: string
+          description: Description of what the setting controls
+          example: Defines if the authority audit is enabled
+        groupId:
+          type: string
+          description: ID of the configuration group this setting belongs to
+          example: audit.authority
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+        - key
+        - value
+        - type
+        - groupId
+
+    settingCollection:
+      type: object
+      description: Collection of settings
+      properties:
+        settings:
+          type: array
+          description: List of settings
+          items:
+            $ref: '#/components/schemas/setting'
+        totalRecords:
+          type: integer
+          description: Total number of settings
+          example: 3
+      required:
+        - settings
+        - totalRecords
+
+    settingUpdateRequest:
+      type: object
+      description: A configuration setting update request
+      properties:
+        value:
+          type: object
+          description: Value of the setting (type depends on the type field)
+          example: true
+        description:
+          type: string
+          description: Description of what the setting controls
+          example: Defines if the authority audit is enabled
+
+    error:
+      type: object
+      description: An error message
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      required:
+        - message
+
+    errors:
+      type: object
+      description: A set of error messages
+      properties:
+        errors:
+          type: array
+          description: List of error messages
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          type: integer
+          description: Total number of errors
+
+  responses:
+    badRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+
+    notFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+
+    unprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+
+    internalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: string
+            example: Internal server error, contact administrator
