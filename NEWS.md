@@ -1,3 +1,8 @@
+## 9.0.3
+
+### folio-spring-base
+* [FOLSPRINGS-214](https://folio-org.atlassian.net/browse/FOLSPRINGS-214) Bump Spring Boot from 3.4.3 to 3.4.11 fixing vulns
+
 ## 9.0.2 2025-11-18
 
 ### folio-spring-base
