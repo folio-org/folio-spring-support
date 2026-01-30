@@ -15,7 +15,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import feign.FeignException;
 import java.util.Map;
 import java.util.Optional;
 import org.folio.spring.FolioExecutionContext;
@@ -36,6 +35,7 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.HttpClientErrorException;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -74,7 +74,7 @@ class PrepareSystemUserServiceTest {
   @Test
   void testCreatesSystemUserWhenNotExist() {
     when(systemUserService.getFolioUser(any())).thenReturn(userNotExistResponse());
-    when(permissionsClient.getUserPermissions(any())).thenThrow(mock(FeignException.NotFound.class));
+    when(permissionsClient.getUserPermissions(any())).thenThrow(mock(HttpClientErrorException.NotFound.class));
 
     prepareSystemUser(systemUserProperties());
 
@@ -116,10 +116,10 @@ class PrepareSystemUserServiceTest {
   @Test
   void testUnableActivateSystemUserWhenInactive() {
     when(systemUserService.getFolioUser(any())).thenReturn(userExistsInactiveResponse());
-    doThrow(mock(FeignException.class)).when(usersClient).updateUser(any());
+    doThrow(mock(HttpClientErrorException.class)).when(usersClient).updateUser(any());
 
     SystemUserProperties systemUserProperties = systemUserProperties();
-    assertThrows(FeignException.class, () -> prepareSystemUser(systemUserProperties));
+    assertThrows(HttpClientErrorException.class, () -> prepareSystemUser(systemUserProperties));
 
     verify(usersClient, times(1)).updateUser(any());
     verifyNoMoreInteractions(usersClient);
@@ -172,7 +172,8 @@ class PrepareSystemUserServiceTest {
     when(permissionsClient.getUserPermissions(any())).thenReturn(asSinglePage("inventory-storage.instance.item.get"));
 
     // fail on the 1st try
-    doThrow(mock(FeignException.UnprocessableEntity.class)).doNothing().when(authnClient).saveCredentials(any());
+    doThrow(mock(HttpClientErrorException.UnprocessableContent.class))
+        .doNothing().when(authnClient).saveCredentials(any());
 
     prepareSystemUser(systemUserProperties());
 
@@ -189,9 +190,9 @@ class PrepareSystemUserServiceTest {
     when(permissionsClient.getUserPermissions(any())).thenReturn(asSinglePage("inventory-storage.instance.item.get"));
 
     // fail on 1st try and retry
-    doThrow(mock(FeignException.UnprocessableEntity.class)).when(authnClient).saveCredentials(any());
+    doThrow(mock(HttpClientErrorException.UnprocessableContent.class)).when(authnClient).saveCredentials(any());
 
-    assertThrows(FeignException.UnprocessableEntity.class, () -> prepareSystemUser(systemUserProperties()));
+    assertThrows(HttpClientErrorException.UnprocessableContent.class, () -> prepareSystemUser(systemUserProperties()));
 
     InOrder verifier = inOrder(authnClient);
     verifier.verify(authnClient, times(1)).saveCredentials(any());

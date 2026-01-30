@@ -17,14 +17,9 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import feign.FeignException;
-import feign.Request;
-import feign.Response;
-import feign.Util;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,6 +50,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMapAdapter;
+import org.springframework.web.client.HttpClientErrorException;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -256,7 +252,7 @@ class SystemUserServiceTest {
   @Test
   void authSystemUser_when_loginExpiry_notFoundException() {
     var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
-    doThrow(FeignException.errorStatus("GET", create404Response()))
+    doThrow(HttpClientErrorException.NotFound.create(HttpStatus.NOT_FOUND, "Not Found", HttpHeaders.EMPTY, null, null))
       .when(authnClient).loginWithExpiry(any());
     when(authnClient.login(new UserCredentials("username", "password")))
       .thenReturn(buildClientResponse(MOCK_TOKEN));
@@ -269,7 +265,7 @@ class SystemUserServiceTest {
   @Test
   void overloaded_authSystemUser_when_loginExpiry_notFoundException() {
     var expectedUserToken = new UserToken(MOCK_TOKEN, Instant.MAX);
-    doThrow(FeignException.errorStatus("GET", create404Response()))
+    doThrow(HttpClientErrorException.NotFound.create(HttpStatus.NOT_FOUND, "Not Found", HttpHeaders.EMPTY, null, null))
       .when(authnClient).loginWithExpiry(any());
     when(authnClient.login(new UserCredentials("username", "password")))
       .thenReturn(buildClientResponse(MOCK_TOKEN));
@@ -281,7 +277,7 @@ class SystemUserServiceTest {
 
   @Test
   void authSystemUser_when_loginExpiry_notFoundException_loginLegacReturnsNull() {
-    doThrow(FeignException.errorStatus("GET", create404Response()))
+    doThrow(HttpClientErrorException.NotFound.create(HttpStatus.NOT_FOUND, "Not Found", HttpHeaders.EMPTY, null, null))
       .when(authnClient).loginWithExpiry(any());
     when(authnClient.login(new UserCredentials("username", "password")))
       .thenReturn(buildClientResponse(null));
@@ -294,7 +290,8 @@ class SystemUserServiceTest {
 
   @Test
   void authSystemUser_when_loginExpiry_Returns400Response() {
-    doThrow(FeignException.errorStatus("GET", create400Response()))
+    doThrow(HttpClientErrorException.BadRequest.create(
+        HttpStatus.BAD_REQUEST, "Bad Request", HttpHeaders.EMPTY, null, null))
       .when(authnClient).loginWithExpiry(any());
     var systemUser = systemUserValue();
     var systemUserService = systemUserService(systemUserProperties());
@@ -324,9 +321,9 @@ class SystemUserServiceTest {
 
   @Test
   void authSystemUser_when_loginExpiry_and_tokenLegacy_both_notFound() {
-    doThrow(FeignException.errorStatus("GET", create404Response()))
+    doThrow(HttpClientErrorException.NotFound.create(HttpStatus.NOT_FOUND, "Not Found", HttpHeaders.EMPTY, null, null))
       .when(authnClient).loginWithExpiry(any());
-    doThrow(FeignException.errorStatus("GET", create404Response()))
+    doThrow(HttpClientErrorException.NotFound.create(HttpStatus.NOT_FOUND, "Not Found", HttpHeaders.EMPTY, null, null))
       .when(authnClient).login(any());
     var systemUser = systemUserValue();
     var systemUserService = systemUserService(systemUserProperties());
@@ -411,23 +408,5 @@ class SystemUserServiceTest {
     return ResponseEntity.ok()
       .header(XOkapiHeaders.TOKEN, token)
       .body(new AuthnClient.LoginResponse(TOKEN_EXPIRATION.toString(), REFRESH_TOKEN_EXPIRATION.toString()));
-  }
-
-  private Response create404Response() {
-    return Response.builder()
-      .status(HttpStatus.NOT_FOUND.value())
-      .reason("Not Found")
-      .request(Request.create(Request.HttpMethod.GET,
-        "/some/path", Collections.emptyMap(), null, Util.UTF_8, null))
-      .build();
-  }
-
-  private Response create400Response() {
-    return Response.builder()
-      .status(HttpStatus.BAD_REQUEST.value())
-      .reason("Not Found")
-      .request(Request.create(Request.HttpMethod.GET,
-        "/some/path", Collections.emptyMap(), null, Util.UTF_8, null))
-      .build();
   }
 }

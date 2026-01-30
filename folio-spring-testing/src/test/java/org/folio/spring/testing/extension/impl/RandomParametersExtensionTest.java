@@ -148,7 +148,6 @@ class RandomParametersExtensionTest {
       assertThat(s).isBetween(10L, 11L);
     }
   }
-
 }
 
 

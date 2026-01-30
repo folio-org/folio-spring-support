@@ -5,11 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
-import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
+import org.springframework.boot.liquibase.autoconfigure.LiquibaseAutoConfiguration;
+import org.springframework.boot.liquibase.autoconfigure.LiquibaseProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.CollectionUtils;
@@ -17,7 +17,7 @@ import org.springframework.util.StringUtils;
 
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(prefix = "spring.liquibase", name = "enabled", matchIfMissing = true)
-@AutoConfigureBefore({LiquibaseAutoConfiguration.class, LiquibaseAutoConfiguration.LiquibaseConfiguration.class})
+@AutoConfigureBefore({LiquibaseAutoConfiguration.class})
 @AutoConfigureAfter({DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 @EnableConfigurationProperties(LiquibaseProperties.class)
 public class FolioLiquibaseConfiguration {
@@ -26,7 +26,6 @@ public class FolioLiquibaseConfiguration {
   public FolioLiquibaseConfiguration(LiquibaseProperties properties) {
     this.properties = properties;
   }
-
 
   @Bean
   public FolioSpringLiquibase liquibase(@Autowired DataSource dataSource) {
@@ -54,5 +53,4 @@ public class FolioLiquibaseConfiguration {
     liquibase.setTag(this.properties.getTag());
     return liquibase;
   }
-
 }

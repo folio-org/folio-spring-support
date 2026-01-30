@@ -65,7 +65,7 @@ public class TenantSettingsController implements TenantSettingsApi {
   @ExceptionHandler(TenantSettingsValidationException.class)
   public ResponseEntity<Errors> handleUnauthorizedOperationException(TenantSettingsValidationException ex) {
     logExceptionHandling(ex);
-    return buildResponseEntity(ex, HttpStatus.UNPROCESSABLE_ENTITY);
+    return buildResponseEntity(ex, HttpStatus.UNPROCESSABLE_CONTENT);
   }
 
   private static ResponseEntity<Errors> buildResponseEntity(Exception ex, HttpStatus status) {

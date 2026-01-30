@@ -26,5 +26,4 @@ class OkapiExtensionTest {
     extension.afterAll(null);
     assertThat(System.getProperty("folio.okapi-url")).isNull();
   }
-
 }

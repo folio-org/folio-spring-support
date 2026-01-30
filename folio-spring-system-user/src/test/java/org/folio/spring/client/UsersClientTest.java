@@ -9,15 +9,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
 import org.folio.spring.testing.type.UnitTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 @UnitTest
-public class UsersClientTest {
+class UsersClientTest {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Test
-  public void testDeserialization() throws JsonProcessingException {
+  void testDeserialization() throws JsonProcessingException {
     User user = objectMapper.readValue(
       """
         {
@@ -38,7 +38,7 @@ public class UsersClientTest {
   }
 
   @Test
-  public void testSerialization() throws JsonProcessingException {
+  void testSerialization() throws JsonProcessingException {
     Map<String, Object> user = objectMapper.readValue(
       objectMapper.writeValueAsString(
         User
@@ -50,7 +50,7 @@ public class UsersClientTest {
           .extraProperties(Map.of("someOtherProperty", "value"))
           .build()
       ),
-      new TypeReference<HashMap<String, Object>>() {}
+      new TypeReference<HashMap<String, Object>>() { }
     );
 
     // we want someOtherProperty extracted out of extraProperties for serialization

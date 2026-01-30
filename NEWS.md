@@ -1,5 +1,12 @@
 ## 10.0.0 In progress
 
+**Breaking Changes:**
+- Migrated from OpenFeign to Spring HTTP Service Clients
+- Updated to Spring Boot 4.0.0
+- Updated to Jackson 3.x (package changed from `com.fasterxml.jackson` to `tools.jackson`)
+
+**Migration Guide:** See [SPRING_BOOT_4_MIGRATION_GUIDE.md](doc/SPRING_BOOT_4_MIGRATION_GUIDE.md) for complete step-by-step migration instructions.
+
 Breaking change, new default: A CQL search in a `String` field ignores case (= is case insensitive) and ignores accents by default; this is for consistency with <a href="https://github.com/folio-org/raml-module-builder?tab=readme-ov-file#the-post-tenant-api">RMB based modules</a>. Use the annotations `@RespectCase` and/or `@RespectAccents` in the entity class to change this new default. Update database indices accordingly, for example:
 
 ```

@@ -44,7 +44,6 @@ public class FolioSpringLiquibase extends SpringLiquibase {
               + "RETURNS text AS $$ SELECT public.unaccent('public.unaccent', $1) "
               + "$$ LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT");
         }
-
       } catch (SQLException e) {
         log.error("Default schema " + defaultSchema + " has not been created.", e);
       }
@@ -52,5 +51,4 @@ public class FolioSpringLiquibase extends SpringLiquibase {
 
     super.afterPropertiesSet();
   }
-
 }

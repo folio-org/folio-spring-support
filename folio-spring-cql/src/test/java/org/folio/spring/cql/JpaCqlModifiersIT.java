@@ -10,20 +10,19 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 
-
 @IntegrationTest
 @SpringBootTest
 @EnablePostgres
+@EnableAutoConfiguration
 @ContextConfiguration(classes = JpaCqlConfiguration.class)
-@EnableAutoConfiguration(exclude = FlywayAutoConfiguration.class)
 @Sql({"/sql/jpa-cql-general-it-schema.sql",
-      "/sql/jpa-cql-modifiers-it-schema.sql", "/sql/jpa-cql-modifiers-test-data.sql"})
+      "/sql/jpa-cql-modifiers-it-schema.sql",
+      "/sql/jpa-cql-modifiers-test-data.sql"})
 class JpaCqlModifiersIT {
 
   @Autowired

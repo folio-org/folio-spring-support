@@ -2,7 +2,6 @@ package org.folio.spring.service;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import feign.FeignException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +23,8 @@ import org.folio.spring.client.UsersClient;
 import org.folio.spring.client.UsersClient.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 
 @Log4j2
 @Deprecated(since = "10.0.0", forRemoval = true)
@@ -83,7 +84,7 @@ public class PrepareSystemUserService {
         user = user.toBuilder().active(true).expirationDate(null).build();
         try {
           usersClient.updateUser(user);
-        } catch (FeignException e) {
+        } catch (HttpStatusCodeException e) {
           log.error("System user was unable to be marked active, so we are failing module upgrade.");
           log.error("Attempting to mark system user active resulted in the following error:", e);
           throw e;
@@ -120,7 +121,7 @@ public class PrepareSystemUserService {
                                                       systemUserProperties.password()));
 
       log.info("Saved credentials for user with username={}", systemUserProperties.username());
-    } catch (FeignException.UnprocessableEntity e) {
+    } catch (HttpClientErrorException.UnprocessableContent e) {
       if (!clearExisting) {
         throw e;
       }
@@ -153,7 +154,7 @@ public class PrepareSystemUserService {
       log.info("Adding {} permissions to system user: {}", permissionsToAdd.size(), permissionsToAdd);
 
       permissionsToAdd.forEach(permission -> permissionsClient.addPermission(userId, new Permission(permission)));
-    } catch (FeignException.NotFound | NullPointerException e) {
+    } catch (HttpClientErrorException.NotFound | NullPointerException e) {
       UUID newPermissionsId = UUID.randomUUID();
       log.warn("No permissions record found for system user, creating a fresh one with id={}...", newPermissionsId);
       Permissions permissions = new Permissions(UUID.randomUUID().toString(), userId, permissionsToAssign);

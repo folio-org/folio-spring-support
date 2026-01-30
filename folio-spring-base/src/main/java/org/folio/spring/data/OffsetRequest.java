@@ -3,10 +3,10 @@ package org.folio.spring.data;
 import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.lang.NonNull;
 
 @EqualsAndHashCode
 @ToString
@@ -71,10 +71,6 @@ public class OffsetRequest implements Pageable {
     return new OffsetRequest(getOffset() + getPageSize(), getPageSize(), getSort());
   }
 
-  public Pageable previous() {
-    return hasPrevious() ? new OffsetRequest(getOffset() - getPageSize(), getPageSize(), getSort()) : this;
-  }
-
   @Override
   @NonNull
   public Pageable previousOrFirst() {
@@ -98,4 +94,7 @@ public class OffsetRequest implements Pageable {
     return offset > limit;
   }
 
+  public Pageable previous() {
+    return hasPrevious() ? new OffsetRequest(getOffset() - getPageSize(), getPageSize(), getSort()) : this;
+  }
 }

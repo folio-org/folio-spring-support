@@ -11,12 +11,10 @@ import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.exception.FolioContextExecutionException;
 import org.folio.spring.integration.XOkapiHeaders;
-import org.springframework.stereotype.Service;
 
 /**
  * Service for executing code within a Folio context, setting up tenant and headers.
  */
-@Service
 public class FolioExecutionContextService {
 
   private final FolioModuleMetadata moduleMetadata;

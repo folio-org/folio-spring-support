@@ -9,7 +9,7 @@ import java.io.IOException;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.scope.FolioExecutionContextSetter;
-import org.springframework.boot.web.servlet.filter.OrderedFilter;
+import org.springframework.boot.servlet.filter.OrderedFilter;
 import org.springframework.web.filter.GenericFilterBean;
 
 @Log4j2

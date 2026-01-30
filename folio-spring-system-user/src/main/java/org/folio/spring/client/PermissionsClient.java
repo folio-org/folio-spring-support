@@ -5,23 +5,22 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import org.folio.spring.model.ResultList;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.service.annotation.GetExchange;
+import org.springframework.web.service.annotation.HttpExchange;
+import org.springframework.web.service.annotation.PostExchange;
 
 @Deprecated(since = "10.0.0", forRemoval = true)
-@FeignClient(name = "folio-spring-base-permissions-client", url = "perms/users")
+@HttpExchange(url = "perms/users", contentType = APPLICATION_JSON_VALUE)
 public interface PermissionsClient {
 
-  @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-  void assignPermissionsToUser(@RequestBody Permissions permissions);
+  @PostExchange
+  void assignPermissionsToUser(Permissions permissions);
 
-  @PostMapping(value = "/{userId}/permissions?indexField=userId", consumes = APPLICATION_JSON_VALUE)
+  @PostExchange("/{userId}/permissions?indexField=userId")
   void addPermission(@PathVariable("userId") String userId, Permission permission);
 
-  @GetMapping(value = "/{userId}/permissions?indexField=userId")
+  @GetExchange("/{userId}/permissions?indexField=userId")
   ResultList<String> getUserPermissions(@PathVariable("userId") String userId);
 
   record Permission(String permissionName) {

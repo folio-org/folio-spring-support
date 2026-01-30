@@ -110,7 +110,7 @@ class JpaCqlRepositoryIT {
       .extracting(Language::getName)
       .containsExactlyInAnyOrder(expectedNames);
 
-    assertThat(languageRepository.count(cql))
+    assertThat(languageRepository.countByCql(cql))
       .isEqualTo(expectedNames.length);
   }
 
@@ -225,7 +225,7 @@ class JpaCqlRepositoryIT {
 
     assertThat(personRepository.countDeletedFalse("(cql.allRecords=1)sortby age/sort.ascending"))
       .isEqualTo(5);
-    assertThat(personRepository.count("(cql.allRecords=1)sortby age/sort.ascending"))
+    assertThat(personRepository.countByCql("(cql.allRecords=1)sortby age/sort.ascending"))
       .isEqualTo(9);
   }
 

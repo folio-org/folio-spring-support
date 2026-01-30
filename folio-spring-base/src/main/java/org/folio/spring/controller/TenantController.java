@@ -66,7 +66,7 @@ public class TenantController implements TenantApi {
   }
 
   private Optional<String> getParameterValue(String paramName, List<Parameter> parameters) {
-    if (parameters == null || parameters.isEmpty()) {
+    if (parameters.isEmpty()) {
       return Optional.empty();
     }
     return parameters.stream()
@@ -78,5 +78,4 @@ public class TenantController implements TenantApi {
   private boolean isDisableJob(TenantAttributes tenantAttributes) {
     return StringUtils.isBlank(tenantAttributes.getModuleTo()) && tenantAttributes.getPurge();
   }
-
 }

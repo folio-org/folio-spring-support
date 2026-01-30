@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.springframework.boot.web.servlet.filter.OrderedFilter.REQUEST_WRAPPER_FILTER_MAX_ORDER;
+import static org.springframework.boot.servlet.filter.OrderedFilter.REQUEST_WRAPPER_FILTER_MAX_ORDER;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,6 +23,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.folio.spring.filter.appender.TestAppender;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
+import org.folio.spring.utils.RequestLoggingLevel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +36,7 @@ import org.springframework.mock.web.DelegatingServletInputStream;
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class LoggingRequestFilterTest {
+class IncomingRequestLoggingFilterTest {
 
   private static final String TEST_METHOD = "GET";
   private static final String TEST_URI = "/test-uri";
@@ -83,14 +84,14 @@ class LoggingRequestFilterTest {
   @Test
   void loggingTestWithNotInfoLevel() throws ServletException, IOException {
     setLoggerLevel((LoggerContext) LogManager.getContext(false), Level.FATAL);
-    var filter = new LoggingRequestFilter(LoggingRequestFilter.Level.BASIC);
+    var filter = new IncomingRequestLoggingFilter(RequestLoggingLevel.BASIC);
     filter.doFilter(servletRequest, servletResponse, filterChain);
     assertThat(testAppender.getMessages()).isEmpty();
   }
 
   @Test
   void basicLoggingTest() throws ServletException, IOException {
-    var filter = new LoggingRequestFilter(LoggingRequestFilter.Level.BASIC);
+    var filter = new IncomingRequestLoggingFilter(RequestLoggingLevel.BASIC);
     filter.doFilter(servletRequest, servletResponse, filterChain);
 
     assertThat(testAppender.getMessages())
@@ -102,7 +103,7 @@ class LoggingRequestFilterTest {
 
   @Test
   void headersLoggingTest() throws ServletException, IOException {
-    var filter = new LoggingRequestFilter(LoggingRequestFilter.Level.HEADERS);
+    var filter = new IncomingRequestLoggingFilter(RequestLoggingLevel.HEADERS);
     filter.doFilter(servletRequest, servletResponse, filterChain);
 
     assertThat(testAppender.getMessages())
@@ -117,7 +118,7 @@ class LoggingRequestFilterTest {
 
   @Test
   void fullLoggingTest() throws ServletException, IOException {
-    var filter = new LoggingRequestFilter(LoggingRequestFilter.Level.FULL);
+    var filter = new IncomingRequestLoggingFilter(RequestLoggingLevel.FULL);
     filter.doFilter(servletRequest, servletResponse, filterChain);
 
     assertThat(testAppender.getMessages())
@@ -126,16 +127,16 @@ class LoggingRequestFilterTest {
       .satisfies(requestInfo(), atIndex(0))
       .satisfies(requestHeader(XOkapiHeaders.TOKEN, TEST_TOKEN), atIndex(1))
       .satisfies(requestHeader(XOkapiHeaders.REQUEST_ID, TEST_REQUEST_ID), atIndex(2))
-      .satisfies(body(TEST_BODY), atIndex(3))
+      .satisfies(requestBody(TEST_BODY), atIndex(3))
       .satisfies(requestEndHttp(), atIndex(4))
       .satisfies(responseStatusWithTime(), atIndex(5))
-      .satisfies(body(), atIndex(6))
+      .satisfies(responseBody(), atIndex(6))
       .satisfies(responseEndHttp(), atIndex(7));
   }
 
   @Test
   void getOrderTest() {
-    var filter = new LoggingRequestFilter(LoggingRequestFilter.Level.FULL);
+    var filter = new IncomingRequestLoggingFilter(RequestLoggingLevel.FULL);
     var actualOrder = filter.getOrder();
 
     assertThat(actualOrder).isEqualTo(REQUEST_WRAPPER_FILTER_MAX_ORDER + 3);
@@ -153,12 +154,16 @@ class LoggingRequestFilterTest {
     return s -> assertThat(s).matches("<--- " + TEST_STATUS + " in \\d+ms");
   }
 
-  private Consumer<String> body() {
-    return body(null);
+  private Consumer<String> requestBody(String testBody) {
+    return s -> assertThat(s).isEqualTo("Request body: " + (testBody == null ? "" : testBody));
   }
 
-  private Consumer<String> body(String testBody) {
-    return s -> assertThat(s).isEqualTo("Body: " + (testBody == null ? "" : testBody));
+  private Consumer<String> responseBody() {
+    return responseBody(null);
+  }
+
+  private Consumer<String> responseBody(String testBody) {
+    return s -> assertThat(s).isEqualTo("Response body: " + (testBody == null ? "" : testBody));
   }
 
   private Consumer<String> requestEndHttp() {
@@ -170,6 +175,6 @@ class LoggingRequestFilterTest {
   }
 
   private void setLoggerLevel(LoggerContext ctx, Level info) {
-    ctx.getLogger(LoggingRequestFilter.class.getName()).setLevel(info);
+    ctx.getLogger(IncomingRequestLoggingFilter.class.getName()).setLevel(info);
   }
 }
