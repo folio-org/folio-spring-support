@@ -6,12 +6,10 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Map;
-import lombok.Builder;
 import lombok.Singular;
-import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
 import org.folio.spring.model.ResultList;
 import org.jspecify.annotations.Nullable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
@@ -25,30 +23,16 @@ public interface UsersClient {
   ResultList<User> query(@RequestParam("query") String query);
 
   @PostExchange
-  void createUser(User user);
+  void createUser(@RequestBody User user);
 
   @PutExchange("{user.id}")
-  void updateUser(User user);
+  void updateUser(@RequestBody User user);
 
-  @Value
-  @Jacksonized
-  @Builder(toBuilder = true)
-  class User {
+  record User(String id, String username, String type, Boolean active, String expirationDate, Personal personal,
+              @JsonAnyGetter @JsonAnySetter @Singular("extraProperties") Map<String, Object> extraProperties) {
 
-    private String id;
-    private String username;
-    private String type;
-    private boolean active;
-    private String expirationDate;
-    private Personal personal;
-
-    @JsonAnySetter
-    @Singular("extraProperties")
-    private Map<String, Object> extraProperties;
-
-    @JsonAnyGetter
-    public Map<String, Object> getExtraProperties() {
-      return this.extraProperties;
+    public static User fromAndActive(User other) {
+      return new User(other.id, other.username, other.type, true, null, other.personal, other.extraProperties);
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -3,6 +3,7 @@ package org.folio.spring.client;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.DeleteExchange;
 import org.springframework.web.service.annotation.HttpExchange;
@@ -13,13 +14,13 @@ import org.springframework.web.service.annotation.PostExchange;
 public interface AuthnClient {
 
   @PostExchange("/login-with-expiry")
-  ResponseEntity<LoginResponse> loginWithExpiry(UserCredentials credentials);
+  ResponseEntity<LoginResponse> loginWithExpiry(@RequestBody UserCredentials credentials);
 
   @PostExchange("/login")
-  ResponseEntity<LoginResponse> login(UserCredentials credentials);
+  ResponseEntity<LoginResponse> login(@RequestBody UserCredentials credentials);
 
   @PostExchange("/credentials")
-  void saveCredentials(UserCredentials credentials);
+  void saveCredentials(@RequestBody UserCredentials credentials);
 
   @DeleteExchange("/credentials")
   void deleteCredentials(@RequestParam("userId") String userId);

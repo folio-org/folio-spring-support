@@ -12,8 +12,7 @@ This guide provides a complete step-by-step migration path for FOLIO modules upg
    - [Step 5: Configure HTTP Service Clients](#step-5-configure-http-service-clients)
    - [Step 6: Update Exception Handling](#step-6-update-exception-handling)
    - [Step 7: Update Jackson Imports](#step-7-update-jackson-imports)
-   - [Step 8: Update Test Configuration](#step-8-update-test-configuration)
-   - [Step 9: Update Integration Tests](#step-9-update-integration-tests)
+   - [Step 8: Update Retry Logic](#step-8-update-retry-logic)
 3. [Complete Migration Checklist](#complete-migration-checklist)
 4. [Troubleshooting](#troubleshooting)
 5. [Additional Resources](#additional-resources)
@@ -24,7 +23,7 @@ This guide provides a complete step-by-step migration path for FOLIO modules upg
 
 This migration involves three major changes:
 
-1. **Spring Boot 3.x → 4.0.0**: Requires Java 21+, includes Jakarta EE 10+
+1. **Spring Boot 3.x → 4.0.2**: Requires Java 21+, includes Jakarta EE 10+
 2. **Jackson 2.x → 3.x**: Package changes from `com.fasterxml.jackson` to `tools.jackson`
 3. **OpenFeign → Spring HTTP Service Clients**: Native Spring HTTP clients instead of Feign
 
@@ -82,13 +81,13 @@ This migration involves three major changes:
 <parent>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-parent</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.2</version>
   <relativePath />
 </parent>
 
 <properties>
   <java.version>21</java.version>
-  <folio-spring-support.version>10.0.0</folio-spring-support.version>
+  <folio-spring-support.version>10.0.0-RC1</folio-spring-support.version>
 </properties>
 ```
 
@@ -183,12 +182,12 @@ folio:
 
 Configure logging levels for request/response debugging:
 
-| Level | Logs |
-|-------|------|
-| **NONE** | No logging |
-| **BASIC** | URI, HTTP method, status code, duration |
-| **HEADERS** | BASIC + request and response headers |
-| **FULL** | HEADERS + request and response bodies |
+| Level       | Logs                                    |
+|-------------|-----------------------------------------|
+| **NONE**    | No logging                              |
+| **BASIC**   | URI, HTTP method, status code, duration |
+| **HEADERS** | BASIC + request and response headers    |
+| **FULL**    | HEADERS + request and response bodies   |
 
 **Example configuration:**
 ```yaml
@@ -332,7 +331,7 @@ public interface InventoryClient {
 
 ### 3.4 Keep These Annotations Unchanged
 
-- ✅ `@RequestBody`
+- ✅ `@RequestBody` - is required for interfaces were the body is used
 - ✅ `@PathVariable`
 - ✅ `@RequestParam`
 - ✅ `@RequestHeader`
@@ -569,6 +568,189 @@ public class JsonUtils {
 
 ---
 
+## Step 8: Update Retry Logic
+
+Spring Boot 4 (based on Spring Framework 7) provides native retry support directly within the core framework, eliminating the need for the separate `spring-retry` dependency used in previous versions. This new built-in functionality uses the `@Retryable` annotation and a `RetryTemplate` to handle transient failures automatically.
+
+### 8.1 Declarative Retry with @Retryable
+
+To use declarative retry in a Spring Boot 4 application, follow these steps:
+
+#### Enable Resilient Methods
+
+Annotate your main application class or a configuration class with `@EnableResilientMethods`:
+
+```java
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.resilience.annotation.EnableResilientMethods;
+
+@SpringBootApplication
+@EnableResilientMethods
+public class MyApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(MyApplication.class, args);
+    }
+}
+```
+
+#### Annotate the Method
+
+Place the `@Retryable` annotation on the service method that might fail due to transient errors:
+
+```java
+import org.springframework.resilience.annotation.Retryable;
+import org.springframework.resilience.annotation.Backoff;
+import org.springframework.stereotype.Service;
+
+@Service
+public class RemoteService {
+
+    @Retryable(
+        includes = {RemoteServiceNotAvailableException.class},
+        maxAttempts = 4,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public String callRemoteApi() {
+        // Logic that might throw RemoteServiceNotAvailableException
+        // ...
+        return "Success";
+    }
+}
+```
+
+**Annotation Parameters:**
+
+- `includes`: Specifies which exceptions should trigger a retry (e.g., `RemoteServiceNotAvailableException.class`)
+- `maxAttempts`: Defines the total number of attempts (1 initial + 3 retries, if set to 4) before giving up
+- `backoff`: Configures the delay strategy between retries. Exponential backoff (`multiplier = 2`) is a best practice
+
+### 8.2 Fallbacks in Spring Boot 4 Native Retry
+
+Unlike the legacy `spring-retry` library which used `@Recover`, the native Spring Boot 4 implementation does not have an equivalent `@Recover` annotation. If all retries fail, the exception is thrown to the caller, and you must handle any fallback logic manually in the calling method or a surrounding structure (like a try-catch block).
+
+**Example:**
+
+```java
+@Service
+public class UserService {
+    
+    @Autowired
+    private RemoteService remoteService;
+    
+    public String getUserData(String userId) {
+        try {
+            return remoteService.callRemoteApi();
+        } catch (RemoteServiceNotAvailableException e) {
+            // Fallback logic here
+            return "Default value or cached data";
+        }
+    }
+}
+```
+
+### 8.3 Programmatic Retry with RetryTemplate
+
+For more granular control, the `RetryTemplate` can be used programmatically:
+
+```java
+import org.springframework.resilience.RetryTemplate;
+import org.springframework.resilience.RetryPolicy;
+import java.time.Duration;
+
+// ...
+
+var retryPolicy = RetryPolicy.builder()
+    .includes(MessageDeliveryException.class)
+    .maxRetries(4)
+    .delay(Duration.ofMillis(100))
+    .multiplier(2)
+    .build();
+
+var retryTemplate = new RetryTemplate(retryPolicy);
+
+try {
+    String result = retryTemplate.execute(() -> {
+        // Do stuff that might fail, e.g., send a message
+        return "Task Complete";
+    });
+} catch (Exception e) {
+    // Handle the final failure
+}
+```
+
+### 8.4 Migration from spring-retry
+
+**Before (Spring Boot 3.x with spring-retry):**
+
+```java
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.retry.annotation.Recover;
+
+@Configuration
+@EnableRetry
+public class RetryConfig {
+}
+
+@Service
+public class MyService {
+    
+    @Retryable(
+        value = {RemoteServiceNotAvailableException.class},
+        maxAttempts = 4,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public String callRemoteApi() {
+        // ...
+    }
+    
+    @Recover
+    public String recover(RemoteServiceNotAvailableException e) {
+        return "Fallback value";
+    }
+}
+```
+
+**After (Spring Boot 4.0 with native retry):**
+
+```java
+import org.springframework.resilience.annotation.EnableResilientMethods;
+import org.springframework.resilience.annotation.Retryable;
+import org.springframework.resilience.annotation.Backoff;
+
+@Configuration
+@EnableResilientMethods
+public class ResilienceConfig {
+}
+
+@Service
+public class MyService {
+    
+    @Retryable(
+        includes = {RemoteServiceNotAvailableException.class},
+        maxAttempts = 4,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public String callRemoteApi() {
+        // ...
+    }
+    
+    // Note: No @Recover equivalent - handle fallback in caller
+}
+```
+
+### 8.5 Retry Migration Reference
+
+| Spring Retry (Spring Boot 3.x)                   | Native Retry (Spring Boot 4.0)                        | Notes                              |
+|--------------------------------------------------|-------------------------------------------------------|------------------------------------|
+| `@EnableRetry`                                   | `@EnableResilientMethods`                             | Enable on configuration class      |
+| `org.springframework.retry.annotation.Retryable` | `org.springframework.resilience.annotation.Retryable` | Different package                  |
+| `value = {Exception.class}`                      | `includes = {Exception.class}`                        | Parameter name changed             |
+| `@Recover`                                       | _(not available)_                                     | Handle fallback manually in caller |
+| `RetryTemplate` (spring-retry)                   | `RetryTemplate` (spring-resilience)                   | Different package, similar API     |
 
 ---
 
