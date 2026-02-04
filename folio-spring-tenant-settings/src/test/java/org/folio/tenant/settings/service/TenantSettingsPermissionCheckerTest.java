@@ -57,7 +57,7 @@ class TenantSettingsPermissionCheckerTest {
   }
 
   @Test
-  void checkPermission_shouldPassWhenUserHasRequiredPermission() throws Exception {
+  void checkPermission_shouldPassWhenUserHasRequiredPermission() {
     when(properties.isPermissionCheckEnabled()).thenReturn(true);
     var permissions = List.of("test-domain.config.groups.settings.test-group.collection.get");
     setupPermissions(permissions);
@@ -68,7 +68,7 @@ class TenantSettingsPermissionCheckerTest {
   }
 
   @Test
-  void checkPermission_shouldThrowWhenUserLacksRequiredPermission() throws Exception {
+  void checkPermission_shouldThrowWhenUserLacksRequiredPermission() {
     when(properties.isPermissionCheckEnabled()).thenReturn(true);
     var permissions = List.of("other.permission");
     setupPermissions(permissions);
@@ -79,7 +79,7 @@ class TenantSettingsPermissionCheckerTest {
   }
 
   @Test
-  void checkPermission_shouldThrowWhenNoPermissionsProvided() throws Exception {
+  void checkPermission_shouldThrowWhenNoPermissionsProvided() {
     when(properties.isPermissionCheckEnabled()).thenReturn(true);
     setupPermissions(Collections.emptyList());
 
@@ -97,7 +97,7 @@ class TenantSettingsPermissionCheckerTest {
   }
 
   @Test
-  void checkPermissionForKey_shouldPassWhenUserHasRequiredPermission() throws Exception {
+  void checkPermissionForKey_shouldPassWhenUserHasRequiredPermission() {
     when(properties.isPermissionCheckEnabled()).thenReturn(true);
     var permissions = List.of("test-domain.config.groups.settings.test-group.test-key.item.patch");
     setupPermissions(permissions);
@@ -108,7 +108,7 @@ class TenantSettingsPermissionCheckerTest {
   }
 
   @Test
-  void checkPermissionForKey_shouldThrowWhenUserLacksRequiredPermission() throws Exception {
+  void checkPermissionForKey_shouldThrowWhenUserLacksRequiredPermission() {
     when(properties.isPermissionCheckEnabled()).thenReturn(true);
     var permissions = List.of("other.permission");
     setupPermissions(permissions);
@@ -128,7 +128,7 @@ class TenantSettingsPermissionCheckerTest {
   }
 
   @Test
-  void checkPermission_shouldHandleInvalidJsonInPermissionsHeader() throws Exception {
+  void checkPermission_shouldHandleInvalidJsonInPermissionsHeader() {
     when(properties.isPermissionCheckEnabled()).thenReturn(true);
     when(context.getOkapiHeaders()).thenReturn(Map.of(XOkapiHeaders.PERMISSIONS, List.of("invalid-json")));
     when(objectMapper.readValue(any(String.class), any(TypeReference.class)))
