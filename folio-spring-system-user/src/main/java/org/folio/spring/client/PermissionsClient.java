@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import org.folio.spring.model.ResultList;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
@@ -15,13 +16,13 @@ import org.springframework.web.service.annotation.PostExchange;
 public interface PermissionsClient {
 
   @PostExchange
-  void assignPermissionsToUser(Permissions permissions);
+  void assignPermissionsToUser(@RequestBody Permissions permissions);
 
   @PostExchange("/{userId}/permissions?indexField=userId")
-  void addPermission(@PathVariable("userId") String userId, Permission permission);
+  void addPermission(@PathVariable String userId, @RequestBody Permission permission);
 
   @GetExchange("/{userId}/permissions?indexField=userId")
-  ResultList<String> getUserPermissions(@PathVariable("userId") String userId);
+  ResultList<String> getUserPermissions(@PathVariable String userId);
 
   record Permission(String permissionName) {
   }

@@ -24,7 +24,7 @@ This guide provides a complete step-by-step migration path for FOLIO modules upg
 
 This migration involves three major changes:
 
-1. **Spring Boot 3.x → 4.0.0**: Requires Java 21+, includes Jakarta EE 10+
+1. **Spring Boot 3.x → 4.0.2**: Requires Java 21+, includes Jakarta EE 10+
 2. **Jackson 2.x → 3.x**: Package changes from `com.fasterxml.jackson` to `tools.jackson`
 3. **OpenFeign → Spring HTTP Service Clients**: Native Spring HTTP clients instead of Feign
 
@@ -82,13 +82,13 @@ This migration involves three major changes:
 <parent>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-parent</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.2</version>
   <relativePath />
 </parent>
 
 <properties>
   <java.version>21</java.version>
-  <folio-spring-support.version>10.0.0</folio-spring-support.version>
+  <folio-spring-support.version>10.0.0-RC1</folio-spring-support.version>
 </properties>
 ```
 
@@ -183,12 +183,12 @@ folio:
 
 Configure logging levels for request/response debugging:
 
-| Level | Logs |
-|-------|------|
-| **NONE** | No logging |
-| **BASIC** | URI, HTTP method, status code, duration |
-| **HEADERS** | BASIC + request and response headers |
-| **FULL** | HEADERS + request and response bodies |
+| Level       | Logs                                    |
+|-------------|-----------------------------------------|
+| **NONE**    | No logging                              |
+| **BASIC**   | URI, HTTP method, status code, duration |
+| **HEADERS** | BASIC + request and response headers    |
+| **FULL**    | HEADERS + request and response bodies   |
 
 **Example configuration:**
 ```yaml
@@ -332,7 +332,7 @@ public interface InventoryClient {
 
 ### 3.4 Keep These Annotations Unchanged
 
-- ✅ `@RequestBody`
+- ✅ `@RequestBody` - is required for interfaces were the body is used
 - ✅ `@PathVariable`
 - ✅ `@RequestParam`
 - ✅ `@RequestHeader`

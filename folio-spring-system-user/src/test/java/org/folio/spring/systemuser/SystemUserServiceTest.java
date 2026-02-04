@@ -93,8 +93,8 @@ class SystemUserServiceTest {
     when(authnClient
       .loginWithExpiry(new UserCredentials("username", "password"))).thenReturn(expectedResponse);
     when(usersClient.query("username==\"username\"")).thenReturn(ResultList.asSinglePage(
-      UsersClient.User.builder().id(expectedUserId.toString()).username("username").type(SYSTEM_USER_TYPE).active(true)
-              .personal(new UsersClient.User.Personal("last")).build()));
+      new UsersClient.User(expectedUserId.toString(), "username", SYSTEM_USER_TYPE, true, null,
+         new UsersClient.User.Personal("last"), Map.of())));
     when(environment.getOkapiUrl()).thenReturn(OKAPI_URL);
     when(contextBuilder.forSystemUser(any(), any())).thenReturn(context);
     when(expectedResponse.getHeaders()).thenReturn(cookieHeaders(expectedUserToken.accessToken()));

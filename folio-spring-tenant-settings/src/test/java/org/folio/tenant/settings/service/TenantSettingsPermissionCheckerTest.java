@@ -6,9 +6,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +20,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -132,13 +132,13 @@ class TenantSettingsPermissionCheckerTest {
     when(properties.isPermissionCheckEnabled()).thenReturn(true);
     when(context.getOkapiHeaders()).thenReturn(Map.of(XOkapiHeaders.PERMISSIONS, List.of("invalid-json")));
     when(objectMapper.readValue(any(String.class), any(TypeReference.class)))
-      .thenThrow(new JsonProcessingException("Invalid JSON") {});
+      .thenThrow(new JacksonException("Invalid JSON") { });
 
     assertThatThrownBy(() -> permissionChecker.checkPermission("test-group"))
       .isInstanceOf(TenantSettingsUnauthorizedOperationException.class);
   }
 
-  private void setupPermissions(List<String> permissions) throws Exception {
+  private void setupPermissions(List<String> permissions) {
     when(context.getOkapiHeaders()).thenReturn(
       Map.of(XOkapiHeaders.PERMISSIONS, List.of("[\"" + String.join("\",\"", permissions) + "\"]")));
     when(objectMapper.readValue(any(String.class), any(TypeReference.class)))

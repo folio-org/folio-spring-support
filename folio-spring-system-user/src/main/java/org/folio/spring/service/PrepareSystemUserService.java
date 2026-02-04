@@ -7,6 +7,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -56,7 +57,7 @@ public class PrepareSystemUserService {
 
       // a nice sanity check, to fail sooner and ensure later logins will go smoothly
       systemUserService.authSystemUser(folioExecutionContext.getTenantId(),
-                                       systemUserProperties.username(), systemUserProperties.password());
+        systemUserProperties.username(), systemUserProperties.password());
       log.info("System user authenticated successfully");
     } catch (RuntimeException e) {
       log.error("Unexpected error while preparing system user with username={}:", systemUserProperties.username(), e);
@@ -66,6 +67,27 @@ public class PrepareSystemUserService {
     log.info("Preparing system user is completed!");
   }
 
+  public void deleteCredentials(String userId) {
+    authnClient.deleteCredentials(userId);
+
+    log.info("Removed credentials for user {}.", userId);
+  }
+
+  @Autowired(required = false)
+  public void setUsersClient(UsersClient usersClient) {
+    this.usersClient = usersClient;
+  }
+
+  @Autowired(required = false)
+  public void setAuthnClient(AuthnClient authnClient) {
+    this.authnClient = authnClient;
+  }
+
+  @Autowired(required = false)
+  public void setPermissionsClient(PermissionsClient permissionsClient) {
+    this.permissionsClient = permissionsClient;
+  }
+
   /**
    * Gets or creates the system user (reactivating if needed).
    *
@@ -73,15 +95,15 @@ public class PrepareSystemUserService {
    */
   private String getOrCreateSystemUser() {
     Optional<User> folioUser = systemUserService.getFolioUser(systemUserProperties.username());
-    String userId = folioUser.map(User::getId).orElse(UUID.randomUUID().toString());
+    String userId = folioUser.map(User::id).orElse(UUID.randomUUID().toString());
 
     if (folioUser.isPresent()) {
       User user = folioUser.get();
-      log.info("Found existing system user, id={}", user.getId());
+      log.info("Found existing system user, id={}", user.id());
 
-      if (!user.isActive()) {
+      if (Boolean.FALSE.equals(user.active())) {
         log.info("System user is inactive, attempting to mark active...");
-        user = user.toBuilder().active(true).expirationDate(null).build();
+        user = User.fromAndActive(user);
         try {
           usersClient.updateUser(user);
         } catch (HttpStatusCodeException e) {
@@ -92,7 +114,7 @@ public class PrepareSystemUserService {
       }
     } else {
       log.info("Could not find a system user with username={}, creating a new one with id={}...",
-                systemUserProperties.username(), userId);
+        systemUserProperties.username(), userId);
       createFolioUser(userId);
     }
 
@@ -104,13 +126,9 @@ public class PrepareSystemUserService {
     usersClient.createUser(user);
   }
 
-  public void deleteCredentials(String userId) {
-    authnClient.deleteCredentials(userId);
-
-    log.info("Removed credentials for user {}.", userId);
-  }
-
-  /** Save the credentials for a user, removing an existing login if necessary. */
+  /**
+   * Save the credentials for a user, removing an existing login if necessary.
+   */
   private void saveCredentials(String id) {
     saveCredentials(id, true);
   }
@@ -118,7 +136,7 @@ public class PrepareSystemUserService {
   private void saveCredentials(String id, boolean clearExisting) {
     try {
       authnClient.saveCredentials(new UserCredentials(systemUserProperties.username(),
-                                                      systemUserProperties.password()));
+        systemUserProperties.password()));
 
       log.info("Saved credentials for user with username={}", systemUserProperties.username());
     } catch (HttpClientErrorException.UnprocessableContent e) {
@@ -127,7 +145,7 @@ public class PrepareSystemUserService {
       }
 
       log.warn("Credentials already exist for user with username={}, removing them and re-adding...",
-               systemUserProperties.username());
+        systemUserProperties.username());
 
       deleteCredentials(id);
       saveCredentials(id, false);
@@ -166,8 +184,8 @@ public class PrepareSystemUserService {
   }
 
   private User prepareUserObject(String id) {
-    return User.builder().id(id).username(systemUserProperties.username()).type(SYSTEM_USER_TYPE).active(true)
-              .personal(new User.Personal(systemUserProperties.lastname())).build();
+    var personal = new User.Personal(systemUserProperties.lastname());
+    return new User(id, systemUserProperties.username(), SYSTEM_USER_TYPE, true, null, personal, Map.of());
   }
 
   private List<String> getResourceLines(String permissionsFilePath) {
@@ -179,20 +197,5 @@ public class PrepareSystemUserService {
     } catch (IOException | UncheckedIOException e) {
       throw log.throwing(new IllegalArgumentException("Unable to open permissions file " + permissionsFilePath, e));
     }
-  }
-
-  @Autowired(required = false)
-  public void setUsersClient(UsersClient usersClient) {
-    this.usersClient = usersClient;
-  }
-
-  @Autowired(required = false)
-  public void setAuthnClient(AuthnClient authnClient) {
-    this.authnClient = authnClient;
-  }
-
-  @Autowired(required = false)
-  public void setPermissionsClient(PermissionsClient permissionsClient) {
-    this.permissionsClient = permissionsClient;
   }
 }
