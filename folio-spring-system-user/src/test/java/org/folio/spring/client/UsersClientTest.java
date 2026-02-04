@@ -41,14 +41,9 @@ class UsersClientTest {
   void testSerialization() throws JsonProcessingException {
     Map<String, Object> user = objectMapper.readValue(
       objectMapper.writeValueAsString(
-        User
-          .builder()
-          .id("id")
-          .username("username")
-          .active(true)
-          .personal(new User.Personal("Smith"))
-          .extraProperties(Map.of("someOtherProperty", "value"))
-          .build()
+        new User("id", "username", null, true, null,
+          new User.Personal("Smith"),
+          Map.of("someOtherProperty", "value"))
       ),
       new TypeReference<HashMap<String, Object>>() { }
     );

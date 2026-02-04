@@ -1,8 +1,5 @@
 package org.folio.tenant.settings.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +10,9 @@ import org.folio.tenant.settings.config.TenantSettingsProperties;
 import org.folio.tenant.settings.exception.TenantSettingsUnauthorizedOperationException;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Service for checking user permissions for tenant settings operations.
@@ -46,7 +46,7 @@ public class TenantSettingsPermissionChecker {
    * Checks if the user has permission to update a specific setting.
    *
    * @param group the group identifier
-   * @param key the setting key
+   * @param key   the setting key
    * @throws TenantSettingsUnauthorizedOperationException if permission check fails
    */
   public void checkPermission(@NonNull String group, @NonNull String key) {
@@ -77,7 +77,7 @@ public class TenantSettingsPermissionChecker {
         }
       }
       return Collections.emptyList();
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       log.warn("Failed to parse permissions header: {}", permissionsHeader, e);
       return Collections.emptyList();
     }

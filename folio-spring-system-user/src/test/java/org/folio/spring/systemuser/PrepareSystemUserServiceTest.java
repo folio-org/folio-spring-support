@@ -209,29 +209,15 @@ class PrepareSystemUserServiceTest {
 
   private Optional<UsersClient.User> userExistsResponse() {
     return Optional.of(
-      UsersClient.User
-        .builder()
-        .id("id")
-        .username("username")
-        .type(SYSTEM_USER_TYPE)
-        .active(true)
-        .personal(new Personal("lastName"))
-        .build()
+      new UsersClient.User("id", "username", SYSTEM_USER_TYPE, true,
+        null, new Personal("lastName"), Map.of())
     );
   }
 
   private Optional<UsersClient.User> userExistsInactiveResponse() {
     return Optional.of(
-      UsersClient.User
-        .builder()
-        .id("id")
-        .username("username")
-        .type(SYSTEM_USER_TYPE)
-        .active(false)
-        .expirationDate("yesterday")
-        .personal(new Personal("lastName"))
-        .extraProperties(Map.of("foo", "bar"))
-        .build()
+      new UsersClient.User("id", "username", SYSTEM_USER_TYPE, false,
+        "yesterday", new Personal("lastName"), Map.of("foo", "bar"))
     );
   }
 
