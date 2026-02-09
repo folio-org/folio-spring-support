@@ -2,31 +2,13 @@ package org.folio.spring.logging;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.lookup.StrLookup;
-import org.folio.spring.FolioExecutionContext;
 
 @Plugin(name = "folio", category = StrLookup.CATEGORY)
 public class FolioLoggingContextLookup implements StrLookup {
-
-  private static final String TENANT_ID_LOGGING_VAR_NAME = "tenantId";
-  private static final String REQUEST_ID_LOGGING_VAR_NAME = "requestId";
-  private static final String MODULE_ID_LOGGING_VAR_NAME = "moduleId";
-  private static final String USER_ID_LOGGING_VAR_NAME = "userId";
-
-  private static final Map<String, Function<FolioExecutionContext, String>> VAR_MAP = new HashMap<>();
-
-  static {
-    VAR_MAP.put(TENANT_ID_LOGGING_VAR_NAME, FolioExecutionContext::getTenantId);
-    VAR_MAP.put(USER_ID_LOGGING_VAR_NAME,
-      context -> context.getUserId() == null ? EMPTY : context.getUserId().toString());
-    VAR_MAP.put(MODULE_ID_LOGGING_VAR_NAME, context -> context.getFolioModuleMetadata().getModuleName());
-    VAR_MAP.put(REQUEST_ID_LOGGING_VAR_NAME, FolioExecutionContext::getRequestId);
-  }
 
   /**
    * Lookup value by key.
@@ -40,8 +22,9 @@ public class FolioLoggingContextLookup implements StrLookup {
   }
 
   /**
-   * Lookup value by key. LogEvent isn't used.
+   * Lookup value by key from ThreadContext.
    *
+   * @param event LogEvent (not used, context is read from ThreadContext)
    * @param key the name of logging variable, {@code null} key isn't allowed
    * @return value for key or *empty string* if there is no such key
    */
@@ -50,10 +33,7 @@ public class FolioLoggingContextLookup implements StrLookup {
     if (key == null) {
       throw new IllegalArgumentException("Key cannot be null");
     }
-    var folioExecutionContext = FolioLoggingContextHolder.getFolioExecutionContext();
-    if (folioExecutionContext.isEmpty()) {
-      return EMPTY;
-    }
-    return VAR_MAP.getOrDefault(key, c -> EMPTY).apply(folioExecutionContext.get());
+    String value = ThreadContext.get(key);
+    return value != null ? value : EMPTY;
   }
 }
