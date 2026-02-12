@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.testing.type.UnitTest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,7 +28,18 @@ class DataSourceSchemaAdvisorBeanPostProcessorTest {
 
   @InjectMocks private DataSourceSchemaAdvisorBeanPostProcessor postProcessor;
   @Mock private FolioModuleMetadata folioModuleMetadata;
-  @Mock protected FolioExecutionContext folioExecutionContext;
+  @Mock private FolioExecutionContext folioExecutionContext;
+
+  @AfterEach
+  void tearDown() {
+    System.clearProperty("DB_MAX_LIFETIME");
+    System.clearProperty("DB_MAXPOOLSIZE");
+    System.clearProperty("DB_MAXSHAREDPOOLSIZE");
+    System.clearProperty("DB_QUERYTIMEOUT");
+    System.clearProperty("DB_CONNECTIONRELEASEDELAY");
+    System.clearProperty("DB_MINPOOLSIZE");
+    System.clearProperty("DB_CHARSET");
+  }
 
   @Test
   void postProcessAfterInitialization_withDataSourceBeanName_shouldWrapDataSource() {
