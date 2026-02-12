@@ -144,7 +144,7 @@ void businessMethod(String tenantId) {
 > **_NOTE:_** Override rules:
 > - If both `DB_MAXPOOLSIZE` and `DB_MAXSHAREDPOOLSIZE` are set, `DB_MAXSHAREDPOOLSIZE` wins.
 
-See [Database Connection Pool Settings](doc/DB_CONNECTION_POOL_CONFIGURATION.md) for details and examples.
+See [Database Connection Pool Settings](doc/DB_CONNECTION_POOL_SETTINGS.md) for details and examples.
 
 | Env Variable              | Default Value | Description                                                                                                                                                                                                                                                                                                                                                                                                    |
 |---------------------------|:-------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
