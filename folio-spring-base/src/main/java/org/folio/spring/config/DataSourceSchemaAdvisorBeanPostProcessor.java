@@ -1,18 +1,12 @@
 package org.folio.spring.config;
 
-import static org.folio.spring.config.properties.FolioDatabaseEnvs.DB_CHARSET;
-import static org.folio.spring.config.properties.FolioDatabaseEnvs.DB_CONNECTIONRELEASEDELAY;
-import static org.folio.spring.config.properties.FolioDatabaseEnvs.DB_MAXPOOLSIZE;
-import static org.folio.spring.config.properties.FolioDatabaseEnvs.DB_MAX_LIFETIME;
-import static org.folio.spring.config.properties.FolioDatabaseEnvs.DB_MIN_IDLE_CONNECTIONS;
-import static org.folio.spring.config.properties.FolioDatabaseEnvs.DB_QUERYTIMEOUT;
-
 import com.zaxxer.hikari.HikariDataSource;
 import javax.sql.DataSource;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.FolioExecutionContext;
-import org.jspecify.annotations.NonNull;
 import org.folio.spring.FolioModuleMetadata;
+import org.folio.spring.config.properties.FolioDatabaseEnvs;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -55,39 +49,44 @@ public class DataSourceSchemaAdvisorBeanPostProcessor implements BeanPostProcess
   }
 
   @Override
-  public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+  public Object postProcessBeforeInitialization(@NonNull Object bean, @NonNull String beanName) throws BeansException {
     if (bean instanceof HikariDataSource hikariDataSource) {
-      DB_MAX_LIFETIME.findLong().ifPresent(maxLifeTime -> {
-        log.info("Setting HikariCP max lifetime to: {} ms", maxLifeTime);
+      FolioDatabaseEnvs.DB_MAX_LIFETIME.findLong().ifPresent(maxLifeTime -> {
+        log.info("HikariCP:: max lifetime set to: {} ms", maxLifeTime);
         hikariDataSource.setMaxLifetime(maxLifeTime);
       });
 
-      DB_MAXPOOLSIZE.findLong().ifPresent(maxPoolSize -> {
-        log.info("Setting HikariCP maximum pool size to: {}", maxPoolSize);
+      FolioDatabaseEnvs.DB_MAXPOOLSIZE.findLong().ifPresent(maxPoolSize -> {
+        log.info("HikariCP:: maximum pool size set to: {}", maxPoolSize);
         hikariDataSource.setMaximumPoolSize(maxPoolSize.intValue());
       });
 
-      DB_QUERYTIMEOUT.findLong().ifPresent(queryTimeout -> {
-        log.info("Setting HikariCP statement timeout to: {} ms", queryTimeout);
+      FolioDatabaseEnvs.DB_MAXSHAREDPOOLSIZE.findLong().ifPresent(sharedPoolSize -> {
+        log.info("HikariCP:: maximum pool size set to: {}", sharedPoolSize);
+        hikariDataSource.setMaximumPoolSize(sharedPoolSize.intValue());
+      });
+
+      FolioDatabaseEnvs.DB_QUERYTIMEOUT.findLong().ifPresent(queryTimeout -> {
+        log.info("HikariCP:: statement timeout set to: {} ms", queryTimeout);
         hikariDataSource.setConnectionInitSql(String.format("SET statement_timeout = %d", queryTimeout));
       });
 
-      DB_CONNECTIONRELEASEDELAY.findLong().ifPresent(idleTimeout -> {
-        log.info("Setting HikariCP idle timeout to: {} ms", idleTimeout);
+      FolioDatabaseEnvs.DB_CONNECTIONRELEASEDELAY.findLong().ifPresent(idleTimeout -> {
+        log.info("HikariCP:: idle timeout set to: {} ms", idleTimeout);
         hikariDataSource.setIdleTimeout(idleTimeout);
       });
 
-      DB_MIN_IDLE_CONNECTIONS.findLong().ifPresent(minIdleConnection -> {
-        log.info("Setting HikariCP minimum idle connections to: {}", minIdleConnection);
+      FolioDatabaseEnvs.DB_MINPOOLSIZE.findLong().ifPresent(minIdleConnection -> {
+        log.info("HikariCP:: minimum idle set to: {}", minIdleConnection);
         hikariDataSource.setMinimumIdle(minIdleConnection.intValue());
       });
 
-      DB_CHARSET.findString().ifPresent(dbCharset -> {
-        log.info("Setting HikariCP character encoding to: {}", dbCharset);
+      FolioDatabaseEnvs.DB_CHARSET.findString().ifPresent(dbCharset -> {
+        log.info("HikariCP:: character encoding set to: {}", dbCharset);
         hikariDataSource.addDataSourceProperty("characterEncoding", dbCharset);
       });
 
-      log.info("Setting HikariCP ApplicationName to: {}", moduleMetadata.getModuleName());
+      log.info("HikariCP:: ApplicationName set to: {}", moduleMetadata.getModuleName());
       hikariDataSource.addDataSourceProperty("ApplicationName", moduleMetadata.getModuleName());
     }
 

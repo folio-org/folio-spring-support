@@ -20,6 +20,11 @@ public enum FolioDatabaseEnvs {
   DB_CHARSET("UTF-8"),
 
   /**
+   * Defines the minimum number of idle connections that HikariCP tries to maintain in the pool. It defaults to 0.
+   */
+  DB_MINPOOLSIZE("0"),
+
+  /**
    * Defines the maximum number of concurrent connections one module instance opens. They are only opened if needed. If
    * all connections for a tenant are in use further requests for that tenant will wait until one connection becomes
    * free. Other tenants and other instances of a module are unaffected. The default is 4.
@@ -27,16 +32,19 @@ public enum FolioDatabaseEnvs {
   DB_MAXPOOLSIZE("4"),
 
   /**
+   * sets the maximum number of concurrent connections that one module instance opens. They are only opened if needed.
+   * If all connections are in use further requests will wait until one connection becomes free. This way one tenant
+   * may block other tenants. If the variable is set then `DB_MAXPOOLSIZE` is ignored and all connections are shared
+   * across tenants.
+   */
+  DB_MAXSHAREDPOOLSIZE(null),
+
+  /**
    * Sets the delay in milliseconds after which an idle connection is closed. A connection becomes idle if the query
    * ends, it is not idle if it is waiting for a response. Use 0 to keep idle connections open forever. Default is
    * one minute (60000 ms).
    */
   DB_CONNECTIONRELEASEDELAY("60000"),
-
-  /**
-   * Defines the minimum number of idle connections that HikariCP tries to maintain in the pool. It defaults to 0.
-   */
-  DB_MIN_IDLE_CONNECTIONS("0"),
 
   /**
    * Limits the lifetime (non-idle time plus idle time) of a database connection in milliseconds. If exceeded the
@@ -53,8 +61,9 @@ public enum FolioDatabaseEnvs {
    */
   public Optional<String> findString() {
     return Optional.ofNullable(System.getenv(this.name()))
+      .or(() -> Optional.ofNullable(System.getProperty(this.name()))
       .map(StringUtils::trimToNull)
-      .or(() -> Optional.ofNullable(defaultValue));
+      .or(() -> Optional.ofNullable(defaultValue)));
   }
 
   /**
