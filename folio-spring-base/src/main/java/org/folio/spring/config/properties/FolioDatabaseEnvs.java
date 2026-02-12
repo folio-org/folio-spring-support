@@ -74,7 +74,8 @@ public enum FolioDatabaseEnvs {
   public Optional<Long> findLong() {
     return findString()
       .filter(StringUtils::isNumeric)
-      .flatMap(FolioDatabaseEnvs::parseLongSafe);
+      .flatMap(FolioDatabaseEnvs::parseLongSafe)
+      .or(() -> parseLongSafe(defaultValue));
   }
 
   private static Optional<Long> parseLongSafe(String value) {

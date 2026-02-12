@@ -128,6 +128,24 @@ class DataSourceSchemaAdvisorBeanPostProcessorTest {
   }
 
   @Test
+  void postProcessBeforeInitialization_invalidLongValue() {
+    System.setProperty("DB_MAXPOOLSIZE", "test");
+
+    var bean = mock(HikariDataSource.class);
+    when(folioModuleMetadata.getModuleName()).thenReturn("mod-test");
+
+    var result = postProcessor.postProcessBeforeInitialization(bean, DATASOURCE_BEAN_NAME);
+    assertSame(bean, result);
+
+    verify(bean).setMaximumPoolSize(4);
+    verify(bean).setMinimumIdle(0);
+    verify(bean).setMaxLifetime(1800000L);
+    verify(bean).setIdleTimeout(60000L);
+    verify(bean).addDataSourceProperty("ApplicationName", "mod-test");
+    verify(bean).addDataSourceProperty("characterEncoding", "UTF-8");
+  }
+
+  @Test
   void postProcessBeforeInitialization_invalidBean() {
     var bean = mock(DataSource.class);
 
