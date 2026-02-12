@@ -25,17 +25,16 @@ public enum FolioDatabaseEnvs {
   DB_MINPOOLSIZE("0"),
 
   /**
-   * Defines the maximum number of concurrent connections one module instance opens. They are only opened if needed. If
-   * all connections for a tenant are in use further requests for that tenant will wait until one connection becomes
-   * free. Other tenants and other instances of a module are unaffected. The default is 4.
+   * Defines the maximum number of concurrent connections that one module instance opens. They are only opened if
+   * needed. Hikari pool connections are shared between multiple tenants.The default is 4.
    */
   DB_MAXPOOLSIZE("4"),
 
   /**
-   * sets the maximum number of concurrent connections that one module instance opens. They are only opened if needed.
-   * If all connections are in use further requests will wait until one connection becomes free. This way one tenant
-   * may block other tenants. If the variable is set then `DB_MAXPOOLSIZE` is ignored and all connections are shared
-   * across tenants.
+   * Defines the maximum number of concurrent connections that one module instance opens. They are only opened if
+   * needed. If all connections are in use further requests will wait until one connection becomes free. This setting
+   * is added to provide a similar behavior as `raml-module-builder`. If the variable is set then `DB_MAXPOOLSIZE` is
+   * ignored and max connection pool size will be set to this value.
    */
   DB_MAXSHAREDPOOLSIZE(null),
 
