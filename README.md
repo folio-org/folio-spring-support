@@ -12,6 +12,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 - [Code structure](#code-structure)
 - [Execution Context](#execution-context)
 - [Properties](#properties)
+- [Database Environment Variables](#database-environment-variables)
 - [CQL support](#cql-support)
 - [Logging](#logging)
   - [Default logging format](#default-logging-format)
@@ -133,6 +134,17 @@ void businessMethod(String tenantId) {
 | `folio.logging.feign.level`                           | Specifies logging level for outgoing requests                                                                                                                                                                         | `basic`       | `none, basic, headers, full` |
 
 ## Database Environment Variables
+
+**Configuration precedence (highest to lowest):**
+1. Environment variables (for example, `export DB_MAXPOOLSIZE=10`)
+2. JVM system properties (for example, `-DDB_MAXPOOLSIZE=10`)
+3. Default values defined in [FolioDatabaseEnvs.java](folio-spring-base/src/main/java/org/folio/spring/config/properties/FolioDatabaseEnvs.java)
+4. [Spring Boot Externalized configuration](https://docs.spring.io/spring-boot/reference/features/external-config.html)
+
+> **_NOTE:_** Override rules:
+> - If both `DB_MAXPOOLSIZE` and `DB_MAXSHAREDPOOLSIZE` are set, `DB_MAXSHAREDPOOLSIZE` wins.
+
+See [Database Connection Pool Settings](doc/DB_CONNECTION_POOL_CONFIGURATION.md) for details and examples.
 
 | Env Variable              | Default Value | Description                                                                                                                                                                                                                                                                                                                                                                                                    |
 |---------------------------|:-------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -336,4 +348,3 @@ Translations may be performed in backend modules using the `folio-spring-i18n` l
 
 See project [FOLSPRINGB](https://issues.folio.org/browse/FOLSPRINGB)
 at the [FOLIO issue tracker](https://dev.folio.org/guidelines/issue-tracker).
-
