@@ -5,6 +5,7 @@ import org.folio.spring.client.EnrichUrlAndHeadersInterceptor;
 import org.folio.spring.client.ExchangeLoggingInterceptor;
 import org.folio.spring.utils.RequestLoggingLevel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -32,9 +33,10 @@ public class HttpServiceClientConfiguration {
   }
 
   @Bean
-  public RestClient.Builder restClientBuilder(ClientHttpRequestInterceptor enrichUrlAndHeadersInterceptor,
-                                              @Autowired(required = false)
-                                              ClientHttpRequestInterceptor loggingInterceptor) {
+  public RestClient.Builder restClientBuilder(
+    @Qualifier("enrichUrlAndHeadersInterceptor") ClientHttpRequestInterceptor enrichUrlAndHeadersInterceptor,
+    @Qualifier("loggingInterceptor") @Autowired(required = false) ClientHttpRequestInterceptor loggingInterceptor) {
+
     var builder = RestClient.builder()
       .requestInterceptor(enrichUrlAndHeadersInterceptor);
 
