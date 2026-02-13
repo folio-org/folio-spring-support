@@ -7,25 +7,29 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 ## Table of Contents
 
-- [Table of Contents](#table-of-contents)
-- [Introduction](#introduction)
-- [Code structure](#code-structure)
-- [Execution Context](#execution-context)
-- [Properties](#properties)
-- [CQL support](#cql-support)
-- [Logging](#logging)
-  - [Default logging format](#default-logging-format)
-  - [Request and Response Logging](#request-and-response-logging)
-- [Custom `/_/tenant` Logic](#custom-_tenant-logic)
-  - [`TenantService` Event Methods](#tenantservice-event-methods)
-  - [`TenantService` Methods and Fields](#tenantservice-methods-and-fields)
-  - [Event Order](#event-order)
-    - [Upon Creation](#upon-creation)
-    - [Upon Deletion](#upon-deletion)
-  - [Sample](#sample)
-- [Internationalization](#internationalization)
-- [Additional information](#additional-information)
-  - [Issue tracker](#issue-tracker)
+<!-- TOC -->
+* [folio-spring-support](#folio-spring-support)
+  * [Table of Contents](#table-of-contents)
+  * [Introduction](#introduction)
+  * [Code structure](#code-structure)
+  * [Execution Context](#execution-context)
+  * [Properties](#properties)
+  * [Database Connection Pool Settings](#database-connection-pool-settings)
+  * [CQL support](#cql-support)
+  * [Logging](#logging)
+    * [Default logging format](#default-logging-format)
+    * [Request and Response Logging](#request-and-response-logging)
+  * [Custom `/_/tenant` Logic](#custom-_tenant-logic)
+    * [`TenantService` Event Methods](#tenantservice-event-methods)
+    * [`TenantService` Methods and Fields](#tenantservice-methods-and-fields)
+    * [Event Order](#event-order)
+      * [Upon Creation](#upon-creation)
+      * [Upon Deletion](#upon-deletion)
+    * [Sample](#sample)
+  * [Internationalization](#internationalization)
+  * [Additional information](#additional-information)
+    * [Issue tracker](#issue-tracker)
+<!-- TOC -->
 
 ## Introduction
 
@@ -131,6 +135,29 @@ void businessMethod(String tenantId) {
 | `folio.logging.request.level`                         | Specifies logging level for incoming requests                                                                                                                                                                         | `basic`       | `none, basic, headers, full` |
 | `folio.logging.feign.enabled`                         | Turn on logging for outgoing requests in feign clients                                                                                                                                                                | `true`        | `true or false`              |
 | `folio.logging.feign.level`                           | Specifies logging level for outgoing requests                                                                                                                                                                         | `basic`       | `none, basic, headers, full` |
+
+## Database Connection Pool Settings
+
+**Configuration precedence (highest to lowest):**
+1. Environment variables (for example, `export DB_MAXPOOLSIZE=10`)
+2. JVM system properties (for example, `-DDB_MAXPOOLSIZE=10`)
+3. Default values defined in [FolioDatabaseEnvs.java](folio-spring-base/src/main/java/org/folio/spring/config/properties/FolioDatabaseEnvs.java)
+4. [Spring Boot Externalized configuration](https://docs.spring.io/spring-boot/reference/features/external-config.html)
+
+> **_NOTE:_** Override rules:
+> - If both `DB_MAXPOOLSIZE` and `DB_MAXSHAREDPOOLSIZE` are set, `DB_MAXSHAREDPOOLSIZE` wins.
+
+See [Database Connection Pool Settings](doc/DB_CONNECTION_POOL_SETTINGS.md) for details and examples.
+
+| Env Variable              | Default Value | Description                                                                                                                                                                                                                                                                                                                                                                                                    |
+|---------------------------|:-------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| DB_QUERYTIMEOUT           |       -       | The maximum time in milliseconds that a client will wait for a database query to complete before timing out.                                                                                                                                                                                                                                                                                                   |
+| DB_CHARSET                |     UTF-8     | The character set used for database connections.                                                                                                                                                                                                                                                                                                                                                               |
+| DB_MINPOOLSIZE            |       0       | Defines the minimum number of idle connections that HikariCP tries to maintain in the pool.                                                                                                                                                                                                                                                                                                                    |
+| DB_MAXPOOLSIZE            |       4       | Defines the maximum number of concurrent connections that one module instance opens. They are only opened if needed. Hikari pool connections are always shared between multiple tenants.                                                                                                                                                                                                                       |
+| DB_MAXSHAREDPOOLSIZE      |       -       | Defines the maximum number of concurrent connections that one module instance opens. They are only opened if needed. If all connections are in use further requests will wait until one connection becomes free. This setting is added to provide a similar behavior as `raml-module-builder`. If the variable is set then `DB_MAXPOOLSIZE` is ignored and max connection pool size will be set to this value. |
+| DB_CONNECTIONRELEASEDELAY |  60000 (ms)   | Sets the delay in milliseconds after which an idle connection is closed. A connection becomes idle if the query ends, it is not idle if it is waiting for a response. Use 0 to keep idle connections open forever.                                                                                                                                                                                             |
+| DB_MAX_LIFETIME           | 1800000 (ms)  | Limits the lifetime (non-idle time plus idle time) of a database connection in milliseconds. If exceeded the connection is closed if it is or becomes idle. 0 means unlimited lifetime.                                                                                                                                                                                                                        |
 
 ## CQL support
 
@@ -324,4 +351,3 @@ Translations may be performed in backend modules using the `folio-spring-i18n` l
 
 See project [FOLSPRINGB](https://issues.folio.org/browse/FOLSPRINGB)
 at the [FOLIO issue tracker](https://dev.folio.org/guidelines/issue-tracker).
-
