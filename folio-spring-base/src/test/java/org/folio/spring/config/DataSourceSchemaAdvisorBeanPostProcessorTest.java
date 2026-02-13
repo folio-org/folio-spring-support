@@ -117,7 +117,6 @@ class DataSourceSchemaAdvisorBeanPostProcessorTest {
     var result = postProcessor.postProcessBeforeInitialization(bean, DATASOURCE_BEAN_NAME);
     assertSame(bean, result);
 
-    verify(bean).setMaximumPoolSize(10);
     verify(bean).setMaximumPoolSize(25);
     verify(bean).setMinimumIdle(5);
     verify(bean).setConnectionInitSql("SET statement_timeout = 2000");

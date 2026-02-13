@@ -56,15 +56,12 @@ public class DataSourceSchemaAdvisorBeanPostProcessor implements BeanPostProcess
         hikariDataSource.setMaxLifetime(maxLifeTime);
       });
 
-      FolioDatabaseEnvs.DB_MAXPOOLSIZE.findLong().ifPresent(maxPoolSize -> {
-        log.info("HikariCP:: maximum pool size set to: {}", maxPoolSize);
-        hikariDataSource.setMaximumPoolSize(maxPoolSize.intValue());
-      });
-
-      FolioDatabaseEnvs.DB_MAXSHAREDPOOLSIZE.findLong().ifPresent(sharedPoolSize -> {
-        log.info("HikariCP:: maximum pool size set to: {}", sharedPoolSize);
-        hikariDataSource.setMaximumPoolSize(sharedPoolSize.intValue());
-      });
+      FolioDatabaseEnvs.DB_MAXSHAREDPOOLSIZE.findLong()
+        .or(FolioDatabaseEnvs.DB_MAXPOOLSIZE::findLong)
+        .ifPresent(sharedPoolSize -> {
+          log.info("HikariCP:: maximum pool size set to: {}", sharedPoolSize);
+          hikariDataSource.setMaximumPoolSize(sharedPoolSize.intValue());
+        });
 
       FolioDatabaseEnvs.DB_QUERYTIMEOUT.findLong().ifPresent(queryTimeout -> {
         log.info("HikariCP:: statement timeout set to: {} ms", queryTimeout);
