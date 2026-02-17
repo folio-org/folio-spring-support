@@ -1,5 +1,7 @@
 package org.folio.spring.config;
 
+import static org.apache.commons.lang3.ObjectUtils.getIfNull;
+
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.client.EnrichUrlAndHeadersInterceptor;
 import org.folio.spring.client.ExchangeLoggingInterceptor;
@@ -11,10 +13,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.support.NotFoundRestClientAdapterDecorator;
 import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 @ConditionalOnProperty(prefix = "folio.exchange", name = "enabled", havingValue = "true")
@@ -33,12 +37,15 @@ public class HttpServiceClientConfiguration {
   }
 
   @Bean
-  public RestClient.Builder restClientBuilder(
+  public RestClient.Builder restClientBuilder(JsonMapper jsonMapper,
     @Qualifier("enrichUrlAndHeadersInterceptor") ClientHttpRequestInterceptor enrichUrlAndHeadersInterceptor,
-    @Qualifier("loggingInterceptor") @Autowired(required = false) ClientHttpRequestInterceptor loggingInterceptor) {
+    @Qualifier("loggingInterceptor") @Autowired(required = false) ClientHttpRequestInterceptor loggingInterceptor,
+    @Qualifier("exchangeJsonMapper") @Autowired(required = false) JsonMapper exchangeJsonMapper) {
 
     var builder = RestClient.builder()
-      .requestInterceptor(enrichUrlAndHeadersInterceptor);
+      .requestInterceptor(enrichUrlAndHeadersInterceptor)
+      .configureMessageConverters(configurer ->
+        configurer.addCustomConverter(new JacksonJsonHttpMessageConverter(getIfNull(exchangeJsonMapper, jsonMapper))));
 
     if (loggingInterceptor != null) {
       builder
