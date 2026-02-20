@@ -37,6 +37,9 @@ CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.media
 ### folio-spring-tenant-settings
 * [FOLSPRINGS-210](https://folio-org.atlassian.net/browse/FOLSPRINGS-210) Add tenant-settings submodule for managing tenant-specific configuration
 
+### folio-spring-testing
+* [FOLSPRINGS-218](https://folio-org.atlassian.net/browse/FOLSPRINGS-218) Update Kafka and MinIO container images to latest versions
+
 ## 9.0.0 2025-02-28
 * [FOLSPRINGS-188](https://folio-org.atlassian.net/browse/FOLSPRINGS-188) Upgrade to Java 21
 * [FOLSPRINGS-178](https://folio-org.atlassian.net/browse/FOLSPRINGS-178) spring-cloud-starter-openfeign 4.1.4 fixing spring-security-crypto Authorization Bypass
