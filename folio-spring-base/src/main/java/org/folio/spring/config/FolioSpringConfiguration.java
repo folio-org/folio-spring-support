@@ -51,7 +51,8 @@ public class FolioSpringConfiguration {
   @Bean
   @Qualifier("dataSourceSchemaAdvisorBeanPostProcessor")
   public static BeanPostProcessor dataSourceSchemaAdvisorBeanPostProcessor(
+    @Autowired FolioModuleMetadata moduleMetadata,
     @Autowired @Lazy FolioExecutionContext folioExecutionContext) {
-    return new DataSourceSchemaAdvisorBeanPostProcessor(folioExecutionContext);
+    return new DataSourceSchemaAdvisorBeanPostProcessor(folioExecutionContext, moduleMetadata);
   }
 }
