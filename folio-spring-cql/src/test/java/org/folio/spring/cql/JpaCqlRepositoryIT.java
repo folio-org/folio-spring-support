@@ -482,10 +482,7 @@ class JpaCqlRepositoryIT {
     "/sql/jpa-cql-enum-test-data.sql"
   })
   void testQueryByPostgresEnumField() {
-    var page = capabilitySetRepository.findByCql(
-      "type==DATA",
-      PageRequest.of(0, 10)
-    );
+    var page = capabilitySetRepository.findByCql("type==DATA", PageRequest.of(0, 10));
 
     assertThat(page)
       .hasSize(2)
