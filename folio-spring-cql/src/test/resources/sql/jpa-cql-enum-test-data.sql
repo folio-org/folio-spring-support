@@ -1,5 +1,5 @@
 -- Create PostgreSQL enum type
-CREATE TYPE capability_type AS ENUM ('SETTINGS', 'DATA', 'PROCEDURAL');
+CREATE TYPE capability_type AS ENUM ('SETTINGS', 'DATA');
 
 -- Create table with one enum column
 CREATE TABLE capability_set (
