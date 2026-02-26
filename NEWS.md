@@ -24,6 +24,7 @@ CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.media
 
 ### cql submodule
 * [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries
+* [FOLSPRINGS-220](https://folio-org.atlassian.net/browse/FOLSPRINGS-220) Use column name casting to the text for Enum types at CQL
 
 ### folio-spring-i18n
 * [FOLSPRINGS-198](https://folio-org.atlassian.net/browse/FOLSPRINGS-198) Add support for searching multiple translation directories

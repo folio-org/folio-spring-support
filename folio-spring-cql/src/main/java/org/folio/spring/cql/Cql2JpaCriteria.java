@@ -210,7 +210,7 @@ public class Cql2JpaCriteria<E> {
         term = LocalDateTime.parse(value);
       }
     } else if (javaType.isEnum()) {
-      field = field.as(String.class);
+      field = cb.function("text", String.class, field);
     }
 
     return toPredicate(field, term, comparator, cb);
