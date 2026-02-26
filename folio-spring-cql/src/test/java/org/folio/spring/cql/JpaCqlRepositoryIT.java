@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.folio.cql2pgjson.exception.QueryValidationException;
 import org.folio.spring.cql.domain.CapabilitySet;
-import org.folio.spring.cql.domain.CapabilityType;
+import org.folio.spring.cql.domain.EntityCapabilityType;
 import org.folio.spring.cql.domain.City;
 import org.folio.spring.cql.domain.Language;
 import org.folio.spring.cql.domain.LanguageRespectAccents;
@@ -487,7 +487,7 @@ class JpaCqlRepositoryIT {
     assertThat(page)
       .hasSize(2)
       .extracting(CapabilitySet::getType)
-      .containsOnly(CapabilityType.DATA);
+      .containsOnly(EntityCapabilityType.DATA);
   }
 
   private static String[] splitByComma(String s) {

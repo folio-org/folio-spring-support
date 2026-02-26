@@ -30,5 +30,5 @@ public class CapabilitySet {
   @Enumerated(EnumType.STRING)
   @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(name = "type", columnDefinition = "capability_type")
-  private CapabilityType type;
+  private EntityCapabilityType type;
 }

@@ -1,6 +1,6 @@
 package org.folio.spring.cql.domain;
 
-public enum CapabilityType {
+public enum EntityCapabilityType {
   SETTINGS,
   DATA
 }
