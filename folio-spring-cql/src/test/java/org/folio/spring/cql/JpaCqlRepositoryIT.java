@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.folio.cql2pgjson.exception.QueryValidationException;
+import org.folio.spring.cql.domain.CapabilitySet;
+import org.folio.spring.cql.domain.CapabilityType;
 import org.folio.spring.cql.domain.City;
 import org.folio.spring.cql.domain.Language;
 import org.folio.spring.cql.domain.LanguageRespectAccents;
@@ -22,6 +24,7 @@ import org.folio.spring.cql.domain.LanguageRespectCase;
 import org.folio.spring.cql.domain.LanguageRespectCaseRespectAccents;
 import org.folio.spring.cql.domain.Person;
 import org.folio.spring.cql.domain.Str;
+import org.folio.spring.cql.repo.CapabilitySetRepository;
 import org.folio.spring.cql.repo.CityRepository;
 import org.folio.spring.cql.repo.LanguageRepository;
 import org.folio.spring.cql.repo.LanguageRespectAccentsRepository;
@@ -74,6 +77,9 @@ class JpaCqlRepositoryIT {
 
   @Autowired
   private LanguageRespectCaseRespectAccentsRepository languageRespectCaseRespectAccentsRepository;
+
+  @Autowired
+  private CapabilitySetRepository capabilitySetRepository;
 
   @Test
   void testTypesOfRepositories() {
@@ -469,6 +475,22 @@ class JpaCqlRepositoryIT {
     assertThat(page)
       .extracting(Str::getStr)
       .containsExactlyInAnyOrderElementsOf(expected);
+  }
+
+  @Test
+  @Sql({
+    "/sql/jpa-cql-enum-test-data.sql"
+  })
+  void testQueryByPostgresEnumField() {
+    var page = capabilitySetRepository.findByCql(
+      "type==DATA",
+      PageRequest.of(0, 10)
+    );
+
+    assertThat(page)
+      .hasSize(2)
+      .extracting(CapabilitySet::getType)
+      .containsOnly(CapabilityType.DATA);
   }
 
   private static String[] splitByComma(String s) {
