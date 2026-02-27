@@ -21,7 +21,7 @@ CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.media
 * [FOLSPRINGS-208](https://folio-org.atlassian.net/browse/FOLSPRINGS-208) Bump Rhino from 1.8.0 to 1.8.1 fixing CVE-2025-66453
 * [FOLSPRINGS-209](https://folio-org.atlassian.net/browse/FOLSPRINGS-209) Reduce logging during context switching
 * [FOLSPRINGS-216](https://folio-org.atlassian.net/browse/FOLSPRINGS-216) Fix logging context corruption in multithreaded scenarios
-* [FOLSPRINGS-217](https://folio-org.atlassian.net/browse/FOLSPRINGS-217): Add connection pool settings
+* [FOLSPRINGS-217](https://folio-org.atlassian.net/browse/FOLSPRINGS-217) Add connection pool settings
 
 ### cql submodule
 * [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries
