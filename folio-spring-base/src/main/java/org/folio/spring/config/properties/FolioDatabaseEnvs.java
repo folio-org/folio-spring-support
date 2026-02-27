@@ -27,8 +27,7 @@ public enum FolioDatabaseEnvs {
   /**
    * Defines the maximum number of concurrent connections that one module instance opens. They are only opened if
    * needed. If all connections are in use further requests will wait until one connection becomes free. This setting
-   * is added to provide a similar behavior as `raml-module-builder`. If the variable is set then `DB_MAXPOOLSIZE` is
-   * ignored and max connection pool size will be set to this value.
+   * is added to provide a similar behavior as `raml-module-builder`.
    */
   DB_MAXSHAREDPOOLSIZE(null),
 
