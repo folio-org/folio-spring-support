@@ -22,9 +22,10 @@ CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.media
 * [FOLSPRINGS-209](https://folio-org.atlassian.net/browse/FOLSPRINGS-209) Reduce logging during context switching
 * [FOLSPRINGS-216](https://folio-org.atlassian.net/browse/FOLSPRINGS-216) Fix logging context corruption in multithreaded scenarios
 
-### cql submodule
+### folio-spring-cql
 * [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries
 * [FOLSPRINGS-220](https://folio-org.atlassian.net/browse/FOLSPRINGS-220) Use column name casting to the text for Enum types at CQL
+* [FOLSPRINGS-221](https://folio-org.atlassian.net/browse/FOLSPRINGS-221) Support CQL queries on @ElementCollection fields in Cql2JpaCriteria
 
 ### folio-spring-i18n
 * [FOLSPRINGS-198](https://folio-org.atlassian.net/browse/FOLSPRINGS-198) Add support for searching multiple translation directories
