@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.support.NotFoundRestClientAdapterDecorator;
@@ -45,7 +46,10 @@ public class HttpServiceClientConfiguration {
     var builder = RestClient.builder()
       .requestInterceptor(enrichUrlAndHeadersInterceptor)
       .configureMessageConverters(configurer ->
-        configurer.addCustomConverter(new JacksonJsonHttpMessageConverter(getIfNull(exchangeJsonMapper, jsonMapper))));
+        configurer
+          .addCustomConverter(new JacksonJsonHttpMessageConverter(getIfNull(exchangeJsonMapper, jsonMapper)))
+          .addCustomConverter(new StringHttpMessageConverter())
+      );
 
     if (loggingInterceptor != null) {
       builder
