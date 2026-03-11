@@ -1,13 +1,13 @@
 package org.folio.spring.liquibase;
 
 import static java.util.Locale.ROOT;
+import static org.apache.commons.lang3.BooleanUtils.isNotFalse;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
-import java.sql.SQLException;
-import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.spring.exception.LiquibaseMigrationException;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * Service that determines whether Liquibase migration should be considered in progress. Returns {@code true} when
@@ -18,40 +18,45 @@ import org.folio.spring.exception.LiquibaseMigrationException;
 @RequiredArgsConstructor
 public class LiquibaseMigrationLockService {
 
-  public static final String DEFAULT_LOCK_TABLE = "databasechangeloglock";
-  private static final String LOCK_QUERY_TEMPLATE =
-    "SELECT NOT EXISTS (SELECT 1 FROM %s WHERE locked = false) AS migration_running";
+  private static final String DEFAULT_LOCK_TABLE = "databasechangeloglock";
+  private static final String LOCK_QUERY_TEMPLATE = "SELECT COUNT(*) = 0 FROM %s WHERE locked = false";
 
-  private final DataSource dataSource;
+  private final JdbcTemplate jdbcTemplate;
   private final String lockTable;
 
   public boolean isMigrationRunning() {
-    try (var connection = dataSource.getConnection();
-      var statement = connection.prepareStatement(lockQuery())) {
-      try (var resultSet = statement.executeQuery()) {
-        var migrationRunning = !resultSet.next() || resultSet.getBoolean(1);
-        log.debug("Liquibase migration running for table: {}", migrationRunning);
-        return migrationRunning;
-      }
+    var resolvedLockTable = resolvedLockTable();
+    try {
+      var migrationRunning = jdbcTemplate.queryForObject(lockQuery(resolvedLockTable), Boolean.class);
+      var result = isNotFalse(migrationRunning);
+      log.debug("Liquibase migration running for table '{}': {}", resolvedLockTable, result);
+      return result;
     } catch (LiquibaseMigrationException e) {
       throw e;
-    } catch (SQLException e) {
+    } catch (RuntimeException e) {
       if (isMissingLockTable(e)) {
-        log.debug("Liquibase lock table is not available yet; treating migration as running");
+        log.debug("Liquibase lock table '{}' is not available yet; treating migration as running", resolvedLockTable);
         return true;
       }
-      throw new LiquibaseMigrationException("Failed to determine Liquibase migration state", e);
-    } catch (RuntimeException e) {
       throw new LiquibaseMigrationException("Failed to determine Liquibase migration state", e);
     }
   }
 
-  private String lockQuery() {
-    return LOCK_QUERY_TEMPLATE.formatted(defaultIfBlank(lockTable, DEFAULT_LOCK_TABLE));
+  private String resolvedLockTable() {
+    return defaultIfBlank(lockTable, DEFAULT_LOCK_TABLE);
   }
 
-  private boolean isMissingLockTable(SQLException exception) {
-    return exception.getMessage() != null
-      && exception.getMessage().toLowerCase(ROOT).contains("does not exist");
+  private boolean isMissingLockTable(Throwable exception) {
+    for (Throwable current = exception; current != null; current = current.getCause()) {
+      var message = current.getMessage();
+      if (message != null && message.toLowerCase(ROOT).contains("does not exist")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static String lockQuery(String table) {
+    return LOCK_QUERY_TEMPLATE.formatted(table);
   }
 }

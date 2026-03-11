@@ -1,7 +1,6 @@
 package org.folio.spring.liquibase;
 
 import javax.sql.DataSource;
-import org.folio.spring.FolioExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -13,6 +12,7 @@ import org.springframework.boot.liquibase.autoconfigure.LiquibaseAutoConfigurati
 import org.springframework.boot.liquibase.autoconfigure.LiquibaseProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -55,10 +55,9 @@ public class FolioLiquibaseConfiguration {
   }
 
   @Bean
-  public LiquibaseMigrationLockService liquibaseMigrationLockService(@Autowired DataSource dataSource,
-    @Autowired FolioExecutionContext folioExecutionContext) {
+  public LiquibaseMigrationLockService liquibaseMigrationLockService(@Autowired JdbcTemplate jdbcTemplate) {
     return new LiquibaseMigrationLockService(
-      dataSource,
+      jdbcTemplate,
       properties.getDatabaseChangeLogLockTable()
     );
   }
