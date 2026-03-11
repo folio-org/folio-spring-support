@@ -1,9 +1,11 @@
 package org.folio.spring.liquibase;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
@@ -59,11 +61,10 @@ class LiquibaseMigrationLockServiceTest {
   }
 
   @Test
-  void isMigrationRunning_returnsTrue_whenLockTableIsNotInitialized() throws Exception {
+  void isMigrationRunning_returnsTrue_whenQueryReturnsNoRows() throws Exception {
     when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
     when(preparedStatement.executeQuery()).thenReturn(resultSet);
-    when(resultSet.next()).thenReturn(true);
-    when(resultSet.getInt(1)).thenReturn(0);
+    when(resultSet.next()).thenReturn(false);
 
     var result = service.isMigrationRunning();
 
@@ -71,12 +72,8 @@ class LiquibaseMigrationLockServiceTest {
   }
 
   @Test
-  void isMigrationRunning_returnsTrue_whenActiveLockExists() throws Exception {
-    when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-    when(preparedStatement.executeQuery()).thenReturn(resultSet);
-    when(resultSet.next()).thenReturn(true);
-    when(resultSet.getInt(1)).thenReturn(1);
-    when(resultSet.getInt(2)).thenReturn(1);
+  void isMigrationRunning_returnsTrue_whenMigrationRunningColumnIsTrue() throws Exception {
+    mockMigrationRunningQueryResult(true);
 
     var result = service.isMigrationRunning();
 
@@ -84,12 +81,8 @@ class LiquibaseMigrationLockServiceTest {
   }
 
   @Test
-  void isMigrationRunning_returnsFalse_whenNoActiveLockExists() throws Exception {
-    when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-    when(preparedStatement.executeQuery()).thenReturn(resultSet);
-    when(resultSet.next()).thenReturn(true);
-    when(resultSet.getInt(1)).thenReturn(1);
-    when(resultSet.getInt(2)).thenReturn(0);
+  void isMigrationRunning_returnsFalse_whenMigrationRunningColumnIsFalse() throws Exception {
+    mockMigrationRunningQueryResult(false);
 
     var result = service.isMigrationRunning();
 
@@ -98,13 +91,11 @@ class LiquibaseMigrationLockServiceTest {
 
   @Test
   void isMigrationRunning_usesConfiguredLockTableName_withoutSchemaLookup() throws Exception {
-    var sql = "SELECT COUNT(*) AS total_rows, COUNT(*) FILTER (WHERE locked = true) AS locked_rows "
-      + "FROM custom_lock_table";
-    when(connection.prepareStatement(sql)).thenReturn(preparedStatement);
+    when(connection.prepareStatement(argThat(sql -> sql.contains("FROM custom_lock_table"))))
+      .thenReturn(preparedStatement);
     when(preparedStatement.executeQuery()).thenReturn(resultSet);
     when(resultSet.next()).thenReturn(true);
-    when(resultSet.getInt(1)).thenReturn(1);
-    when(resultSet.getInt(2)).thenReturn(0);
+    when(resultSet.getBoolean(1)).thenReturn(false);
 
     service.isMigrationRunning();
   }
@@ -113,13 +104,11 @@ class LiquibaseMigrationLockServiceTest {
   void isMigrationRunning_usesDefaultLockTable_whenConfiguredLockTableIsBlank() throws Exception {
     service = new LiquibaseMigrationLockService(dataSource, null);
 
-    var sql = "SELECT COUNT(*) AS total_rows, COUNT(*) FILTER (WHERE locked = true) AS locked_rows "
-      + "FROM databasechangeloglock";
-    when(connection.prepareStatement(sql)).thenReturn(preparedStatement);
+    when(connection.prepareStatement(argThat(sql -> sql.contains("FROM databasechangeloglock"))))
+      .thenReturn(preparedStatement);
     when(preparedStatement.executeQuery()).thenReturn(resultSet);
     when(resultSet.next()).thenReturn(true);
-    when(resultSet.getInt(1)).thenReturn(1);
-    when(resultSet.getInt(2)).thenReturn(0);
+    when(resultSet.getBoolean(1)).thenReturn(false);
 
     var result = service.isMigrationRunning();
 
@@ -137,11 +126,41 @@ class LiquibaseMigrationLockServiceTest {
   void isMigrationRunning_throwsException_whenConnectionCannotBeObtained() throws Exception {
     when(dataSource.getConnection()).thenThrow(new java.sql.SQLException("db down"));
 
-    service = new LiquibaseMigrationLockService(
-      dataSource,
-      LOCK_TABLE
-    );
+    assertThrows(LiquibaseMigrationException.class, () -> service.isMigrationRunning());
+  }
+
+  @Test
+  void isMigrationRunning_rethrowsLiquibaseMigrationException_withoutWrapping() throws Exception {
+    var migrationException = new LiquibaseMigrationException("already wrapped");
+    when(dataSource.getConnection()).thenThrow(migrationException);
+
+    service = new LiquibaseMigrationLockService(dataSource, LOCK_TABLE);
+
+    var exception = assertThrows(LiquibaseMigrationException.class, () -> service.isMigrationRunning());
+
+    assertSame(migrationException, exception);
+  }
+
+  @Test
+  void isMigrationRunning_throwsException_whenSqlErrorMessageIsNull() throws Exception {
+    when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+    when(preparedStatement.executeQuery()).thenThrow(new java.sql.SQLException((String) null));
 
     assertThrows(LiquibaseMigrationException.class, () -> service.isMigrationRunning());
+  }
+
+  @Test
+  void isMigrationRunning_throwsException_whenSqlErrorDoesNotIndicateMissingLockTable() throws Exception {
+    when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+    when(preparedStatement.executeQuery()).thenThrow(new java.sql.SQLException("syntax error"));
+
+    assertThrows(LiquibaseMigrationException.class, () -> service.isMigrationRunning());
+  }
+
+  private void mockMigrationRunningQueryResult(boolean migrationRunning) throws Exception {
+    when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+    when(preparedStatement.executeQuery()).thenReturn(resultSet);
+    when(resultSet.next()).thenReturn(true);
+    when(resultSet.getBoolean(1)).thenReturn(migrationRunning);
   }
 }
