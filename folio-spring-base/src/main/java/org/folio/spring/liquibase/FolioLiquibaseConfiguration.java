@@ -1,6 +1,7 @@
 package org.folio.spring.liquibase;
 
 import javax.sql.DataSource;
+import org.folio.spring.FolioExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -29,7 +30,6 @@ public class FolioLiquibaseConfiguration {
 
   @Bean
   public FolioSpringLiquibase liquibase(@Autowired DataSource dataSource) {
-
     FolioSpringLiquibase liquibase = new FolioSpringLiquibase();
     liquibase.setDataSource(dataSource);
     liquibase.setChangeLog(this.properties.getChangeLog());
@@ -52,5 +52,14 @@ public class FolioLiquibaseConfiguration {
     liquibase.setTestRollbackOnUpdate(this.properties.isTestRollbackOnUpdate());
     liquibase.setTag(this.properties.getTag());
     return liquibase;
+  }
+
+  @Bean
+  public LiquibaseMigrationLockService liquibaseMigrationLockService(@Autowired DataSource dataSource,
+    @Autowired FolioExecutionContext folioExecutionContext) {
+    return new LiquibaseMigrationLockService(
+      dataSource,
+      properties.getDatabaseChangeLogLockTable()
+    );
   }
 }
