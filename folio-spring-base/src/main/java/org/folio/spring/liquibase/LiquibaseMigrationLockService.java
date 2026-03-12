@@ -31,8 +31,6 @@ public class LiquibaseMigrationLockService {
       var result = isNotFalse(migrationRunning);
       log.debug("Liquibase migration running for table '{}': {}", resolvedLockTable, result);
       return result;
-    } catch (LiquibaseMigrationException e) {
-      throw e;
     } catch (RuntimeException e) {
       if (isMissingLockTable(e)) {
         log.debug("Liquibase lock table '{}' is not available yet; treating migration as running", resolvedLockTable);

@@ -1,7 +1,6 @@
 package org.folio.spring.liquibase;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -123,18 +122,6 @@ class LiquibaseMigrationLockServiceTest {
       .thenThrow(new RuntimeException((String) null, new java.sql.SQLException((String) null)));
 
     assertThrows(LiquibaseMigrationException.class, () -> service.isMigrationRunning());
-  }
-
-  @Test
-  void isMigrationRunning_rethrowsLiquibaseMigrationException_withoutWrapping() {
-    var migrationException = new LiquibaseMigrationException("already wrapped");
-    when(jdbcTemplate.queryForObject(anyString(), eq(Boolean.class))).thenThrow(migrationException);
-
-    service = new LiquibaseMigrationLockService(jdbcTemplate, LOCK_TABLE);
-
-    var exception = assertThrows(LiquibaseMigrationException.class, () -> service.isMigrationRunning());
-
-    assertSame(migrationException, exception);
   }
 
   private void mockMigrationRunningQueryResult(Boolean migrationRunning) {
