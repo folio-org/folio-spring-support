@@ -12,6 +12,7 @@ import org.springframework.boot.liquibase.autoconfigure.LiquibaseAutoConfigurati
 import org.springframework.boot.liquibase.autoconfigure.LiquibaseProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -29,7 +30,6 @@ public class FolioLiquibaseConfiguration {
 
   @Bean
   public FolioSpringLiquibase liquibase(@Autowired DataSource dataSource) {
-
     FolioSpringLiquibase liquibase = new FolioSpringLiquibase();
     liquibase.setDataSource(dataSource);
     liquibase.setChangeLog(this.properties.getChangeLog());
@@ -52,5 +52,13 @@ public class FolioLiquibaseConfiguration {
     liquibase.setTestRollbackOnUpdate(this.properties.isTestRollbackOnUpdate());
     liquibase.setTag(this.properties.getTag());
     return liquibase;
+  }
+
+  @Bean
+  public LiquibaseMigrationLockService liquibaseMigrationLockService(@Autowired JdbcTemplate jdbcTemplate) {
+    return new LiquibaseMigrationLockService(
+      jdbcTemplate,
+      properties.getDatabaseChangeLogLockTable()
+    );
   }
 }
