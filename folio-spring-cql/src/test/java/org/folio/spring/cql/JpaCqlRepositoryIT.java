@@ -13,11 +13,13 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 import org.folio.cql2pgjson.exception.QueryValidationException;
 import org.folio.spring.cql.domain.CapabilitySet;
 import org.folio.spring.cql.domain.City;
 import org.folio.spring.cql.domain.EntityCapabilityType;
+import org.folio.spring.cql.domain.Group;
 import org.folio.spring.cql.domain.Language;
 import org.folio.spring.cql.domain.LanguageRespectAccents;
 import org.folio.spring.cql.domain.LanguageRespectCase;
@@ -26,6 +28,7 @@ import org.folio.spring.cql.domain.Person;
 import org.folio.spring.cql.domain.Str;
 import org.folio.spring.cql.repo.CapabilitySetRepository;
 import org.folio.spring.cql.repo.CityRepository;
+import org.folio.spring.cql.repo.GroupRepository;
 import org.folio.spring.cql.repo.LanguageRepository;
 import org.folio.spring.cql.repo.LanguageRespectAccentsRepository;
 import org.folio.spring.cql.repo.LanguageRespectCaseRepository;
@@ -57,6 +60,10 @@ import org.springframework.test.context.jdbc.SqlMergeMode;
 @Sql({"/sql/jpa-cql-general-it-schema.sql", "/sql/jpa-cql-general-test-data.sql"})
 class JpaCqlRepositoryIT {
 
+  private static final UUID MEMBER_A = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+  private static final UUID MEMBER_B = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+  private static final UUID MEMBER_UNKNOWN = UUID.fromString("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
   @Autowired
   private PersonRepository personRepository;
 
@@ -80,6 +87,9 @@ class JpaCqlRepositoryIT {
 
   @Autowired
   private CapabilitySetRepository capabilitySetRepository;
+
+  @Autowired
+  private GroupRepository groupRepository;
 
   @Test
   void testTypesOfRepositories() {
@@ -492,5 +502,52 @@ class JpaCqlRepositoryIT {
 
   private static String[] splitByComma(String s) {
     return s.split(",");
+  }
+
+  @Test
+  void findByCql_elementCollection_memberPresent_returnMatchingEntities() {
+    var page = groupRepository.findByCql("memberIds==" + MEMBER_A, PageRequest.of(0, 10));
+
+    assertThat(page)
+      .hasSize(2)
+      .extracting(Group::getName)
+      .containsExactlyInAnyOrder("Admins", "Editors");
+  }
+
+  @Test
+  void findByCql_elementCollection_membersPresent_returnMatchingEntities() {
+    var page = groupRepository.findByCql("memberIds==(" + MEMBER_A + " OR " + MEMBER_B + ")", PageRequest.of(0, 10));
+
+    assertThat(page)
+      .hasSize(2)
+      .extracting(Group::getName)
+      .containsExactlyInAnyOrder("Admins", "Editors");
+  }
+
+  @Test
+  void findByCql_elementCollection_memberPresentSingleOperator_returnMatchingEntities() {
+    var page = groupRepository.findByCql("memberIds=" + MEMBER_B, PageRequest.of(0, 10));
+
+    assertThat(page)
+      .hasSize(1)
+      .extracting(Group::getName)
+      .containsOnly("Admins");
+  }
+
+  @Test
+  void findByCql_elementCollection_memberAbsent_returnsEmpty() {
+    var page = groupRepository.findByCql("memberIds==" + MEMBER_UNKNOWN, PageRequest.of(0, 10));
+
+    assertThat(page).isEmpty();
+  }
+
+  @Test
+  void findByCql_elementCollection_notMember_returnsEntitiesWithoutMember() {
+    var page = groupRepository.findByCql("memberIds<>" + MEMBER_A, PageRequest.of(0, 10));
+
+    assertThat(page)
+      .hasSize(1)
+      .extracting(Group::getName)
+      .containsOnly("Empty Group");
   }
 }

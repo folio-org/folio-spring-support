@@ -17,3 +17,13 @@ insert into str(id, str) values
   (9, ''''),
   (10, '"');
 
+insert into grp(id, name) values
+  ('11111111-1111-1111-1111-111111111111', 'Admins'),
+  ('22222222-2222-2222-2222-222222222222', 'Editors'),
+  ('33333333-3333-3333-3333-333333333333', 'Empty Group');
+
+insert into grp_member(group_id, member_id) values
+  ('11111111-1111-1111-1111-111111111111', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'),
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'),
+  ('22222222-2222-2222-2222-222222222222', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+

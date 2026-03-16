@@ -33,3 +33,7 @@ target/
 /bin/
 #VS Code
 .vscode
+
+#AI
+.codemie/
+.claude/
