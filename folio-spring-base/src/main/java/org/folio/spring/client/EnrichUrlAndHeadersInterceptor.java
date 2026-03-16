@@ -41,7 +41,7 @@ public class EnrichUrlAndHeadersInterceptor implements ClientHttpRequestIntercep
     return execution.execute(modifiedRequest, body);
   }
 
-  static String prepareUrl(String requestUrl, FolioExecutionContext context) {
+  protected String prepareUrl(String requestUrl, FolioExecutionContext context) {
     var okapiUrl = context.getOkapiUrl();
 
     if (okapiUrl == null) {
@@ -57,7 +57,7 @@ public class EnrichUrlAndHeadersInterceptor implements ClientHttpRequestIntercep
     }
   }
 
-  static HttpHeaders prepareHeaders(HttpHeaders requestHeaders, FolioExecutionContext context) {
+  protected HttpHeaders prepareHeaders(HttpHeaders requestHeaders, FolioExecutionContext context) {
     var allHeaders = new HttpHeaders();
     allHeaders.addAll(requestHeaders);
 
