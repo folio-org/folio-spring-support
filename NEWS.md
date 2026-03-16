@@ -22,6 +22,7 @@ CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.media
 * [FOLSPRINGS-209](https://folio-org.atlassian.net/browse/FOLSPRINGS-209) Reduce logging during context switching
 * [FOLSPRINGS-216](https://folio-org.atlassian.net/browse/FOLSPRINGS-216) Fix logging context corruption in multithreaded scenarios
 * [FOLSPRINGS-223](https://folio-org.atlassian.net/browse/FOLSPRINGS-223) Add tools for migration state handling
+* [FOLSPRINGS-222](https://folio-org.atlassian.net/browse/FOLSPRINGS-222) Add support for StringHttpMessageConverter in HttpServiceClientConfiguration
 
 ### folio-spring-cql
 * [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries
