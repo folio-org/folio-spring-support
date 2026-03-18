@@ -43,9 +43,10 @@ class EnrichUrlAndHeadersInterceptorTest {
   @MethodSource("urlPreparationCases")
   void testUrlPreparation(String requestUrl, String okapiUrl, String expected) {
     FolioExecutionContext context = mock(FolioExecutionContext.class);
+    EnrichUrlAndHeadersInterceptor enrichUrlAndHeadersInterceptor = new EnrichUrlAndHeadersInterceptor(context);
 
     when(context.getOkapiUrl()).thenReturn(okapiUrl);
-    assertThat(EnrichUrlAndHeadersInterceptor.prepareUrl(requestUrl, context), is(expected));
+    assertThat(enrichUrlAndHeadersInterceptor.prepareUrl(requestUrl, context), is(expected));
   }
 
   @Test
@@ -58,8 +59,9 @@ class EnrichUrlAndHeadersInterceptorTest {
     FolioExecutionContext context = mock(FolioExecutionContext.class);
     when(context.getOkapiHeaders()).thenReturn(Map.of("z", List.of("z-val")));
     when(context.getAllHeaders()).thenReturn(Map.of("misc-1", List.of("misc-1-val"), "misc-2", List.of("misc-2-val")));
+    EnrichUrlAndHeadersInterceptor enrichUrlAndHeadersInterceptor = new EnrichUrlAndHeadersInterceptor(context);
 
-    HttpHeaders result = EnrichUrlAndHeadersInterceptor.prepareHeaders(requestHeaders, context);
+    HttpHeaders result = enrichUrlAndHeadersInterceptor.prepareHeaders(requestHeaders, context);
 
     assertThat(result.get("a"), is(List.of("a-val")));
     assertThat(result.get("b"), is(List.of("b-val")));
@@ -85,8 +87,9 @@ class EnrichUrlAndHeadersInterceptorTest {
           "misc-2", List.of("misc-2-val")
         )
       );
+    EnrichUrlAndHeadersInterceptor enrichUrlAndHeadersInterceptor = new EnrichUrlAndHeadersInterceptor(context);
 
-    HttpHeaders result = EnrichUrlAndHeadersInterceptor.prepareHeaders(requestHeaders, context);
+    HttpHeaders result = enrichUrlAndHeadersInterceptor.prepareHeaders(requestHeaders, context);
 
     assertThat(result.get("a"), is(List.of("a-val")));
     assertThat(result.get("b"), is(List.of("b-val")));
