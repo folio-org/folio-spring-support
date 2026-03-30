@@ -31,7 +31,6 @@
   <properties>
     <java.version>21</java.version>
     <spring-boot.version>4.0.5</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
-    <maven-compat.version>3.9.14</maven-compat.version>
     <jackson-databind-nullable.version>0.2.10</jackson-databind-nullable.version>
     <swagger-annotations.version>2.2.45</swagger-annotations.version>
     <mapstruct.version>1.6.3</mapstruct.version>
