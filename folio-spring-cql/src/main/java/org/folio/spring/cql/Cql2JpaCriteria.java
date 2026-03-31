@@ -13,6 +13,7 @@ import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.metamodel.PluralAttribute;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -305,12 +307,56 @@ public class Cql2JpaCriteria<E> {
       }
     }
 
+    if (!fieldName.contains(".") && isEmpty(node.getRelation().getModifiers())) {
+      try {
+        var attribute = root.getModel().getAttribute(fieldName);
+        if (attribute instanceof PluralAttribute) {
+          return buildCollectionMemberPredicate(node, root, cb);
+        }
+      } catch (IllegalArgumentException ignored) {
+        // attribute not found in metamodel, fall through to standard path resolution
+      }
+    }
+
     var field = getPath(node, root);
     var cqlModifiers = new CqlModifiers(node);
     if (!isEmpty(cqlModifiers.getRelationModifiers())) {
       query.distinct(true);
     }
     return indexNode(field, node, cqlModifiers, cb);
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private Predicate buildCollectionMemberPredicate(CQLTermNode node, Root<E> root, CriteriaBuilder cb)
+    throws QueryValidationException {
+    var fieldName = node.getIndex();
+    var comparator = node.getRelation().getBase().toLowerCase();
+    var term = node.getTerm();
+
+    var pluralAttribute = (PluralAttribute<?, ?, ?>) root.getModel().getAttribute(fieldName);
+    var elementJavaType = pluralAttribute.getElementType().getJavaType();
+
+    Object memberValue;
+    if (UUID.class.equals(elementJavaType)) {
+      memberValue = UUID.fromString(term);
+    } else if (String.class.equals(elementJavaType)) {
+      memberValue = term;
+    } else if (Integer.class.equals(elementJavaType)) {
+      memberValue = Integer.parseInt(term);
+    } else {
+      throw new CQLFeatureUnsupportedException(
+        "CQL: element collection type '" + elementJavaType.getSimpleName()
+        + "' is not supported for field: " + fieldName);
+    }
+
+    Expression<Collection> collectionPath = root.get(fieldName);
+
+    return switch (comparator) {
+      case "=", "==" -> cb.isMember(memberValue, collectionPath);
+      case "<>" -> cb.isNotMember(memberValue, collectionPath);
+      default -> throw new CQLFeatureUnsupportedException(
+        "CQL: Operator '" + comparator + "' is not supported for collection fields, field: " + fieldName);
+    };
   }
 
   private Path<?> getPath(CQLTermNode node, Root<E> root) {
