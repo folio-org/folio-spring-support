@@ -25,6 +25,7 @@ CREATE INDEX idx_medreq_requester_barcode ON ${database.defaultSchemaName}.media
 * [FOLSPRINGS-222](https://folio-org.atlassian.net/browse/FOLSPRINGS-222) Add support for StringHttpMessageConverter in HttpServiceClientConfiguration
 * [FOLSPRINGS-225](https://folio-org.atlassian.net/browse/FOLSPRINGS-225) Support extending http interceptor to create custom rest client builders
 * [FOLSPRINGS-226](https://folio-org.atlassian.net/browse/FOLSPRINGS-226) Remove maven-compat dependency
+* [FOLSPRINGS-217](https://folio-org.atlassian.net/browse/FOLSPRINGS-217) Add connection pool settings
 
 ### folio-spring-cql
 * [FOLSPRINGS-185](https://folio-org.atlassian.net/browse/FOLSPRINGS-185) Implement case insensitive accents ignoring CQL queries
