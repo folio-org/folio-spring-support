@@ -1,4 +1,4 @@
-## 10.0.0 2025-04-06
+## 10.0.0 2026-04-06
 
 **Breaking Changes:**
 - Migrated from OpenFeign to Spring HTTP Service Clients
