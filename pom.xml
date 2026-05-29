@@ -39,6 +39,7 @@
     <icu4j.version>78.3</icu4j.version>
     <commons-fileupload.version>1.6.0</commons-fileupload.version>
     <commons-lang3.version>3.20.0</commons-lang3.version>
+    <caffeine.version>3.2.4</caffeine.version>
 
     <!-- Test dependencies versions -->
     <easy-random.version>5.0.0</easy-random.version>

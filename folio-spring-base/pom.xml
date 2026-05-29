@@ -12,13 +12,6 @@
   <artifactId>folio-spring-base</artifactId>
   <description />
 
-  <properties>
-    <tenant.yaml.file>${project.basedir}/src/main/resources/swagger.api/tenant.yaml</tenant.yaml.file>
-    <sonar.exclusions>
-      src/main/java/org/folio/**/FolioLiquibaseConfiguration.java
-    </sonar.exclusions>
-  </properties>
-
   <dependencies>
 
     <dependency>
@@ -87,6 +80,17 @@
     </dependency>
 
     <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
@@ -95,25 +99,6 @@
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
-    </dependency>
-
-    <!-- OAS generation -->
-    <dependency>
-      <groupId>org.openapitools</groupId>
-      <artifactId>openapi-generator</artifactId>
-      <version>${openapi-generator.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-simple</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openapitools</groupId>
-      <artifactId>openapi-generator-maven-plugin</artifactId>
-      <version>${openapi-generator.version}</version>
     </dependency>
 
     <dependency>
@@ -132,15 +117,6 @@
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
       <version>${mapstruct.version}</version>
-    </dependency>
-
-    <dependency>
-      <!-- Fix XML External Entity (XXE) Injection: https://security.snyk.io/vuln/SNYK-JAVA-ORGMOZILLA-1314295
-           Remove this <dependecy> entry when org.openapitools:openapi-generator ships with a fixed version.
-      -->
-      <groupId>org.mozilla</groupId>
-      <artifactId>rhino</artifactId>
-      <version>${rhino.version}</version>
     </dependency>
 
     <!-- Test dependencies -->
@@ -195,45 +171,4 @@
 
   </dependencies>
 
-  <build>
-    <plugins>
-
-      <plugin>
-        <groupId>org.openapitools</groupId>
-        <artifactId>openapi-generator-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>tenantApi</id>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-            <configuration>
-              <inputSpec>${tenant.yaml.file}</inputSpec>
-              <output>${project.build.directory}/generated-sources</output>
-              <generatorName>spring</generatorName>
-              <modelPackage>${project.groupId}.tenant.domain.dto</modelPackage>
-              <apiPackage>${project.groupId}.tenant.rest.resource</apiPackage>
-              <generateApis>true</generateApis>
-              <generateApiTests>true</generateApiTests>
-              <generateApiDocumentation>true</generateApiDocumentation>
-              <generateModels>true</generateModels>
-              <modelsToGenerate>error,errors,parameter,metadata,tenantAttributes</modelsToGenerate>
-              <generateModelTests>false</generateModelTests>
-              <generateModelDocumentation>true</generateModelDocumentation>
-              <generateSupportingFiles>true</generateSupportingFiles>
-              <supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
-              <configOptions>
-                <java8>true</java8>
-                <dateLibrary>java</dateLibrary>
-                <interfaceOnly>true</interfaceOnly>
-                <useSpringBoot3>true</useSpringBoot3>
-                <useTags>true</useTags>
-              </configOptions>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-    </plugins>
-  </build>
 </project>
