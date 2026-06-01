@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
-import javax.annotation.CheckForNull;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.spring.FolioExecutionContext;
@@ -28,7 +27,6 @@ public class SystemUserExecutionContext implements FolioExecutionContext {
 
   private final FolioModuleMetadata moduleMetadata;
 
-  @CheckForNull
   private final Supplier<SystemUser> refresher;
 
   private SystemUser systemUser;

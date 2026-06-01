@@ -13,16 +13,16 @@ name: api-schema-lint
 # e.g. ''
 
 env:
-  API_DIRECTORIES: 'folio-spring-base/src/main/resources/swagger.api'
+  API_DIRECTORIES: 'folio-spring-tenant-settings/src/main/resources/swagger.api'
   API_EXCLUDES: ''
 
 on:
   push:
     paths:
-      - 'folio-spring-base/src/main/resources/swagger.api/**'
+      - 'folio-spring-tenant-settings/src/main/resources/swagger.api/**'
   pull_request:
     paths:
-      - 'folio-spring-base/src/main/resources/swagger.api/**'
+      - 'folio-spring-tenant-settings/src/main/resources/swagger.api/**'
 
 jobs:
   api-schema-lint:

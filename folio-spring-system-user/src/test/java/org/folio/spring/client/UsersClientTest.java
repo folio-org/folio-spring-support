@@ -3,13 +3,12 @@ package org.folio.spring.client;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.spring.client.UsersClient.User;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @UnitTest
 class UsersClientTest {
@@ -17,7 +16,7 @@ class UsersClientTest {
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Test
-  void testDeserialization() throws JsonProcessingException {
+  void testDeserialization() {
     User user = objectMapper.readValue(
       """
         {
@@ -38,7 +37,7 @@ class UsersClientTest {
   }
 
   @Test
-  void testSerialization() throws JsonProcessingException {
+  void testSerialization() {
     Map<String, Object> user = objectMapper.readValue(
       objectMapper.writeValueAsString(
         new User("id", "username", null, true, null,

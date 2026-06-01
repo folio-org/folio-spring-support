@@ -29,19 +29,6 @@ public class TenantController implements TenantApi {
   private final TenantService tenantService;
 
   @Override
-  public ResponseEntity<Void> deleteTenant(String operationId) {
-    /*
-    do nothing.
-     */
-    return noContent().build();
-  }
-
-  @Override
-  public ResponseEntity<String> getTenant(String operationId) {
-    throw new NotImplementedException("Not implemented");
-  }
-
-  @Override
   public ResponseEntity<Void> postTenant(@Valid TenantAttributes tenantAttributes) {
     if (isDisableJob(tenantAttributes)) {
       log.info("Disabling tenant...");
@@ -62,6 +49,19 @@ public class TenantController implements TenantApi {
         tenantService.loadSampleData();
       }
     }
+    return noContent().build();
+  }
+
+  @Override
+  public ResponseEntity<String> getTenant(String operationId) {
+    throw new NotImplementedException("Not implemented");
+  }
+
+  @Override
+  public ResponseEntity<Void> deleteTenant(String operationId) {
+    /*
+    do nothing.
+     */
     return noContent().build();
   }
 

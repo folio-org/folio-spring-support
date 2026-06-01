@@ -3,12 +3,10 @@ package org.folio.spring.context;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 
-import com.google.common.collect.Maps;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
-import javax.annotation.CheckForNull;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -32,10 +30,10 @@ public class ExecutionContextBuilder {
    * Creates an execution context for sending requests to FOLIO on behalf of a system user.
    *
    * @param systemUser the user to send requests as
-   * @param refresher a supplier which should, upon the {@code systemUser}'s expiration, return a new
-   *   {@link SystemUser} with a fresh access token
+   * @param refresher  a supplier which should, upon the {@code systemUser}'s expiration, return a new
+   *                   {@link SystemUser} with a fresh access token
    */
-  public FolioExecutionContext forSystemUser(SystemUser systemUser, @CheckForNull Supplier<SystemUser> refresher) {
+  public FolioExecutionContext forSystemUser(SystemUser systemUser, Supplier<SystemUser> refresher) {
     return new SystemUserExecutionContext(moduleMetadata, systemUser, refresher);
   }
 
@@ -45,7 +43,11 @@ public class ExecutionContextBuilder {
 
   public FolioExecutionContext buildContext(String tenantId, Map<String, Collection<String>> headers) {
     var okapiUrl = folioEnvironment.getOkapiUrl();
-    var contextHeaders = new HashMap<>(Maps.filterValues(MapUtils.emptyIfNull(headers), CollectionUtils::isNotEmpty));
+    var contextHeaders = MapUtils.emptyIfNull(headers).entrySet()
+      .stream()
+      .filter(entry -> CollectionUtils.isNotEmpty(entry.getValue()))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
     contextHeaders.put(XOkapiHeaders.URL, singleton(okapiUrl));
     contextHeaders.put(XOkapiHeaders.TENANT, singleton(tenantId));
     return new DefaultFolioExecutionContext(
