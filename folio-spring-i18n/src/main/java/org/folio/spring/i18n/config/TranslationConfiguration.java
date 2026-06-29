@@ -3,10 +3,12 @@ package org.folio.spring.i18n.config;
 import java.util.List;
 import java.util.Locale;
 import lombok.Getter;
+import org.folio.spring.i18n.nativex.TranslationRuntimeHints;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ImportRuntimeHints;
 
 /**
  * An {@link org.springframework.context.annotation.Configuration Configuration} bean to hold the
@@ -15,6 +17,7 @@ import org.springframework.context.annotation.ComponentScan;
 @Getter
 @AutoConfiguration
 @ComponentScan(basePackages = "org.folio.spring.i18n.service")
+@ImportRuntimeHints(TranslationRuntimeHints.class)
 public class TranslationConfiguration {
 
   private final List<String> translationDirectories;
