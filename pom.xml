@@ -31,7 +31,7 @@
   <properties>
     <java.version>21</java.version>
     <spring-boot.version>4.1.0</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
-    <jackson-databind-nullable.version>0.2.10</jackson-databind-nullable.version>
+    <jackson-databind-nullable.version>0.2.11</jackson-databind-nullable.version>
     <swagger-annotations.version>2.2.52</swagger-annotations.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <folio-util.version>36.0.0</folio-util.version>
@@ -48,9 +48,9 @@
 
     <!-- Plugins versions -->
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
-    <openapi-generator.version>7.23.0</openapi-generator.version>
+    <openapi-generator.version>7.24.0</openapi-generator.version>
     <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
-    <checkstyle.version>13.8.0</checkstyle.version>
+    <checkstyle.version>13.9.0</checkstyle.version>
     <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
     <folio-java-checkstyle.version>1.2.0</folio-java-checkstyle.version>
   </properties>
