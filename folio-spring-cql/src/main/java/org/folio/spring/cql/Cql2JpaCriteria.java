@@ -285,7 +285,7 @@ public class Cql2JpaCriteria<E> {
     if (cqlOrNode.getRightOperand().getClass() == CQLTermNode.class) {
       // special case for the query the UI uses most often, before the user has
       // typed in anything: title=* OR contributors*= OR identifier=*
-      var rightOperand = (CQLTermNode) (cqlOrNode.getRightOperand());
+      var rightOperand = (CQLTermNode) cqlOrNode.getRightOperand();
       if (ASTERISKS_SIGN.equals(rightOperand.getTerm()) && "=".equals(rightOperand.getRelation().getBase())
           && isEmpty(rightOperand.getRelation().getModifiers())) {
         log.debug("pgFT(): Simplifying =* OR =* ");
