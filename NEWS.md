@@ -1,3 +1,7 @@
+## 10.1.0 WIP
+
+* [FOLIO-4553](https://folio-org.atlassian.net/browse/FOLIO-4553) Set "permissions: contents: read" in maven.yml
+
 ## 10.0.0 2026-04-06
 
 **Breaking Changes:**
