@@ -32,9 +32,9 @@
     <java.version>21</java.version>
     <spring-boot.version>4.1.0</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
     <jackson-databind-nullable.version>0.2.11</jackson-databind-nullable.version>
-    <swagger-annotations.version>2.2.52</swagger-annotations.version>
+    <swagger-annotations.version>2.2.53</swagger-annotations.version>
     <mapstruct.version>1.6.3</mapstruct.version>
-    <folio-util.version>36.0.0</folio-util.version>
+    <folio-util.version>36.0.1</folio-util.version>
     <rhino.version>1.9.1</rhino.version>
     <icu4j.version>78.3</icu4j.version>
     <commons-fileupload.version>1.6.0</commons-fileupload.version>
@@ -50,7 +50,7 @@
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
     <openapi-generator.version>7.24.0</openapi-generator.version>
     <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
-    <checkstyle.version>13.9.0</checkstyle.version>
+    <checkstyle.version>13.10.0</checkstyle.version>
     <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
     <folio-java-checkstyle.version>1.2.0</folio-java-checkstyle.version>
   </properties>
