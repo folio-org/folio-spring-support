@@ -3,7 +3,6 @@ package org.folio.spring.scope;
 import static java.util.Collections.singleton;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import lombok.SneakyThrows;
@@ -11,6 +10,7 @@ import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.exception.FolioContextExecutionException;
 import org.folio.spring.integration.XOkapiHeaders;
+import org.folio.spring.utils.FolioExecutionContextUtils;
 
 /**
  * Service for executing code within a Folio context, setting up tenant and headers.
@@ -39,7 +39,7 @@ public class FolioExecutionContextService {
    * @throws FolioContextExecutionException if execution fails
    */
   public <T> T execute(String tenantId, Map<String, Collection<String>> headers, Callable<T> action) {
-    Map<String, Collection<String>> allHeaders = headers == null ? new HashMap<>() : new HashMap<>(headers);
+    var allHeaders = FolioExecutionContextUtils.caseInsensitiveCopyOf(headers);
     allHeaders.put(XOkapiHeaders.TENANT, singleton(tenantId));
     try (var fex = new FolioExecutionContextSetter(moduleMetadata, allHeaders)) {
       return action.call();
