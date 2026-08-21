@@ -6,17 +6,18 @@ import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 import static org.folio.spring.integration.XOkapiHeaders.TOKEN;
 import static org.folio.spring.integration.XOkapiHeaders.URL;
 import static org.folio.spring.integration.XOkapiHeaders.USER_ID;
+import static org.folio.spring.utils.FolioExecutionContextUtils.caseInsensitiveCopyOf;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.ToString;
-import org.folio.spring.integration.XOkapiHeaders;
+import org.springframework.util.LinkedCaseInsensitiveMap;
 
 @Getter
 @ToString
@@ -35,9 +36,9 @@ public class DefaultFolioExecutionContext implements FolioExecutionContext {
   public DefaultFolioExecutionContext(FolioModuleMetadata folioModuleMetadata,
     Map<String, Collection<String>> allHeaders) {
     this.folioModuleMetadata = folioModuleMetadata;
-    this.allHeaders = allHeaders;
-    this.okapiHeaders = new HashMap<>(allHeaders);
-    this.okapiHeaders.entrySet().removeIf(e -> !e.getKey().toLowerCase().startsWith(OKAPI_HEADERS_PREFIX));
+    this.allHeaders = caseInsensitiveCopyOf(allHeaders);
+    this.okapiHeaders = caseInsensitiveCopyOf(allHeaders);
+    this.okapiHeaders.entrySet().removeIf(e -> !e.getKey().toLowerCase(Locale.ROOT).startsWith(OKAPI_HEADERS_PREFIX));
 
     this.tenantId = retrieveFirstSafe(okapiHeaders.get(TENANT));
     this.okapiUrl = retrieveFirstSafe(okapiHeaders.get(URL));
@@ -48,10 +49,6 @@ public class DefaultFolioExecutionContext implements FolioExecutionContext {
     this.userId = userIdString.isEmpty() ? null : UUID.fromString(userIdString);
   }
 
-  private String retrieveFirstSafe(Collection<String> strings) {
-    return strings != null && !strings.isEmpty() ? strings.iterator().next() : "";
-  }
-
   public static DefaultFolioExecutionContext fromMessageHeaders(FolioModuleMetadata folioModuleMetadata,
     Map<String, Object> messageHeaders) {
     return new DefaultFolioExecutionContext(folioModuleMetadata, toOkapiHeaders(messageHeaders));
@@ -60,13 +57,17 @@ public class DefaultFolioExecutionContext implements FolioExecutionContext {
   private static Map<String, Collection<String>> toOkapiHeaders(Map<String, Object> messageHeaders) {
     return messageHeaders.entrySet()
       .stream()
-      .filter(e -> e.getKey().startsWith(XOkapiHeaders.OKAPI_HEADERS_PREFIX))
+      .filter(e -> e.getKey().toLowerCase(Locale.ROOT).startsWith(OKAPI_HEADERS_PREFIX))
       .collect(Collectors.toMap(Map.Entry::getKey, e -> {
         Object x = e.getValue();
         if (x instanceof byte[] bytes) {
           return List.of(new String(bytes, StandardCharsets.UTF_8));
         }
         return List.of(String.valueOf(x));
-      }));
+      }, (s, s2) -> s, () -> new LinkedCaseInsensitiveMap<>(Locale.ROOT)));
+  }
+
+  private static String retrieveFirstSafe(Collection<String> strings) {
+    return strings != null && !strings.isEmpty() ? strings.iterator().next() : "";
   }
 }

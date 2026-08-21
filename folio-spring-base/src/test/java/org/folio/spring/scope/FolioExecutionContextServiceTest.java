@@ -135,6 +135,42 @@ class FolioExecutionContextServiceTest {
     assertTrue(called[0]);
   }
 
+  @Test
+  void execute_with_null_headers_sets_tenant() {
+    String tenantId = "tenantG";
+
+    service.execute(tenantId, (Map<String, Collection<String>>) null, () -> {
+      var context = FolioExecutionScopeExecutionContextManager.getFolioExecutionContext();
+      assertThat(context.getTenantId()).isEqualTo(tenantId);
+    });
+  }
+
+  @Test
+  void execute_with_mixed_case_headers_accessible_inside_action() {
+    String tenantId = "tenantH";
+    Map<String, Collection<String>> headers = new HashMap<>();
+    headers.put("X-Okapi-Token", List.of("my-token"));
+
+    service.execute(tenantId, headers, () -> {
+      var context = FolioExecutionScopeExecutionContextManager.getFolioExecutionContext();
+      assertThat(context.getTenantId()).isEqualTo(tenantId);
+      assertThat(context.getToken()).isEqualTo("my-token");
+    });
+  }
+
+  @Test
+  void execute_tenant_parameter_overrides_tenant_in_headers() {
+    String headerTenant = "old-tenant";
+    String newTenant = "new-tenant";
+    Map<String, Collection<String>> headers = new HashMap<>();
+    headers.put(XOkapiHeaders.TENANT, List.of(headerTenant));
+
+    service.execute(newTenant, headers, () -> {
+      var context = FolioExecutionScopeExecutionContextManager.getFolioExecutionContext();
+      assertThat(context.getTenantId()).isEqualTo(newTenant);
+    });
+  }
+
   private void assertContext(String tenantId, String additionalHeader, String additionalHeaderValue) {
     var context = FolioExecutionScopeExecutionContextManager.getFolioExecutionContext();
     assertThat(context).isNotNull();

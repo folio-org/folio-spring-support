@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 @UnitTest
 class FolioExecutionContextUtilsTest {
+
   private final FolioModuleMetadata moduleMetadata = new FolioModuleMetadata() {
     @Override public String getModuleName() {
       return "test";
@@ -54,5 +55,34 @@ class FolioExecutionContextUtilsTest {
 
     assertThrows(IllegalStateException.class,
       () -> FolioExecutionContextUtils.prepareContextForTenant(newTenant, moduleMetadata, folioContext));
+  }
+
+  @Test
+  void testPrepareContextForTenantDoesNotMutateOriginalContext() {
+    var originalTenant = "original";
+    var newTenant = "switched";
+    Map<String, Collection<String>> headers = new HashMap<>();
+    headers.put(TENANT, singleton(originalTenant));
+    var folioContext = new DefaultFolioExecutionContext(moduleMetadata, headers);
+
+    FolioExecutionContextUtils.prepareContextForTenant(newTenant, moduleMetadata, folioContext);
+
+    assertThat(folioContext.getTenantId()).isEqualTo(originalTenant);
+    assertThat(folioContext.getAllHeaders().get(TENANT)).containsOnly(originalTenant);
+  }
+
+  @Test
+  void testPrepareContextForTenantHandlesMixedCaseOkapiHeaderKeys() {
+    var originalTenant = "original";
+    var newTenant = "switched";
+    Map<String, Collection<String>> headers = new HashMap<>();
+    headers.put("X-Okapi-Tenant", singleton(originalTenant));
+    headers.put("X-Okapi-Token", singleton("my-token"));
+    var folioContext = new DefaultFolioExecutionContext(moduleMetadata, headers);
+
+    var actual = FolioExecutionContextUtils.prepareContextForTenant(newTenant, moduleMetadata, folioContext);
+
+    assertThat(actual.getTenantId()).isEqualTo(newTenant);
+    assertThat(actual.getToken()).isEqualTo("my-token");
   }
 }

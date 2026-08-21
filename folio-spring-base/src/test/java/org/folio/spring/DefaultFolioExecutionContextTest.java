@@ -8,6 +8,7 @@ import static org.folio.spring.integration.XOkapiHeaders.TOKEN;
 import static org.folio.spring.integration.XOkapiHeaders.URL;
 import static org.folio.spring.integration.XOkapiHeaders.USER_ID;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,5 +78,87 @@ class DefaultFolioExecutionContextTest {
     };
 
     assertThat(actual).satisfies(contextRequirements);
+  }
+
+  @Test
+  void allHeadersAllowCaseInsensitiveLookup() {
+    Map<String, Collection<String>> headers = new HashMap<>();
+    headers.put(TENANT, singleton("diku"));
+    headers.put("Accept", singleton("application/json"));
+
+    var context = new DefaultFolioExecutionContext(moduleMetadata, headers);
+
+    assertThat(context.getAllHeaders().get("X-Okapi-Tenant")).containsOnly("diku");
+    assertThat(context.getAllHeaders().get("X-OKAPI-TENANT")).containsOnly("diku");
+    assertThat(context.getAllHeaders().get("accept")).containsOnly("application/json");
+    assertThat(context.getAllHeaders().get("ACCEPT")).containsOnly("application/json");
+  }
+
+  @Test
+  void okapiHeadersAllowCaseInsensitiveLookup() {
+    Map<String, Collection<String>> headers = new HashMap<>();
+    headers.put(TENANT, singleton("diku"));
+    headers.put(TOKEN, singleton("my-token"));
+
+    var context = new DefaultFolioExecutionContext(moduleMetadata, headers);
+
+    assertThat(context.getOkapiHeaders().get("X-Okapi-Tenant")).containsOnly("diku");
+    assertThat(context.getOkapiHeaders().get("X-OKAPI-TOKEN")).containsOnly("my-token");
+  }
+
+  @Test
+  void fromMessageHeadersExtractsOkapiHeaders() {
+    var tenant = "diku";
+    var token = "my-token";
+    Map<String, Object> messageHeaders = new HashMap<>();
+    messageHeaders.put(TENANT, tenant);
+    messageHeaders.put(TOKEN, token);
+    messageHeaders.put("Accept", "application/json");
+
+    var context = DefaultFolioExecutionContext.fromMessageHeaders(moduleMetadata, messageHeaders);
+
+    assertThat(context.getTenantId()).isEqualTo(tenant);
+    assertThat(context.getToken()).isEqualTo(token);
+    assertThat(context.getOkapiHeaders()).containsOnlyKeys(TENANT, TOKEN);
+  }
+
+  @Test
+  void fromMessageHeadersDecodesByteArrayValues() {
+    var tenant = "diku";
+    Map<String, Object> messageHeaders = new HashMap<>();
+    messageHeaders.put(TENANT, tenant.getBytes(StandardCharsets.UTF_8));
+
+    var context = DefaultFolioExecutionContext.fromMessageHeaders(moduleMetadata, messageHeaders);
+
+    assertThat(context.getTenantId()).isEqualTo(tenant);
+  }
+
+  @Test
+  void constructorExtractsFieldsFromMixedCaseOkapiHeaderKeys() {
+    Map<String, Collection<String>> headers = new HashMap<>();
+    headers.put("X-Okapi-Tenant", singleton("diku"));
+    headers.put("X-Okapi-Token", singleton("my-token"));
+    headers.put("X-Okapi-Url", singleton("http://okapi.com"));
+
+    var context = new DefaultFolioExecutionContext(moduleMetadata, headers);
+
+    assertThat(context.getTenantId()).isEqualTo("diku");
+    assertThat(context.getToken()).isEqualTo("my-token");
+    assertThat(context.getOkapiUrl()).isEqualTo("http://okapi.com");
+    assertThat(context.getOkapiHeaders()).containsOnlyKeys("X-Okapi-Tenant", "X-Okapi-Token", "X-Okapi-Url");
+  }
+
+  @Test
+  void fromMessageHeadersHandlesMixedCaseOkapiHeaderKeys() {
+    Map<String, Object> messageHeaders = new HashMap<>();
+    messageHeaders.put("X-Okapi-Tenant", "diku");
+    messageHeaders.put("X-Okapi-Token", "my-token");
+    messageHeaders.put("Accept", "application/json");
+
+    var context = DefaultFolioExecutionContext.fromMessageHeaders(moduleMetadata, messageHeaders);
+
+    assertThat(context.getTenantId()).isEqualTo("diku");
+    assertThat(context.getToken()).isEqualTo("my-token");
+    assertThat(context.getOkapiHeaders()).containsOnlyKeys("X-Okapi-Tenant", "X-Okapi-Token");
   }
 }
