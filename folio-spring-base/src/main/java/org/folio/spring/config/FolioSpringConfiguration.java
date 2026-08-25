@@ -3,6 +3,8 @@ package org.folio.spring.config;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
+import org.folio.spring.nativex.FolioBaseRuntimeHints;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,11 +13,18 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.context.annotation.Lazy;
 
 @Configuration
 @ComponentScan({"org.folio.spring.controller", "org.folio.spring.config",
   "org.folio.spring.filter", "org.folio.spring.service"})
+@ImportRuntimeHints(FolioBaseRuntimeHints.class)
+@RegisterReflectionForBinding({
+  org.folio.tenant.domain.dto.Error.class,
+  org.folio.tenant.domain.dto.Errors.class,
+  org.folio.tenant.domain.dto.Parameter.class,
+  org.folio.tenant.domain.dto.TenantAttributes.class})
 public class FolioSpringConfiguration {
 
   @Bean
