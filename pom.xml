@@ -21,6 +21,7 @@
   <modules>
     <module>folio-spring-cql</module>
     <module>folio-spring-base</module>
+    <module>folio-spring-kafka-filtering</module>
     <module>folio-spring-system-user</module>
     <module>folio-spring-i18n</module>
     <module>folio-spring-common</module>

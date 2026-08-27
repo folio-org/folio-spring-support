@@ -46,6 +46,7 @@ The library comprises several submodules that are built as separate artifacts (j
 The library includes the following submodules:
 * **folio-spring-base** - provides fundamental functionality for developing FOLIO modules using the Spring framework.
 * **folio-spring-cql** - facilitates CQL querying (refer to the [CQL support](#cql-support) section below)
+* **folio-spring-kafka-filtering** - provides tenant-aware Kafka message filtering for Spring modules.
 * ~~**folio-spring-system-user**~~ - (deprecated) provides [functionality](folio-spring-system-user/README.md) for system-user creation and utilization 
 
 ## Execution Context
@@ -135,6 +136,14 @@ void businessMethod(String tenantId) {
 | `folio.logging.request.level`                         | Specifies logging level for incoming requests                                                                                                                                                                         | `basic`       | `none, basic, headers, full` |
 | `folio.logging.feign.enabled`                         | Turn on logging for outgoing requests in feign clients                                                                                                                                                                | `true`        | `true or false`              |
 | `folio.logging.feign.level`                           | Specifies logging level for outgoing requests                                                                                                                                                                         | `basic`       | `none, basic, headers, full` |
+| `folio.kafka.tenant-filter.enabled`                   | Enables the shared `tenantAwareMessageFilter` bean. Can be set as `FOLIO_KAFKA_TENANT_FILTER_ENABLED`. The filter is disabled by default.                                                                              | `false`       | `true`                       |
+| `folio.kafka.tenant-filter.ignore-empty-batch`        | Signals Kafka listener containers to skip listener invocation when all records in a batch are filtered out.                                                                                                             | `true`        | `true`                       |
+| `folio.kafka.tenant-filter.tenant-disabled-strategy`  | Strategy used when the message tenant is not entitled to the current module.                                                                                                                                           | `SKIP`        | `SKIP`                       |
+| `folio.kafka.tenant-filter.all-tenants-disabled-strategy` | Strategy used when no tenants are entitled to the current module.                                                                                                                                                  | `FAIL`        | `SKIP`                       |
+
+When Kafka tenant filtering is enabled, `spring.application.name` and
+`spring.application.version` must be set. The filter uses these values to build the current module id
+as `<spring.application.name>-<spring.application.version>`.
 
 ## Database Connection Pool Settings
 
