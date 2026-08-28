@@ -28,10 +28,4 @@ public class KafkaTenantFilterProperties {
 
   /** Strategy applied when no tenants are entitled to the current module. */
   private DisabledTenantStrategy allTenantsDisabledStrategy = FAIL;
-
-  /**
-   * Creates Kafka tenant filter properties with default values.
-   */
-  public KafkaTenantFilterProperties() {
-  }
 }
