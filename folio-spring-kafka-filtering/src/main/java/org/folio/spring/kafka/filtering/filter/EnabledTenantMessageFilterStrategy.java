@@ -22,7 +22,7 @@ import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
  * @param <V> the Kafka record value type
  */
 @Log4j2
-public class EnabledTenantMessageFilter<K, V> implements RecordFilterStrategy<K, V> {
+public class EnabledTenantMessageFilterStrategy<K, V> implements RecordFilterStrategy<K, V> {
 
   private final String moduleId;
   private final TenantEntitlementService tenantEntitlementService;
@@ -39,7 +39,7 @@ public class EnabledTenantMessageFilter<K, V> implements RecordFilterStrategy<K,
    * @param tenantDisabledStrategy strategy when a message tenant is not entitled
    * @param allTenantsDisabledStrategy strategy when no tenants are entitled to the module
    */
-  public EnabledTenantMessageFilter(String moduleId, TenantEntitlementService tenantEntitlementService,
+  public EnabledTenantMessageFilterStrategy(String moduleId, TenantEntitlementService tenantEntitlementService,
     boolean ignoreEmptyBatch, DisabledTenantStrategy tenantDisabledStrategy,
     DisabledTenantStrategy allTenantsDisabledStrategy) {
     if (isBlank(moduleId)) {

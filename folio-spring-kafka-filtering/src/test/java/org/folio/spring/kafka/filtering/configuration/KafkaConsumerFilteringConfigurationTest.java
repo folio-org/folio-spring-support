@@ -10,7 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.kafka.filtering.entitlement.TenantEntitlementService;
-import org.folio.spring.kafka.filtering.filter.EnabledTenantMessageFilter;
+import org.folio.spring.kafka.filtering.filter.EnabledTenantMessageFilterStrategy;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -67,7 +67,7 @@ class KafkaConsumerFilteringConfigurationTest {
         assertThat(context).hasNotFailed();
         assertThat(context).hasBean("tenantAwareMessageFilter");
         assertThat(context).hasSingleBean(TenantEntitlementService.class);
-        assertThat(context.getBean("tenantAwareMessageFilter")).isInstanceOf(EnabledTenantMessageFilter.class);
+        assertThat(context.getBean("tenantAwareMessageFilter")).isInstanceOf(EnabledTenantMessageFilterStrategy.class);
       });
   }
 
