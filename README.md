@@ -14,6 +14,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
   * [Code structure](#code-structure)
   * [Execution Context](#execution-context)
   * [Properties](#properties)
+  * [Kafka Tenant Filtering](#kafka-tenant-filtering)
   * [Database Connection Pool Settings](#database-connection-pool-settings)
   * [CQL support](#cql-support)
   * [Logging](#logging)
@@ -136,15 +137,64 @@ void businessMethod(String tenantId) {
 | `folio.logging.request.level`                         | Specifies logging level for incoming requests                                                                                                                                                                         | `basic`       | `none, basic, headers, full` |
 | `folio.logging.feign.enabled`                         | Turn on logging for outgoing requests in feign clients                                                                                                                                                                | `true`        | `true or false`              |
 | `folio.logging.feign.level`                           | Specifies logging level for outgoing requests                                                                                                                                                                         | `basic`       | `none, basic, headers, full` |
-| `folio.kafka.tenant-filter.enabled`                   | Enables the shared `tenantAwareMessageFilter` bean. Can be set as `FOLIO_KAFKA_TENANT_FILTER_ENABLED`. The filter is disabled by default.                                                                              | `false`       | `true`                       |
-| `folio.kafka.tenant-filter.ignore-empty-batch`        | Signals Kafka listener containers to skip listener invocation when all records in a batch are filtered out.                                                                                                             | `true`        | `true`                       |
-| `folio.kafka.tenant-filter.tenant-disabled-strategy`  | Strategy used when the message tenant is not entitled to the current module.                                                                                                                                           | `SKIP`        | `SKIP`                       |
-| `folio.kafka.tenant-filter.all-tenants-disabled-strategy` | Strategy used when no tenants are entitled to the current module.                                                                                                                                                  | `FAIL`        | `SKIP`                       |
+
+## Kafka Tenant Filtering
+
+`folio-spring-kafka` provides a shared Spring Kafka `RecordFilterStrategy` bean named
+`tenantAwareMessageFilter`. The filter is disabled by default. When enabled, it allows a Kafka
+message to be processed only when the tenant is entitled to the module.
+
+### How filtering works
+
+When enabled, the filter:
+
+1. Reads the `x-okapi-tenant` value from Kafka record headers. The filter does not deserialize the message body.
+2. Check if the tenant is entitled to the module.
+3. If the tenant is entitled, pass the message to the module listener.
+4. Applies `tenant-disabled-strategy` when the tenant is not entitled to the current module.
+5. Applies `all-tenants-disabled-strategy` when no tenants are entitled to the current module.
+
+To use it, add `folio-spring-kafka` as a dependency and reference the shared filter from the
+listener:
+
+```java
+@KafkaListener(
+  topics = "...",
+  groupId = "...",
+  filter = "tenantAwareMessageFilter")
+```
+
+The filter can be enabled through application configuration or deployment environment variables:
+
+```yaml
+folio:
+  kafka:
+    tenant-filter:
+      enabled: true
+```
+
+| Property                                                    | Description                                                                                                   | Default | Example |
+| ----------------------------------------------------------- |---------------------------------------------------------------------------------------------------------------| ------- | ------- |
+| `folio.kafka.tenant-filter.enabled`                         | Enables the shared `tenantAwareMessageFilter` bean. Can be set as `FOLIO_KAFKA_TENANT_FILTER_ENABLED`.        | `false` | `true`  |
+| `folio.kafka.tenant-filter.ignore-empty-batch`              | Signals Kafka listener containers to skip listener invocation when all records in a batch are filtered out.   | `true`  | `true`  |
+| `folio.kafka.tenant-filter.tenant-disabled-strategy`        | Strategy used when the message tenant is not entitled to the current module.                                  | `SKIP`  | `SKIP`  |
+| `folio.kafka.tenant-filter.all-tenants-disabled-strategy`   | Strategy used when no tenants are entitled to the current module.                                             | `FAIL`  | `SKIP`  |
+
+The following strategy values are supported:
+
+| Value    | Behavior                                                                                                                              |
+| -------- |---------------------------------------------------------------------------------------------------------------------------------------|
+| `ACCEPT` | Accept the Kafka record and pass it to the module listener for normal processing.                                                     |
+| `SKIP`   | Filter out the Kafka record without invoking the listener. The offset will move forward as part of normal consumer commit processing. |
+| `FAIL`   | Throw an exception to fail listener processing. The offset is not committed for that record or batch, so the message can be retried.  |
 
 When Kafka tenant filtering is enabled, the `FolioModuleMetadata` bean must provide the current
 module version. The default metadata bean from `folio-spring-base` uses `spring.application.name`
 and `spring.application.version` to build the current module id as
 `<spring.application.name>-<spring.application.version>`.
+
+The `tenantAwareMessageFilter` bean is registered with `@ConditionalOnMissingBean`, so a module can
+provide its own bean with the same name when custom filtering behavior is required.
 
 ## Database Connection Pool Settings
 
