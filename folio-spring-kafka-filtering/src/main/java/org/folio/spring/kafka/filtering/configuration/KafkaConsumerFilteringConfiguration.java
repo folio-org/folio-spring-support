@@ -41,7 +41,7 @@ public final class KafkaConsumerFilteringConfiguration {
    * Configuration active when tenant filtering is enabled.
    */
   @Configuration(proxyBeanMethods = false)
-  @ConditionalOnProperty(prefix = KafkaTenantFilterProperties.PREFIX, name = "enabled", havingValue = "true")
+  @ConditionalOnProperty(prefix = KafkaTenantFilterProperties.CONFIG_PREFIX, name = "enabled", havingValue = "true")
   @ImportHttpServices(types = TenantEntitlementClient.class, group = ENTITLEMENT_CLIENT_GROUP)
   public static class EnabledTenantFilterConfiguration {
 
@@ -121,7 +121,7 @@ public final class KafkaConsumerFilteringConfiguration {
    * Configuration active when tenant filtering is disabled.
    */
   @Configuration(proxyBeanMethods = false)
-  @ConditionalOnProperty(prefix = KafkaTenantFilterProperties.PREFIX, name = "enabled", havingValue = "false",
+  @ConditionalOnProperty(prefix = KafkaTenantFilterProperties.CONFIG_PREFIX, name = "enabled", havingValue = "false",
     matchIfMissing = true)
   public static class DisabledTenantFilterConfiguration {
 
