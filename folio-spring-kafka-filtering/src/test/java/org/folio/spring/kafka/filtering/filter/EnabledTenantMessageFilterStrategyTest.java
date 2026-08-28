@@ -25,7 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class EnabledTenantMessageFilterTest {
+class EnabledTenantMessageFilterStrategyTest {
 
   private static final String MODULE_ID = "mod-foo-1.0.0";
   private static final String TENANT = "test-tenant";
@@ -45,7 +45,7 @@ class EnabledTenantMessageFilterTest {
   @ValueSource(strings = " ")
   void constructor_negative_blankModuleId(String blankModuleId) {
     assertThatThrownBy(
-      () -> new EnabledTenantMessageFilter<>(blankModuleId, tenantEntitlementService, false, SKIP, SKIP))
+      () -> new EnabledTenantMessageFilterStrategy<>(blankModuleId, tenantEntitlementService, false, SKIP, SKIP))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining(BLANK_MODULE_ID_MSG);
   }
@@ -53,14 +53,14 @@ class EnabledTenantMessageFilterTest {
   @Test
   void constructor_negative_nullTenantDisabledStrategy() {
     assertThatThrownBy(
-      () -> new EnabledTenantMessageFilter<>(MODULE_ID, tenantEntitlementService, false, null, SKIP))
+      () -> new EnabledTenantMessageFilterStrategy<>(MODULE_ID, tenantEntitlementService, false, null, SKIP))
       .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   void constructor_negative_nullAllTenantsDisabledStrategy() {
     assertThatThrownBy(
-      () -> new EnabledTenantMessageFilter<>(MODULE_ID, tenantEntitlementService, false, SKIP, null))
+      () -> new EnabledTenantMessageFilterStrategy<>(MODULE_ID, tenantEntitlementService, false, SKIP, null))
       .isInstanceOf(NullPointerException.class);
   }
 
@@ -186,9 +186,9 @@ class EnabledTenantMessageFilterTest {
     assertThat(filter.ignoreEmptyBatch()).isFalse();
   }
 
-  private EnabledTenantMessageFilter<String, Object> createFilter(
+  private EnabledTenantMessageFilterStrategy<String, Object> createFilter(
     boolean ignoreEmptyBatch, DisabledTenantStrategy tenantStrategy, DisabledTenantStrategy allTenantsStrategy) {
-    return new EnabledTenantMessageFilter<>(MODULE_ID, tenantEntitlementService,
+    return new EnabledTenantMessageFilterStrategy<>(MODULE_ID, tenantEntitlementService,
       ignoreEmptyBatch, tenantStrategy, allTenantsStrategy);
   }
 

@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.kafka.filtering.entitlement.TenantEntitlementClient;
 import org.folio.spring.kafka.filtering.entitlement.TenantEntitlementService;
-import org.folio.spring.kafka.filtering.filter.EnabledTenantMessageFilter;
+import org.folio.spring.kafka.filtering.filter.EnabledTenantMessageFilterStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -116,7 +116,7 @@ public class KafkaConsumerFilteringConfiguration {
       TenantEntitlementService tenantEntitlementService, KafkaTenantFilterProperties tenantFilterProperties) {
 
       log.info("Kafka tenant aware message filter enabled: tenantFilter = {}", tenantFilterProperties);
-      return new EnabledTenantMessageFilter<>(
+      return new EnabledTenantMessageFilterStrategy<>(
         tenantEntitlementService.getModuleId(),
         tenantEntitlementService,
         tenantFilterProperties.isIgnoreEmptyBatch(),
