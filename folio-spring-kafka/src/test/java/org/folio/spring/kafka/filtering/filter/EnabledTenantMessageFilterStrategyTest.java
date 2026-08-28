@@ -33,7 +33,8 @@ class EnabledTenantMessageFilterStrategyTest {
   private static final Set<String> ENABLED_TENANTS = Set.of(TENANT);
   private static final String BLANK_MODULE_ID_MSG = "Module ID must not be blank";
 
-  @Mock private TenantEntitlementService tenantEntitlementService;
+  @Mock
+  private TenantEntitlementService tenantEntitlementService;
 
   @AfterEach
   void tearDown() {
@@ -66,41 +67,41 @@ class EnabledTenantMessageFilterStrategyTest {
 
   @Test
   void filter_positive_enabledTenant_returnsAccepted() {
-    var filter = createFilter(false, SKIP, SKIP);
+    var filterStrategy = createFilterStrategy(false, SKIP, SKIP);
     when(tenantEntitlementService.getEnabledTenants()).thenReturn(ENABLED_TENANTS);
 
-    var result = filter.filter(consumerRecord("key-1", TENANT));
+    var result = filterStrategy.filter(consumerRecord("key-1", TENANT));
 
     assertThat(result).isFalse();
   }
 
   @Test
   void filter_positive_disabledTenant_acceptStrategy_returnsAccepted() {
-    var filter = createFilter(false, ACCEPT, SKIP);
+    var filterStrategy = createFilterStrategy(false, ACCEPT, SKIP);
     when(tenantEntitlementService.getEnabledTenants()).thenReturn(ENABLED_TENANTS);
 
-    var result = filter.filter(consumerRecord("key-1", OTHER_TENANT));
+    var result = filterStrategy.filter(consumerRecord("key-1", OTHER_TENANT));
 
     assertThat(result).isFalse();
   }
 
   @Test
   void filter_positive_disabledTenant_skipStrategy_returnsFiltered() {
-    var filter = createFilter(false, SKIP, ACCEPT);
+    var filterStrategy = createFilterStrategy(false, SKIP, ACCEPT);
     when(tenantEntitlementService.getEnabledTenants()).thenReturn(ENABLED_TENANTS);
 
-    var result = filter.filter(consumerRecord("key-1", OTHER_TENANT));
+    var result = filterStrategy.filter(consumerRecord("key-1", OTHER_TENANT));
 
     assertThat(result).isTrue();
   }
 
   @Test
   void filter_negative_disabledTenant_failStrategy_throwsTenantIsDisabledException() {
-    var filter = createFilter(false, FAIL, SKIP);
+    var filterStrategy = createFilterStrategy(false, FAIL, SKIP);
     when(tenantEntitlementService.getEnabledTenants()).thenReturn(ENABLED_TENANTS);
     var rec = consumerRecord("key-1", OTHER_TENANT);
 
-    assertThatThrownBy(() -> filter.filter(rec))
+    assertThatThrownBy(() -> filterStrategy.filter(rec))
       .isInstanceOf(TenantIsDisabledException.class)
       .hasMessageContaining(OTHER_TENANT)
       .hasMessageContaining(MODULE_ID);
@@ -108,31 +109,31 @@ class EnabledTenantMessageFilterStrategyTest {
 
   @Test
   void filter_positive_allTenantsDisabled_acceptStrategy_returnsAccepted() {
-    var filter = createFilter(false, SKIP, ACCEPT);
+    var filterStrategy = createFilterStrategy(false, SKIP, ACCEPT);
     when(tenantEntitlementService.getEnabledTenants()).thenReturn(Set.of());
 
-    var result = filter.filter(consumerRecord("key-1", TENANT));
+    var result = filterStrategy.filter(consumerRecord("key-1", TENANT));
 
     assertThat(result).isFalse();
   }
 
   @Test
   void filter_positive_allTenantsDisabled_skipStrategy_returnsFiltered() {
-    var filter = createFilter(false, ACCEPT, SKIP);
+    var filterStrategy = createFilterStrategy(false, ACCEPT, SKIP);
     when(tenantEntitlementService.getEnabledTenants()).thenReturn(Set.of());
 
-    var result = filter.filter(consumerRecord("key-1", TENANT));
+    var result = filterStrategy.filter(consumerRecord("key-1", TENANT));
 
     assertThat(result).isTrue();
   }
 
   @Test
   void filter_negative_allTenantsDisabled_failStrategy_throwsTenantsAreDisabledException() {
-    var filter = createFilter(false, SKIP, FAIL);
+    var filterStrategy = createFilterStrategy(false, SKIP, FAIL);
     when(tenantEntitlementService.getEnabledTenants()).thenReturn(Set.of());
     var rec = consumerRecord("key-1", TENANT);
 
-    assertThatThrownBy(() -> filter.filter(rec))
+    assertThatThrownBy(() -> filterStrategy.filter(rec))
       .isInstanceOf(TenantsAreDisabledException.class)
       .hasMessageContaining(MODULE_ID);
   }
@@ -141,55 +142,57 @@ class EnabledTenantMessageFilterStrategyTest {
   @NullAndEmptySource
   @ValueSource(strings = " ")
   void filter_positive_missingOrBlankTenantHeader_returnsAccepted(String blankTenant) {
-    var filter = createFilter(false, SKIP, SKIP);
+    var filterStrategy = createFilterStrategy(false, SKIP, SKIP);
 
-    var result = filter.filter(consumerRecord("key-1", blankTenant));
+    var result = filterStrategy.filter(consumerRecord("key-1", blankTenant));
 
     assertThat(result).isFalse();
   }
 
   @Test
   void filter_positive_multipleTenantHeaders_usesFirstTenantHeader() {
-    var filter = createFilter(false, SKIP, SKIP);
+    var filterStrategy = createFilterStrategy(false, SKIP, SKIP);
     var kafkaRecord = consumerRecord("key-1", TENANT);
     kafkaRecord.headers().add(XOkapiHeaders.TENANT, OTHER_TENANT.getBytes(UTF_8));
     when(tenantEntitlementService.getEnabledTenants()).thenReturn(ENABLED_TENANTS);
 
-    var result = filter.filter(kafkaRecord);
+    var result = filterStrategy.filter(kafkaRecord);
 
     assertThat(result).isFalse();
   }
 
   @Test
   void filter_positive_multipleTenantHeaders_usesFirstNonBlankTenantHeader() {
-    var filter = createFilter(false, SKIP, SKIP);
+    var filterStrategy = createFilterStrategy(false, SKIP, SKIP);
     var kafkaRecord = consumerRecord("key-1", " ");
     kafkaRecord.headers().add(XOkapiHeaders.TENANT, TENANT.getBytes(UTF_8));
     when(tenantEntitlementService.getEnabledTenants()).thenReturn(ENABLED_TENANTS);
 
-    var result = filter.filter(kafkaRecord);
+    var result = filterStrategy.filter(kafkaRecord);
 
     assertThat(result).isFalse();
   }
 
   @Test
   void ignoreEmptyBatch_positive_returnsTrue() {
-    var filter = createFilter(true, SKIP, SKIP);
+    var filterStrategy = createFilterStrategy(true, SKIP, SKIP);
 
-    assertThat(filter.ignoreEmptyBatch()).isTrue();
+    assertThat(filterStrategy.ignoreEmptyBatch()).isTrue();
   }
 
   @Test
   void ignoreEmptyBatch_positive_returnsFalse() {
-    var filter = createFilter(false, SKIP, SKIP);
+    var filterStrategy = createFilterStrategy(false, SKIP, SKIP);
 
-    assertThat(filter.ignoreEmptyBatch()).isFalse();
+    assertThat(filterStrategy.ignoreEmptyBatch()).isFalse();
   }
 
-  private EnabledTenantMessageFilterStrategy<String, Object> createFilter(
-    boolean ignoreEmptyBatch, DisabledTenantStrategy tenantStrategy, DisabledTenantStrategy allTenantsStrategy) {
+  private EnabledTenantMessageFilterStrategy<String, Object> createFilterStrategy(
+    boolean ignoreEmptyBatch,
+    DisabledTenantStrategy disabledTenantStrategy,
+    DisabledTenantStrategy allTenantsStrategy) {
     return new EnabledTenantMessageFilterStrategy<>(MODULE_ID, tenantEntitlementService,
-      ignoreEmptyBatch, tenantStrategy, allTenantsStrategy);
+      ignoreEmptyBatch, disabledTenantStrategy, allTenantsStrategy);
   }
 
   private static ConsumerRecord<String, Object> consumerRecord(String key, String tenant) {

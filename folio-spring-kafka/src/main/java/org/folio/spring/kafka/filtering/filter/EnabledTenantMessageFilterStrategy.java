@@ -88,15 +88,16 @@ public class EnabledTenantMessageFilterStrategy<K, V> implements RecordFilterStr
     return Optional.empty();
   }
 
-  private boolean filterByEnabledTenants(Set<String> enabledTenants, String tenant) {
+  private boolean filterByEnabledTenants(Set<String> enabledTenants, String currentTenant) {
     if (enabledTenants == null || enabledTenants.isEmpty()) {
       log.warn("No tenants are enabled for the module. Applying 'no enabled tenants' strategy: {}",
         allTenantsDisabledStrategy);
       return applyStrategy(allTenantsDisabledStrategy, () -> TenantsAreDisabledException.of(moduleId));
     }
 
-    var notEnabled = !enabledTenants.contains(tenant);
-    return notEnabled && applyStrategy(tenantDisabledStrategy, () -> TenantIsDisabledException.of(tenant, moduleId));
+    var notEnabled = !enabledTenants.contains(currentTenant);
+    return notEnabled && applyStrategy(tenantDisabledStrategy,
+      () -> TenantIsDisabledException.of(currentTenant, moduleId));
   }
 
   @Override

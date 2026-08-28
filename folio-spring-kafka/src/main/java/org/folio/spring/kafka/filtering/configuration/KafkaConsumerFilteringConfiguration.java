@@ -60,14 +60,16 @@ public final class KafkaConsumerFilteringConfiguration {
       @Qualifier("loggingInterceptor") @Autowired(required = false) ClientHttpRequestInterceptor loggingInterceptor) {
 
       return groups -> groups.filterByName(ENTITLEMENT_CLIENT_GROUP).forEachClient((group, builder) -> {
-        builder.baseUrl(okapiUrl)
+        builder
+          .baseUrl(okapiUrl)
           .configureMessageConverters(converters ->
             converters
               .addCustomConverter(new JacksonJsonHttpMessageConverter(jsonMapper))
               .addCustomConverter(new StringHttpMessageConverter()));
 
         if (loggingInterceptor != null) {
-          builder.bufferContent((uri, httpMethod) -> true)
+          builder
+            .bufferContent((uri, httpMethod) -> true)
             .requestInterceptor(loggingInterceptor);
         }
 

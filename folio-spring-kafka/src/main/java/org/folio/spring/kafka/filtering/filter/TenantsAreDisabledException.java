@@ -2,9 +2,12 @@ package org.folio.spring.kafka.filtering.filter;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import lombok.Getter;
+
 /**
  * Thrown when no tenants are entitled to receive messages for the current module.
  */
+@Getter
 public final class TenantsAreDisabledException extends RuntimeException {
 
   private static final String DEFAULT_MESSAGE_FORMAT = "No tenants are enabled for the module: moduleId = %s";
@@ -29,14 +32,5 @@ public final class TenantsAreDisabledException extends RuntimeException {
     }
 
     return new TenantsAreDisabledException(moduleId);
-  }
-
-  /**
-   * Returns the current module id.
-   *
-   * @return module id
-   */
-  public String getModuleId() {
-    return moduleId;
   }
 }
