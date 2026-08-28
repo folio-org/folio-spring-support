@@ -35,24 +35,12 @@ public class KafkaConsumerFilteringConfiguration {
   private static final String ENTITLEMENT_CLIENT_GROUP = "kafka-filter-entitlement-client";
 
   /**
-   * Creates Kafka consumer filtering auto-configuration.
-   */
-  public KafkaConsumerFilteringConfiguration() {
-  }
-
-  /**
    * Configuration active when tenant filtering is enabled.
    */
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnProperty(prefix = KafkaTenantFilterProperties.PREFIX, name = "enabled", havingValue = "true")
   @ImportHttpServices(types = TenantEntitlementClient.class, group = ENTITLEMENT_CLIENT_GROUP)
   public static class EnabledTenantFilterConfiguration {
-
-    /**
-     * Creates enabled tenant filter configuration.
-     */
-    public EnabledTenantFilterConfiguration() {
-    }
 
     /**
      * Configures the HTTP client used to resolve entitled tenants.
@@ -133,12 +121,6 @@ public class KafkaConsumerFilteringConfiguration {
   @ConditionalOnProperty(prefix = KafkaTenantFilterProperties.PREFIX, name = "enabled", havingValue = "false",
     matchIfMissing = true)
   public static class DisabledTenantFilterConfiguration {
-
-    /**
-     * Creates disabled tenant filter configuration.
-     */
-    public DisabledTenantFilterConfiguration() {
-    }
 
     /**
      * Creates a no-op Kafka record filter.
