@@ -94,9 +94,9 @@ class KafkaConsumerFilteringConfigurationTest {
   }
 
   private static ConsumerRecord<String, Object> consumerRecord() {
-    var record = new ConsumerRecord<>("test-topic", 0, 0L, "key-1", new Object());
-    record.headers().add(XOkapiHeaders.TENANT, "tenant-1".getBytes(UTF_8));
-    return record;
+    var kafkaRecord = new ConsumerRecord<>("test-topic", 0, 0L, "key-1", new Object());
+    kafkaRecord.headers().add(XOkapiHeaders.TENANT, "tenant-1".getBytes(UTF_8));
+    return kafkaRecord;
   }
 
   private static FolioModuleMetadata folioModuleMetadata(String moduleName, String moduleVersion) {

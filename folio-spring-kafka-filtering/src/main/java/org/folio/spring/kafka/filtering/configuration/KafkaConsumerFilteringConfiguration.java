@@ -30,9 +30,12 @@ import tools.jackson.databind.json.JsonMapper;
 @Log4j2
 @AutoConfiguration
 @EnableConfigurationProperties(KafkaTenantFilterProperties.class)
-public class KafkaConsumerFilteringConfiguration {
+public final class KafkaConsumerFilteringConfiguration {
 
   private static final String ENTITLEMENT_CLIENT_GROUP = "kafka-filter-entitlement-client";
+
+  private KafkaConsumerFilteringConfiguration() {
+  }
 
   /**
    * Configuration active when tenant filtering is enabled.

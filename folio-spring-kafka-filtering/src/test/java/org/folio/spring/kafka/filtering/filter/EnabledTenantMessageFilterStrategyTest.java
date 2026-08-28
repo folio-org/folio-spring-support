@@ -151,11 +151,11 @@ class EnabledTenantMessageFilterStrategyTest {
   @Test
   void filter_positive_multipleTenantHeaders_usesFirstTenantHeader() {
     var filter = createFilter(false, SKIP, SKIP);
-    var record = consumerRecord("key-1", TENANT);
-    record.headers().add(XOkapiHeaders.TENANT, OTHER_TENANT.getBytes(UTF_8));
+    var kafkaRecord = consumerRecord("key-1", TENANT);
+    kafkaRecord.headers().add(XOkapiHeaders.TENANT, OTHER_TENANT.getBytes(UTF_8));
     when(tenantEntitlementService.getEnabledTenants()).thenReturn(ENABLED_TENANTS);
 
-    var result = filter.filter(record);
+    var result = filter.filter(kafkaRecord);
 
     assertThat(result).isFalse();
   }
@@ -163,11 +163,11 @@ class EnabledTenantMessageFilterStrategyTest {
   @Test
   void filter_positive_multipleTenantHeaders_usesFirstNonBlankTenantHeader() {
     var filter = createFilter(false, SKIP, SKIP);
-    var record = consumerRecord("key-1", " ");
-    record.headers().add(XOkapiHeaders.TENANT, TENANT.getBytes(UTF_8));
+    var kafkaRecord = consumerRecord("key-1", " ");
+    kafkaRecord.headers().add(XOkapiHeaders.TENANT, TENANT.getBytes(UTF_8));
     when(tenantEntitlementService.getEnabledTenants()).thenReturn(ENABLED_TENANTS);
 
-    var result = filter.filter(record);
+    var result = filter.filter(kafkaRecord);
 
     assertThat(result).isFalse();
   }
@@ -193,12 +193,12 @@ class EnabledTenantMessageFilterStrategyTest {
   }
 
   private static ConsumerRecord<String, Object> consumerRecord(String key, String tenant) {
-    var record = new ConsumerRecord<>("test-topic", 0, 0L, key, new Object());
+    var kafkaRecord = new ConsumerRecord<>("test-topic", 0, 0L, key, new Object());
 
     if (tenant != null) {
-      record.headers().add(XOkapiHeaders.TENANT, tenant.getBytes(UTF_8));
+      kafkaRecord.headers().add(XOkapiHeaders.TENANT, tenant.getBytes(UTF_8));
     }
 
-    return record;
+    return kafkaRecord;
   }
 }
