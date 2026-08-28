@@ -40,6 +40,13 @@ class TenantEntitlementServiceTest {
   }
 
   @Test
+  void getModuleId_positive_returnsModuleId() {
+    var service = new TenantEntitlementService(MODULE_ID, tenantEntitlementClient);
+
+    assertThat(service.getModuleId()).isEqualTo(MODULE_ID);
+  }
+
+  @Test
   void getEnabledTenants_positive_returnsTenants() {
     var service = new TenantEntitlementService(MODULE_ID, tenantEntitlementClient);
     when(tenantEntitlementClient.lookupTenantsByModuleId(MODULE_ID)).thenReturn(ENABLED_TENANTS);

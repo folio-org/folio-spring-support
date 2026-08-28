@@ -4,10 +4,18 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.Optional;
+import java.util.Set;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.integration.XOkapiHeaders;
+import org.folio.spring.kafka.filtering.entitlement.TenantEntitlementService;
+import org.folio.spring.kafka.filtering.filter.EnabledTenantMessageFilter;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
@@ -33,44 +41,55 @@ class KafkaConsumerFilteringConfigurationTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void disabledTenantMessageFilter_positive_registeredWhenPropertyIsFalse() {
     contextRunner
       .withPropertyValues("folio.kafka.tenant-filter.enabled=false")
-      .run(context -> assertThat(context).hasBean("tenantAwareMessageFilter"));
+      .run(context -> {
+        assertThat(context).hasBean("tenantAwareMessageFilter");
+
+        RecordFilterStrategy<String, Object> filter = context.getBean("tenantAwareMessageFilter",
+          RecordFilterStrategy.class);
+
+        assertThat(filter.filter(consumerRecord())).isFalse();
+      });
   }
 
   @Test
   void enabledTenantMessageFilter_positive_registeredWhenPropertyIsTrue() {
     contextRunner
+      .withBean(FolioModuleMetadata.class, () -> folioModuleMetadata("mod-foo", "1.2.3"))
       .withBean(JsonMapper.class, JsonMapper::new)
       .withPropertyValues(
         "folio.kafka.tenant-filter.enabled=true",
-        "okapi.url=http://localhost:9130",
-        "spring.application.name=mod-foo",
-        "spring.application.version=1.2.3")
+        "okapi.url=http://localhost:9130")
       .run(context -> {
         assertThat(context).hasNotFailed();
         assertThat(context).hasBean("tenantAwareMessageFilter");
-        assertThat(context.getBean("kafkaTenantFilterModuleId")).isEqualTo("mod-foo-1.2.3");
+        assertThat(context).hasSingleBean(TenantEntitlementService.class);
+        assertThat(context.getBean("tenantAwareMessageFilter")).isInstanceOf(EnabledTenantMessageFilter.class);
       });
   }
 
   @Test
-  void kafkaTenantFilterModuleId_positive_usesSpringApplicationNameAndVersion() {
+  void tenantEntitlementService_positive_usesFolioModuleMetadataModuleId() {
     var configuration = new KafkaConsumerFilteringConfiguration.EnabledTenantFilterConfiguration();
 
-    var moduleId = configuration.kafkaTenantFilterModuleId("mod-foo", "1.2.3");
+    var service = configuration.tenantEntitlementService(
+      folioModuleMetadata("mod-foo", "1.2.3"), moduleId -> Set.of());
 
-    assertThat(moduleId).isEqualTo("mod-foo-1.2.3");
+    assertThat(service.getModuleId()).isEqualTo("mod-foo-1.2.3");
   }
 
-  @Test
-  void kafkaTenantFilterModuleId_negative_failsWhenVersionIsMissing() {
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = " ")
+  void tenantEntitlementService_negative_failsWhenVersionIsMissing(String moduleVersion) {
     var configuration = new KafkaConsumerFilteringConfiguration.EnabledTenantFilterConfiguration();
 
-    assertThatThrownBy(() -> configuration.kafkaTenantFilterModuleId("mod-foo", ""))
+    assertThatThrownBy(() -> configuration.tenantEntitlementService(
+      folioModuleMetadata("mod-foo", moduleVersion), moduleId -> Set.of()))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("spring.application.name")
       .hasMessageContaining("spring.application.version");
   }
 
@@ -78,5 +97,24 @@ class KafkaConsumerFilteringConfigurationTest {
     var record = new ConsumerRecord<>("test-topic", 0, 0L, "key-1", new Object());
     record.headers().add(XOkapiHeaders.TENANT, "tenant-1".getBytes(UTF_8));
     return record;
+  }
+
+  private static FolioModuleMetadata folioModuleMetadata(String moduleName, String moduleVersion) {
+    return new FolioModuleMetadata() {
+      @Override
+      public String getModuleName() {
+        return moduleName;
+      }
+
+      @Override
+      public Optional<String> getModuleVersion() {
+        return Optional.ofNullable(moduleVersion);
+      }
+
+      @Override
+      public String getDBSchemaName(String tenantId) {
+        return tenantId + "_schema";
+      }
+    };
   }
 }
