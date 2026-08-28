@@ -141,9 +141,10 @@ void businessMethod(String tenantId) {
 | `folio.kafka.tenant-filter.tenant-disabled-strategy`  | Strategy used when the message tenant is not entitled to the current module.                                                                                                                                           | `SKIP`        | `SKIP`                       |
 | `folio.kafka.tenant-filter.all-tenants-disabled-strategy` | Strategy used when no tenants are entitled to the current module.                                                                                                                                                  | `FAIL`        | `SKIP`                       |
 
-When Kafka tenant filtering is enabled, `spring.application.name` and
-`spring.application.version` must be set. The filter uses these values to build the current module id
-as `<spring.application.name>-<spring.application.version>`.
+When Kafka tenant filtering is enabled, the `FolioModuleMetadata` bean must provide the current
+module version. The default metadata bean from `folio-spring-base` uses `spring.application.name`
+and `spring.application.version` to build the current module id as
+`<spring.application.name>-<spring.application.version>`.
 
 ## Database Connection Pool Settings
 

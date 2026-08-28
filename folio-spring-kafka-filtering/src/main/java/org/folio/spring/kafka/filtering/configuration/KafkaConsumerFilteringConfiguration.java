@@ -1,9 +1,9 @@
 package org.folio.spring.kafka.filtering.configuration;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
+import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.kafka.filtering.entitlement.TenantEntitlementClient;
 import org.folio.spring.kafka.filtering.entitlement.TenantEntitlementService;
 import org.folio.spring.kafka.filtering.filter.EnabledTenantMessageFilter;
@@ -85,41 +85,25 @@ public class KafkaConsumerFilteringConfiguration {
     }
 
     /**
-     * Builds the current module id from Spring application metadata.
-     *
-     * @param applicationName Spring application name
-     * @param applicationVersion Spring application version
-     * @return module id in {@code <name>-<version>} format
-     */
-    @Bean("kafkaTenantFilterModuleId")
-    public String kafkaTenantFilterModuleId(@Value("${spring.application.name:}") String applicationName,
-      @Value("${spring.application.version:}") String applicationVersion) {
-
-      if (isBlank(applicationName) || isBlank(applicationVersion)) {
-        throw new IllegalStateException("Kafka tenant filtering requires spring.application.name "
-          + "and spring.application.version");
-      }
-
-      return applicationName + "-" + applicationVersion;
-    }
-
-    /**
      * Creates the service used to resolve tenants entitled to the current module.
      *
-     * @param moduleId current module id
+     * @param folioModuleMetadata current module metadata
      * @param tenantEntitlementClient HTTP client for tenant entitlement lookups
      * @return tenant entitlement service
      */
     @Bean
-    public TenantEntitlementService tenantEntitlementService(@Qualifier("kafkaTenantFilterModuleId") String moduleId,
+    public TenantEntitlementService tenantEntitlementService(FolioModuleMetadata folioModuleMetadata,
       TenantEntitlementClient tenantEntitlementClient) {
-      return new TenantEntitlementService(moduleId, tenantEntitlementClient);
+      if (folioModuleMetadata.getModuleVersion().filter(StringUtils::isNotBlank).isEmpty()) {
+        throw new IllegalStateException("Kafka tenant filtering requires spring.application.version");
+      }
+
+      return new TenantEntitlementService(folioModuleMetadata.getModuleId(), tenantEntitlementClient);
     }
 
     /**
      * Creates the tenant-aware Kafka record filter.
      *
-     * @param moduleId current module id
      * @param tenantEntitlementService service for tenant entitlement lookups
      * @param tenantFilterProperties filter settings
      * @param <K> Kafka record key type
@@ -129,12 +113,11 @@ public class KafkaConsumerFilteringConfiguration {
     @Bean("tenantAwareMessageFilter")
     @ConditionalOnMissingBean(name = "tenantAwareMessageFilter")
     public <K, V> RecordFilterStrategy<K, V> enabledTenantMessageFilter(
-      @Qualifier("kafkaTenantFilterModuleId") String moduleId,
       TenantEntitlementService tenantEntitlementService, KafkaTenantFilterProperties tenantFilterProperties) {
 
       log.info("Kafka tenant aware message filter enabled: tenantFilter = {}", tenantFilterProperties);
       return new EnabledTenantMessageFilter<>(
-        moduleId,
+        tenantEntitlementService.getModuleId(),
         tenantEntitlementService,
         tenantFilterProperties.isIgnoreEmptyBatch(),
         tenantFilterProperties.getTenantDisabledStrategy(),
