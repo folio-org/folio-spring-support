@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.integration.XOkapiHeaders;
+import org.folio.spring.kafka.filtering.entitlement.TenantEntitlementClient;
 import org.folio.spring.kafka.filtering.entitlement.TenantEntitlementService;
 import org.folio.spring.kafka.filtering.filter.EnabledTenantMessageFilterStrategy;
 import org.folio.spring.testing.type.UnitTest;
@@ -86,9 +87,10 @@ class KafkaConsumerFilteringConfigurationTest {
   @ValueSource(strings = " ")
   void tenantEntitlementService_negative_failsWhenVersionIsMissing(String moduleVersion) {
     var configuration = new KafkaConsumerFilteringConfiguration.EnabledTenantFilterConfiguration();
+    var metadata = folioModuleMetadata("mod-foo", moduleVersion);
+    TenantEntitlementClient tenantEntitlementClient = moduleId -> Set.of();
 
-    assertThatThrownBy(() -> configuration.tenantEntitlementService(
-      folioModuleMetadata("mod-foo", moduleVersion), moduleId -> Set.of()))
+    assertThatThrownBy(() -> configuration.tenantEntitlementService(metadata, tenantEntitlementClient))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("spring.application.version");
   }

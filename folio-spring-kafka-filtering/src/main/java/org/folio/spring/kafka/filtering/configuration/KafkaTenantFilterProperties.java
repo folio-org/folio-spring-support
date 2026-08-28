@@ -11,11 +11,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Property model for tenant-aware Kafka filtering.
  */
 @Data
-@ConfigurationProperties(KafkaTenantFilterProperties.PREFIX)
+@ConfigurationProperties(KafkaTenantFilterProperties.CONFIG_PREFIX)
 public class KafkaTenantFilterProperties {
 
   /** Property prefix for Kafka tenant filtering configuration. */
-  public static final String PREFIX = "folio.kafka.tenant-filter";
+  public static final String CONFIG_PREFIX = "folio.kafka.tenant-filter";
 
   /** Whether tenant filtering is enabled. */
   private boolean enabled = false;
