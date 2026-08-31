@@ -149,7 +149,7 @@ message to be processed only when the tenant is entitled to the module.
 When enabled, the filter:
 
 1. Reads the `x-okapi-tenant` value from Kafka record headers. The filter does not deserialize the message body.
-2. Check if the tenant is entitled to the module.
+2. Checks if the tenant is entitled to the module.
 3. If the tenant is entitled, pass the message to the module listener.
 4. Applies `tenant-disabled-strategy` when the tenant is not entitled to the current module.
 5. Applies `all-tenants-disabled-strategy` when no tenants are entitled to the current module.

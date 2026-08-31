@@ -72,8 +72,6 @@ public final class KafkaConsumerFilteringConfiguration {
             .bufferContent((uri, httpMethod) -> true)
             .requestInterceptor(loggingInterceptor);
         }
-
-        builder.build();
       });
     }
 

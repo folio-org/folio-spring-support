@@ -83,7 +83,7 @@ public class EnabledTenantMessageFilterStrategy<K, V> implements RecordFilterStr
       }
     }
 
-    log.warn("Received message with blank {} header: messageKey = {}. Filter won't be applied.",
+    log.warn("Received message with missing or blank {} header: messageKey = {}. Filter won't be applied.",
       XOkapiHeaders.TENANT, consumerRecord.key());
     return Optional.empty();
   }

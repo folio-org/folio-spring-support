@@ -41,6 +41,6 @@ public class TenantEntitlementService {
   public Set<String> getEnabledTenants() {
     var result = tenantEntitlementClient.lookupTenantsByModuleId(moduleId);
     log.debug("Tenants entitled for module: {}", result);
-    return result == null ? Set.of() : result;
+    return result == null ? Set.of() : Set.copyOf(result);
   }
 }
