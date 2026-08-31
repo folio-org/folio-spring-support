@@ -188,10 +188,21 @@ The following strategy values are supported:
 | `SKIP`   | Filter out the Kafka record without invoking the listener. The offset will move forward as part of normal consumer commit processing. |
 | `FAIL`   | Throw an exception to fail listener processing. The offset is not committed for that record or batch, so the message can be retried.  |
 
-When Kafka tenant filtering is enabled, the `FolioModuleMetadata` bean must provide the current
-module version. The default metadata bean from `folio-spring-base` uses `spring.application.name`
+When Kafka tenant filtering is enabled, the `FolioModuleMetadata` bean must provide the
+module name and version. The default metadata bean from `folio-spring-base` uses `spring.application.name`
 and `spring.application.version` to build the current module id as
 `<spring.application.name>-<spring.application.version>`.
+
+Modules can expose these values from Maven build metadata as follows:
+
+```yaml
+spring:
+  application:
+    name: @project.artifactId@
+    version: @project.version@
+```
+With Maven resource filtering enabled, @project.artifactId@ and @project.version@ are replaced
+at build time. For example, this produces a module id such as `mod-search-6.0.8`.
 
 The `tenantAwareMessageFilter` bean is registered with `@ConditionalOnMissingBean`, so a module can
 provide its own bean with the same name when custom filtering behavior is required.
