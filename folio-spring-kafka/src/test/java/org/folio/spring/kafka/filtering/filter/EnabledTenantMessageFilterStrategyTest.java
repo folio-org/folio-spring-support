@@ -76,6 +76,16 @@ class EnabledTenantMessageFilterStrategyTest {
   }
 
   @Test
+  void filter_positive_enabledTenantWithWhitespace_returnsAccepted() {
+    var filterStrategy = createFilterStrategy(false, SKIP, SKIP);
+    when(tenantEntitlementService.getEnabledTenants()).thenReturn(ENABLED_TENANTS);
+
+    var result = filterStrategy.filter(consumerRecord("key-1", " " + TENANT + " "));
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
   void filter_positive_disabledTenant_acceptStrategy_returnsAccepted() {
     var filterStrategy = createFilterStrategy(false, ACCEPT, SKIP);
     when(tenantEntitlementService.getEnabledTenants()).thenReturn(ENABLED_TENANTS);

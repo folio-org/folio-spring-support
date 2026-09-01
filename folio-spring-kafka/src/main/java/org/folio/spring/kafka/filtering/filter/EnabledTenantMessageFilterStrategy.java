@@ -2,6 +2,7 @@ package org.folio.spring.kafka.filtering.filter;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -76,8 +77,8 @@ public class EnabledTenantMessageFilterStrategy<K, V> implements RecordFilterStr
   private Optional<String> resolveTenant(ConsumerRecord<K, V> consumerRecord) {
     for (Header header : consumerRecord.headers()) {
       if (XOkapiHeaders.TENANT.equalsIgnoreCase(header.key())) {
-        var tenant = headerValue(header);
-        if (!isBlank(tenant)) {
+        var tenant = trimToNull(headerValue(header));
+        if (tenant != null) {
           return Optional.of(tenant);
         }
       }
