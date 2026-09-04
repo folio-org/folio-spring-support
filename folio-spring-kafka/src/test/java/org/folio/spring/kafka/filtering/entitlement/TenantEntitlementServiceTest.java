@@ -87,6 +87,24 @@ class TenantEntitlementServiceTest {
   }
 
   @Test
+  void refresh_positive_doesNotOverwriteEventAppliedWhileFetchWasInFlight() {
+    var service = new TenantEntitlementService(MODULE_ID, tenantEntitlementClient);
+    when(tenantEntitlementClient.lookupTenantsByModuleId(MODULE_ID))
+      .thenReturn(Set.of("tenant-1"))
+      .thenAnswer(invocation -> {
+        service.applyEntitlementEvent(new EntitlementEvent(EntitlementEvent.Type.ENTITLE, MODULE_ID, "tenant-2"));
+        return Set.of("tenant-1");
+      });
+    service.getEnabledTenants();
+
+    var refreshed = service.refresh();
+
+    assertThat(refreshed).containsExactlyInAnyOrder("tenant-1", "tenant-2");
+    assertThat(service.getEnabledTenants()).containsExactlyInAnyOrder("tenant-1", "tenant-2");
+    verify(tenantEntitlementClient, times(2)).lookupTenantsByModuleId(MODULE_ID);
+  }
+
+  @Test
   void applyEntitlementEvent_positive_addsTenantOnEntitle() {
     var service = new TenantEntitlementService(MODULE_ID, tenantEntitlementClient);
     when(tenantEntitlementClient.lookupTenantsByModuleId(MODULE_ID)).thenReturn(Set.of("tenant-1"));
