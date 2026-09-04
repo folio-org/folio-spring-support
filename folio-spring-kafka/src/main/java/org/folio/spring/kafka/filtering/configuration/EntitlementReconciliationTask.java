@@ -18,8 +18,8 @@ public class EntitlementReconciliationTask {
   /**
    * Re-fetches the entitled-tenants set, replacing whatever is currently cached.
    */
-  @Scheduled(fixedDelayString = "${" + KafkaTenantFilterProperties.CONFIG_PREFIX + ".reconciliation-interval:15m}",
-    initialDelayString = "${" + KafkaTenantFilterProperties.CONFIG_PREFIX + ".reconciliation-interval:15m}")
+  @Scheduled(fixedDelayString = "${" + KafkaTenantFilterProperties.CONFIG_PREFIX + ".entitlement-refresh-interval:15m}",
+    initialDelayString = "${" + KafkaTenantFilterProperties.CONFIG_PREFIX + ".entitlement-refresh-interval:15m}")
   public void reconcile() {
     log.debug("Reconciling tenant entitlement cache: moduleId = {}", tenantEntitlementService.getModuleId());
     tenantEntitlementService.refresh();
