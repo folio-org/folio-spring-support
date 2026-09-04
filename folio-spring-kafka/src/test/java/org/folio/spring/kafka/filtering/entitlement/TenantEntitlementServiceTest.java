@@ -2,6 +2,8 @@ package org.folio.spring.kafka.filtering.entitlement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -47,13 +49,16 @@ class TenantEntitlementServiceTest {
   }
 
   @Test
-  void getEnabledTenants_positive_returnsTenants() {
+  void getEnabledTenants_positive_fetchesOnceAndCachesResult() {
     var service = new TenantEntitlementService(MODULE_ID, tenantEntitlementClient);
     when(tenantEntitlementClient.lookupTenantsByModuleId(MODULE_ID)).thenReturn(ENABLED_TENANTS);
 
-    var result = service.getEnabledTenants();
+    var first = service.getEnabledTenants();
+    var second = service.getEnabledTenants();
 
-    assertThat(result).isEqualTo(ENABLED_TENANTS);
+    assertThat(first).isEqualTo(ENABLED_TENANTS);
+    assertThat(second).isEqualTo(ENABLED_TENANTS);
+    verify(tenantEntitlementClient, times(1)).lookupTenantsByModuleId(MODULE_ID);
   }
 
   @Test
@@ -64,5 +69,79 @@ class TenantEntitlementServiceTest {
     var result = service.getEnabledTenants();
 
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  void refresh_positive_replacesCachedResult() {
+    var service = new TenantEntitlementService(MODULE_ID, tenantEntitlementClient);
+    when(tenantEntitlementClient.lookupTenantsByModuleId(MODULE_ID))
+      .thenReturn(ENABLED_TENANTS)
+      .thenReturn(Set.of("tenant-3"));
+
+    service.getEnabledTenants();
+    var refreshed = service.refresh();
+
+    assertThat(refreshed).containsExactly("tenant-3");
+    assertThat(service.getEnabledTenants()).containsExactly("tenant-3");
+    verify(tenantEntitlementClient, times(2)).lookupTenantsByModuleId(MODULE_ID);
+  }
+
+  @Test
+  void applyEntitlementEvent_positive_addsTenantOnEntitle() {
+    var service = new TenantEntitlementService(MODULE_ID, tenantEntitlementClient);
+    when(tenantEntitlementClient.lookupTenantsByModuleId(MODULE_ID)).thenReturn(Set.of("tenant-1"));
+    service.getEnabledTenants();
+
+    service.applyEntitlementEvent(new EntitlementEvent(EntitlementEvent.Type.ENTITLE, MODULE_ID, "tenant-2"));
+
+    assertThat(service.getEnabledTenants()).containsExactlyInAnyOrder("tenant-1", "tenant-2");
+    verify(tenantEntitlementClient, times(1)).lookupTenantsByModuleId(MODULE_ID);
+  }
+
+  @Test
+  void applyEntitlementEvent_positive_addsTenantOnUpgrade() {
+    var service = new TenantEntitlementService(MODULE_ID, tenantEntitlementClient);
+    when(tenantEntitlementClient.lookupTenantsByModuleId(MODULE_ID)).thenReturn(Set.of("tenant-1"));
+    service.getEnabledTenants();
+
+    service.applyEntitlementEvent(new EntitlementEvent(EntitlementEvent.Type.UPGRADE, MODULE_ID, "tenant-2"));
+
+    assertThat(service.getEnabledTenants()).containsExactlyInAnyOrder("tenant-1", "tenant-2");
+    verify(tenantEntitlementClient, times(1)).lookupTenantsByModuleId(MODULE_ID);
+  }
+
+  @Test
+  void applyEntitlementEvent_positive_removesTenantOnRevoke() {
+    var service = new TenantEntitlementService(MODULE_ID, tenantEntitlementClient);
+    when(tenantEntitlementClient.lookupTenantsByModuleId(MODULE_ID)).thenReturn(ENABLED_TENANTS);
+    service.getEnabledTenants();
+
+    service.applyEntitlementEvent(new EntitlementEvent(EntitlementEvent.Type.REVOKE, MODULE_ID, "tenant-1"));
+
+    assertThat(service.getEnabledTenants()).containsExactly("tenant-2");
+    verify(tenantEntitlementClient, times(1)).lookupTenantsByModuleId(MODULE_ID);
+  }
+
+  @Test
+  void applyEntitlementEvent_positive_ignoresEventForOtherModule() {
+    var service = new TenantEntitlementService(MODULE_ID, tenantEntitlementClient);
+    when(tenantEntitlementClient.lookupTenantsByModuleId(MODULE_ID)).thenReturn(ENABLED_TENANTS);
+    service.getEnabledTenants();
+
+    service.applyEntitlementEvent(new EntitlementEvent(EntitlementEvent.Type.REVOKE, "mod-bar-1.0.0", "tenant-1"));
+
+    assertThat(service.getEnabledTenants()).isEqualTo(ENABLED_TENANTS);
+    verify(tenantEntitlementClient, times(1)).lookupTenantsByModuleId(MODULE_ID);
+  }
+
+  @Test
+  void applyEntitlementEvent_positive_ignoredWhenCacheNotYetPopulated() {
+    var service = new TenantEntitlementService(MODULE_ID, tenantEntitlementClient);
+
+    service.applyEntitlementEvent(new EntitlementEvent(EntitlementEvent.Type.ENTITLE, MODULE_ID, "tenant-1"));
+
+    when(tenantEntitlementClient.lookupTenantsByModuleId(MODULE_ID)).thenReturn(ENABLED_TENANTS);
+    assertThat(service.getEnabledTenants()).isEqualTo(ENABLED_TENANTS);
+    verify(tenantEntitlementClient, times(1)).lookupTenantsByModuleId(MODULE_ID);
   }
 }
