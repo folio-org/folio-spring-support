@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.spring.kafka.filtering.filter.DisabledTenantStrategy.FAIL;
 import static org.folio.spring.kafka.filtering.filter.DisabledTenantStrategy.SKIP;
 
+import java.time.Duration;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
@@ -18,5 +19,6 @@ class KafkaTenantFilterPropertiesTest {
     assertThat(properties.isIgnoreEmptyBatch()).isTrue();
     assertThat(properties.getTenantDisabledStrategy()).isEqualTo(SKIP);
     assertThat(properties.getAllTenantsDisabledStrategy()).isEqualTo(FAIL);
+    assertThat(properties.getReconciliationInterval()).isEqualTo(Duration.ofMinutes(15));
   }
 }
