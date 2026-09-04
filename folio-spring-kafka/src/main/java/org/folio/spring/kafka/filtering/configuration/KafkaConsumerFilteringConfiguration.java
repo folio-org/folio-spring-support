@@ -103,7 +103,7 @@ public final class KafkaConsumerFilteringConfiguration {
      */
     @Bean("tenantAwareMessageFilter")
     @ConditionalOnMissingBean(name = "tenantAwareMessageFilter")
-    public <K, V> RecordFilterStrategy<K, V> enabledTenantMessageFilter(
+    public <K, V> RecordFilterStrategy<K, V> enabledTenantMessageFilterStrategy(
       TenantEntitlementService tenantEntitlementService, KafkaTenantFilterProperties tenantFilterProperties) {
 
       log.info("Kafka tenant aware message filter enabled: tenantFilter = {}", tenantFilterProperties);
@@ -134,7 +134,7 @@ public final class KafkaConsumerFilteringConfiguration {
      */
     @Bean("tenantAwareMessageFilter")
     @ConditionalOnMissingBean(name = "tenantAwareMessageFilter")
-    public <K, V> RecordFilterStrategy<K, V> disabledTenantMessageFilter() {
+    public <K, V> RecordFilterStrategy<K, V> disabledTenantMessageFilterStrategy() {
       log.info("Kafka tenant aware message filter disabled");
       return consumerRecord -> false;
     }
