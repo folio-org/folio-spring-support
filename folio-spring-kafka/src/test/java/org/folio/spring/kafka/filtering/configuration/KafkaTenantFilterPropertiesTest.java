@@ -19,6 +19,6 @@ class KafkaTenantFilterPropertiesTest {
     assertThat(properties.isIgnoreEmptyBatch()).isTrue();
     assertThat(properties.getTenantDisabledStrategy()).isEqualTo(SKIP);
     assertThat(properties.getAllTenantsDisabledStrategy()).isEqualTo(FAIL);
-    assertThat(properties.getReconciliationInterval()).isEqualTo(Duration.ofMinutes(15));
+    assertThat(properties.getEntitlementRefreshInterval()).isEqualTo(Duration.ofMinutes(15));
   }
 }

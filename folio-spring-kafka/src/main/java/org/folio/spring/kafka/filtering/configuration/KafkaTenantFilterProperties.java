@@ -34,5 +34,5 @@ public class KafkaTenantFilterProperties {
    * How often the entitled-tenants cache is fully re-fetched from the entitlement client, to correct
    * any drift accumulated from a missed or duplicate entitlement change event.
    */
-  private Duration reconciliationInterval = Duration.ofMinutes(15);
+  private Duration entitlementRefreshInterval = Duration.ofMinutes(15);
 }
