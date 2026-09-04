@@ -149,12 +149,22 @@ message to be processed only when the tenant is entitled to the module.
 When enabled, the filter:
 
 1. Reads the `x-okapi-tenant` value from Kafka record headers. The filter does not deserialize the message body.
-2. Checks if the tenant is entitled to the module.
+2. Checks if the tenant is entitled to the module, using the in-process entitlement cache described below.
 3. If the tenant is entitled, pass the message to the module listener.
 4. Applies `tenant-disabled-strategy` when the tenant is not entitled to the current module.
 5. Applies `all-tenants-disabled-strategy` when no tenants are entitled to the current module.
 
-To use it, add `folio-spring-kafka` as a dependency and reference the shared filter from the
+### How the entitlement cache stays up to date
+
+Per-message filtering never makes a network call. The entitled-tenants set is cached in-process and
+kept current three ways: 
+1. A synchronous fetch from the sidecar (`GET /entitlements/modules/{moduleId}`) on first use, whose result is cached.
+2. Direct updates from `ENTITLE`/`UPGRADE`/`REVOKE` events on the `entitlement` Kafka topic.
+3. A periodic full re-fetch  that corrects any drift from a missed or duplicate event.
+
+### Using the filter in a module
+
+To use the filter, add `folio-spring-kafka` as a dependency and reference it from the
 listener:
 
 ```java
@@ -179,6 +189,7 @@ folio:
 | `folio.kafka.tenant-filter.ignore-empty-batch`              | Signals Kafka listener containers to skip listener invocation when all records in a batch are filtered out.   | `true`  | `true`  |
 | `folio.kafka.tenant-filter.tenant-disabled-strategy`        | Strategy used when the message tenant is not entitled to the current module.                                  | `SKIP`  | `SKIP`  |
 | `folio.kafka.tenant-filter.all-tenants-disabled-strategy`   | Strategy used when no tenants are entitled to the current module.                                             | `FAIL`  | `SKIP`  |
+| `folio.kafka.tenant-filter.entitlement-refresh-interval`    | How often the entitlement cache is fully re-fetched from the sidecar.                                         | `15m`   | `5m`    |
 
 The following strategy values are supported:
 
