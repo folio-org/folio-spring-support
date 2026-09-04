@@ -59,9 +59,16 @@ public class TenantEntitlementService {
    * @return the freshly fetched entitled tenant ids
    */
   public Set<String> refresh() {
+    var beforeFetch = enabledTenants.get();
     var result = tenantEntitlementClient.lookupTenantsByModuleId(moduleId);
     var refreshed = result == null ? Set.<String>of() : Set.copyOf(result);
-    enabledTenants.set(refreshed);
+
+    if (!enabledTenants.compareAndSet(beforeFetch, refreshed)) {
+      log.debug("Skipped applying stale refresh: moduleId = {}, an entitlement event was applied "
+        + "while the refresh was in flight", moduleId);
+      return enabledTenants.get();
+    }
+
     log.debug("Refreshed tenant entitlement cache: moduleId = {}, enabledTenants = {}", moduleId, refreshed);
     return refreshed;
   }
