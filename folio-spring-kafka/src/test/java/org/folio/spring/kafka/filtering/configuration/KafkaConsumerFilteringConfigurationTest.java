@@ -18,6 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 import tools.jackson.databind.json.JsonMapper;
@@ -69,6 +70,37 @@ class KafkaConsumerFilteringConfigurationTest {
         assertThat(context).hasBean("tenantAwareMessageFilter");
         assertThat(context).hasSingleBean(TenantEntitlementService.class);
         assertThat(context.getBean("tenantAwareMessageFilter")).isInstanceOf(EnabledTenantMessageFilterStrategy.class);
+      });
+  }
+
+  @Test
+  void entitlementEventListenerContainer_positive_notRegisteredWithoutKafkaProperties() {
+    contextRunner
+      .withBean(FolioModuleMetadata.class, () -> folioModuleMetadata("mod-foo", "1.2.3"))
+      .withBean(JsonMapper.class, JsonMapper::new)
+      .withPropertyValues(
+        "folio.kafka.tenant-filter.enabled=true",
+        "okapi.url=http://localhost:9130")
+      .run(context -> {
+        assertThat(context).hasNotFailed();
+        assertThat(context).doesNotHaveBean("entitlementEventListenerContainer");
+        assertThat(context).hasSingleBean(EntitlementReconciliationTask.class);
+      });
+  }
+
+  @Test
+  void entitlementEventListenerContainer_positive_registeredWithKafkaProperties() {
+    contextRunner
+      .withBean(FolioModuleMetadata.class, () -> folioModuleMetadata("mod-foo", "1.2.3"))
+      .withBean(JsonMapper.class, JsonMapper::new)
+      .withBean(KafkaProperties.class, KafkaProperties::new)
+      .withPropertyValues(
+        "folio.kafka.tenant-filter.enabled=true",
+        "okapi.url=http://localhost:9130",
+        "spring.kafka.bootstrap-servers=localhost:19092")
+      .run(context -> {
+        assertThat(context).hasNotFailed();
+        assertThat(context).hasBean("entitlementEventListenerContainer");
       });
   }
 

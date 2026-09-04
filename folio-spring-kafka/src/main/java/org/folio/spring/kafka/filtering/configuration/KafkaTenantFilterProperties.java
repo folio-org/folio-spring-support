@@ -3,6 +3,7 @@ package org.folio.spring.kafka.filtering.configuration;
 import static org.folio.spring.kafka.filtering.filter.DisabledTenantStrategy.FAIL;
 import static org.folio.spring.kafka.filtering.filter.DisabledTenantStrategy.SKIP;
 
+import java.time.Duration;
 import lombok.Data;
 import org.folio.spring.kafka.filtering.filter.DisabledTenantStrategy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -28,4 +29,10 @@ public class KafkaTenantFilterProperties {
 
   /** Strategy applied when no tenants are entitled to the current module. */
   private DisabledTenantStrategy allTenantsDisabledStrategy = FAIL;
+
+  /**
+   * How often the entitled-tenants cache is fully re-fetched from the entitlement client, to correct
+   * any drift accumulated from a missed or duplicate entitlement change event.
+   */
+  private Duration reconciliationInterval = Duration.ofMinutes(15);
 }
