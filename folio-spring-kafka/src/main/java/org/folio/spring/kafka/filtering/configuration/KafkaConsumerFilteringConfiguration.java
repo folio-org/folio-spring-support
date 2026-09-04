@@ -15,10 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration;
 import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +45,7 @@ import tools.jackson.databind.json.JsonMapper;
  */
 @Log4j2
 @AutoConfiguration
+@AutoConfigureAfter(KafkaAutoConfiguration.class)
 @EnableConfigurationProperties(KafkaTenantFilterProperties.class)
 public final class KafkaConsumerFilteringConfiguration {
 
@@ -163,6 +166,7 @@ public final class KafkaConsumerFilteringConfiguration {
       var configs = kafkaProperties.buildConsumerProperties();
       configs.put(ConsumerConfig.GROUP_ID_CONFIG, ENTITLEMENT_CONSUMER_GROUP_PREFIX + UUID.randomUUID());
       configs.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+      configs.put(JacksonJsonDeserializer.USE_TYPE_INFO_HEADERS, false);
 
       var valueDeserializer = new ErrorHandlingDeserializer<>(
         new JacksonJsonDeserializer<>(EntitlementEvent.class, jsonMapper));
