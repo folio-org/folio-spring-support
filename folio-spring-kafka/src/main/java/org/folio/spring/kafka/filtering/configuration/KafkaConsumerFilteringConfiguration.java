@@ -188,8 +188,8 @@ public final class KafkaConsumerFilteringConfiguration {
       TenantEntitlementService tenantEntitlementService) {
 
       var containerProperties = new ContainerProperties(entitlementTopicName());
-      containerProperties.setMessageListener((MessageListener<String, EntitlementEvent>) record -> {
-        var event = record.value();
+      containerProperties.setMessageListener((MessageListener<String, EntitlementEvent>) consumerRecord -> {
+        var event = consumerRecord.value();
         if (event != null) {
           tenantEntitlementService.applyEntitlementEvent(event);
         }
