@@ -12,11 +12,8 @@ import lombok.extern.log4j.Log4j2;
 /**
  * Resolves tenants entitled to the current module.
  *
- * <p>The entitled-tenants result is cached in-process so per-message filtering never has to make a
- * network call. The cache is kept up to date two ways: entitlement change events for this module are
- * applied directly to the cached set as they arrive (see {@link #applyEntitlementEvent(EntitlementEvent)}),
- * and {@link #refresh()} periodically re-fetches the full set from the entitlement client so any drift
- * from a missed or duplicate event self-heals.
+ * <p>The entitlemet info is cached, kept current by {@link #applyEntitlementEvent(EntitlementEvent)}
+ * and periodically corrected by {@link #refresh()}.
  */
 @Log4j2
 public class TenantEntitlementService {
