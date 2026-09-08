@@ -159,7 +159,8 @@ When enabled, the filter:
 Per-message filtering never makes a network call. The entitled-tenants set is cached in-process and
 kept current three ways: 
 1. A synchronous fetch from the sidecar (`GET /entitlements/modules/{moduleId}`) on first use, whose result is cached.
-2. Direct updates from `ENTITLE`/`UPGRADE`/`REVOKE` events on the `entitlement` Kafka topic.
+2. Direct updates from `ENTITLE`/`UPGRADE`/`REVOKE` events on the `entitlement` Kafka topic. Each module
+   instance uses its own unique consumer group id, so every instance observes every event.
 3. A periodic full re-fetch  that corrects any drift from a missed or duplicate event.
 
 ### Using the filter in a module
