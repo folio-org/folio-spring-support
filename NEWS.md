@@ -10,9 +10,6 @@
 * [FOLSPRINGS-232](https://folio-org.atlassian.net/browse/FOLSPRINGS-232) Add tenant-aware Kafka message filtering support for Spring modules
 * [FOLSPRINGS-233](https://folio-org.atlassian.net/browse/FOLSPRINGS-233) Cache Kafka tenant entitlement lookups instead of calling the sidecar per message
 
-### folio-spring-kafka-filtering
-* [FOLSPRINGS-232](https://folio-org.atlassian.net/browse/FOLSPRINGS-232) Add tenant-aware Kafka message filtering support for Spring modules
-
 ## 10.0.0 2026-04-06
 
 **Breaking Changes:**
