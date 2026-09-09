@@ -12,6 +12,7 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.TopicExistsException;
@@ -69,11 +70,13 @@ class EntitlementEventListenerIT {
       var tenantEntitlementService = context.getBean(TenantEntitlementService.class);
       assertThat(tenantEntitlementService.getEnabledTenants()).containsExactly("tenant-1");
 
-      publishEntitlementEvent("ENTITLE", MODULE_ID, "tenant-2");
-
-      await().atMost(Duration.ofSeconds(30))
-        .untilAsserted(() -> assertThat(tenantEntitlementService.getEnabledTenants())
-          .containsExactlyInAnyOrder("tenant-1", "tenant-2"));
+      try (var producer = createProducer()) {
+        await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
+          publishEntitlementEvent(producer, "ENTITLE", MODULE_ID, "tenant-2");
+          assertThat(tenantEntitlementService.getEnabledTenants())
+            .containsExactlyInAnyOrder("tenant-1", "tenant-2");
+        });
+      }
     });
   }
 
@@ -83,11 +86,13 @@ class EntitlementEventListenerIT {
       var tenantEntitlementService = context.getBean(TenantEntitlementService.class);
       assertThat(tenantEntitlementService.getEnabledTenants()).containsExactly("tenant-1");
 
-      publishEntitlementEvent("UPGRADE", MODULE_ID, "tenant-2");
-
-      await().atMost(Duration.ofSeconds(30))
-        .untilAsserted(() -> assertThat(tenantEntitlementService.getEnabledTenants())
-          .containsExactlyInAnyOrder("tenant-1", "tenant-2"));
+      try (var producer = createProducer()) {
+        await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
+          publishEntitlementEvent(producer, "UPGRADE", MODULE_ID, "tenant-2");
+          assertThat(tenantEntitlementService.getEnabledTenants())
+            .containsExactlyInAnyOrder("tenant-1", "tenant-2");
+        });
+      }
     });
   }
 
@@ -97,16 +102,24 @@ class EntitlementEventListenerIT {
       var tenantEntitlementService = context.getBean(TenantEntitlementService.class);
       assertThat(tenantEntitlementService.getEnabledTenants()).containsExactly("tenant-1");
 
-      publishEntitlementEvent("REVOKE", MODULE_ID, "tenant-1");
-
-      await().atMost(Duration.ofSeconds(30))
-        .untilAsserted(() -> assertThat(tenantEntitlementService.getEnabledTenants()).isEmpty());
+      try (var producer = createProducer()) {
+        await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
+          publishEntitlementEvent(producer, "REVOKE", MODULE_ID, "tenant-1");
+          assertThat(tenantEntitlementService.getEnabledTenants()).isEmpty();
+        });
+      }
     });
   }
 
-  private static void publishEntitlementEvent(String type, String moduleId, String tenantName) {
+  private static Producer<String, String> createProducer() {
     var configs = Map.<String, Object>of(
       ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, System.getProperty("spring.kafka.bootstrap-servers"));
+    return new KafkaProducer<>(configs, new StringSerializer(), new StringSerializer());
+  }
+
+  private static void publishEntitlementEvent(Producer<String, String> producer, String type, String moduleId,
+    String tenantName) {
+
     var value = """
       {
         "type": "%s",
@@ -115,7 +128,7 @@ class EntitlementEventListenerIT {
       }
       """.formatted(type, moduleId, tenantName);
 
-    try (var producer = new KafkaProducer<String, String>(configs, new StringSerializer(), new StringSerializer())) {
+    try {
       producer.send(new ProducerRecord<>(ENTITLEMENT_TOPIC, tenantName + "_" + moduleId, value)).get();
     } catch (Exception e) {
       throw new IllegalStateException("Failed to publish entitlement event", e);

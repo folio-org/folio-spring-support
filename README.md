@@ -156,8 +156,8 @@ When enabled, the filter:
 
 ### How the entitlement cache stays up to date
 
-Per-message filtering never makes a network call. The entitled-tenants set is cached in-process and
-kept current three ways: 
+Per-message filtering never makes a network call. The entitled-tenants set is cached in-process and kept current
+three ways: 
 1. A synchronous fetch from the sidecar (`GET /entitlements/modules/{moduleId}`) on first use, whose result is cached.
 2. Direct updates from `ENTITLE`/`UPGRADE`/`REVOKE` events on the `entitlement` Kafka topic. Each module
    instance uses its own unique consumer group id, so every instance observes every event.
@@ -165,8 +165,7 @@ kept current three ways:
 
 ### Using the filter in a module
 
-To use the filter, add `folio-spring-kafka` as a dependency and reference it from the
-listener:
+To use the filter in a module, add `folio-spring-kafka` as a dependency and reference it from the listener:
 
 ```java
 @KafkaListener(
@@ -182,6 +181,11 @@ folio:
   kafka:
     tenant-filter:
       enabled: true
+```
+
+Or
+```
+FOLIO_KAFKA_TENANT_FILTER_ENABLED=true
 ```
 
 | Property                                                    | Description                                                                                                   | Default | Example |
