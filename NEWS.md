@@ -4,6 +4,10 @@
 
 ### folio-spring-base
 * [FOLSPRINGS-234](https://folio-org.atlassian.net/browse/FOLSPRINGS-234) Make execution context header lookups case-insensitive
+* [FOLSPRINGS-232](https://folio-org.atlassian.net/browse/FOLSPRINGS-232) Add optional module version support to `FolioModuleMetadata`
+
+### folio-spring-kafka
+* [FOLSPRINGS-232](https://folio-org.atlassian.net/browse/FOLSPRINGS-232) Add tenant-aware Kafka message filtering support for Spring modules
 
 ## 10.0.0 2026-04-06
 

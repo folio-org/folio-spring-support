@@ -1,5 +1,7 @@
 package org.folio.spring;
 
+import java.util.Optional;
+
 /**
  * Provides module metadata.
  */
@@ -11,6 +13,27 @@ public interface FolioModuleMetadata {
    * @return The name of the module.
    */
   String getModuleName();
+
+  /**
+   * Retrieves the version of the module.
+   *
+   * @return The version of the module, or empty when it is not available.
+   */
+  default Optional<String> getModuleVersion() {
+    return Optional.empty();
+  }
+
+  /**
+   * Retrieves the module identifier.
+   *
+   * @return The module name with version suffix when the version is available, otherwise the module name.
+   */
+  default String getModuleId() {
+    return getModuleVersion()
+      .filter(version -> !version.isBlank())
+      .map(version -> getModuleName() + "-" + version)
+      .orElse(getModuleName());
+  }
 
   /**
    * Provides the database schema name associated with the given tenant ID.

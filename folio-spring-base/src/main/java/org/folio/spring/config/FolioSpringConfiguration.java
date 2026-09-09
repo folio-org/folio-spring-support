@@ -1,5 +1,6 @@
 package org.folio.spring.config;
 
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -20,7 +21,8 @@ public class FolioSpringConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  public FolioModuleMetadata folioModuleMetadata(@Value("${spring.application.name}") String applicationName) {
+  public FolioModuleMetadata folioModuleMetadata(@Value("${spring.application.name}") String applicationName,
+    @Value("${spring.application.version:}") String applicationVersion) {
     var schemaSuffix = StringUtils.isNotBlank(applicationName)
       ? "_" + applicationName.toLowerCase().replace('-', '_')
       : "";
@@ -29,6 +31,11 @@ public class FolioSpringConfiguration {
       @Override
       public String getModuleName() {
         return applicationName;
+      }
+
+      @Override
+      public Optional<String> getModuleVersion() {
+        return Optional.ofNullable(applicationVersion).filter(StringUtils::isNotBlank);
       }
 
       /**
