@@ -10,9 +10,6 @@
 * [FOLSPRINGS-232](https://folio-org.atlassian.net/browse/FOLSPRINGS-232) Add tenant-aware Kafka message filtering support for Spring modules
 * [FOLSPRINGS-233](https://folio-org.atlassian.net/browse/FOLSPRINGS-233) Cache Kafka tenant entitlement lookups instead of calling the sidecar per message
 
-### folio-spring-testing
-* [FOLSPRINGS-238](https://folio-org.atlassian.net/browse/FOLSPRINGS-238) Fix MinioContainerExtension image pull failure by switching to quay.io/minio/minio
-
 ### folio-spring-kafka-filtering
 * [FOLSPRINGS-232](https://folio-org.atlassian.net/browse/FOLSPRINGS-232) Add tenant-aware Kafka message filtering support for Spring modules
 
