@@ -74,7 +74,7 @@ class KafkaConsumerFilteringConfigurationTest {
   }
 
   @Test
-  void entitlementEventListenerContainer_positive_notRegisteredWithoutKafkaProperties() {
+  void entitlementEventListener_positive_notRegisteredWithoutKafkaProperties() {
     contextRunner
       .withBean(FolioModuleMetadata.class, () -> folioModuleMetadata("mod-foo", "1.2.3"))
       .withBean(JsonMapper.class, JsonMapper::new)
@@ -83,13 +83,13 @@ class KafkaConsumerFilteringConfigurationTest {
         "okapi.url=http://localhost:9130")
       .run(context -> {
         assertThat(context).hasNotFailed();
-        assertThat(context).doesNotHaveBean("entitlementEventListenerContainer");
+        assertThat(context).doesNotHaveBean(EntitlementEventListener.class);
         assertThat(context).hasSingleBean(EntitlementReconciliationTask.class);
       });
   }
 
   @Test
-  void entitlementEventListenerContainer_positive_registeredWithKafkaProperties() {
+  void entitlementEventListener_positive_registeredWithKafkaProperties() {
     contextRunner
       .withBean(FolioModuleMetadata.class, () -> folioModuleMetadata("mod-foo", "1.2.3"))
       .withBean(JsonMapper.class, JsonMapper::new)
@@ -100,7 +100,7 @@ class KafkaConsumerFilteringConfigurationTest {
         "spring.kafka.bootstrap-servers=localhost:19092")
       .run(context -> {
         assertThat(context).hasNotFailed();
-        assertThat(context).hasBean("entitlementEventListenerContainer");
+        assertThat(context).hasSingleBean(EntitlementEventListener.class);
       });
   }
 

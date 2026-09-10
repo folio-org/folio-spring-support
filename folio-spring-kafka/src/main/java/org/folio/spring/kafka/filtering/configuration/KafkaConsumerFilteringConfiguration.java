@@ -27,11 +27,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import org.springframework.kafka.listener.ContainerProperties;
-import org.springframework.kafka.listener.MessageListener;
 import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
@@ -63,7 +61,6 @@ public final class KafkaConsumerFilteringConfiguration {
   @EnableScheduling
   public static class EnabledTenantFilterConfiguration {
 
-    private static final String ENTITLEMENT_TOPIC_NAME = "entitlement";
     private static final String ENTITLEMENT_CONSUMER_GROUP_PREFIX = "folio-spring-kafka-entitlement-";
 
     /**
@@ -174,35 +171,32 @@ public final class KafkaConsumerFilteringConfiguration {
     }
 
     /**
-     * Starts the listener container that applies entitlement change events directly to the cached
-     * entitled-tenants set.
+     * Creates the listener container factory for the {@code entitlement} Kafka topic, referenced by
+     * {@link EntitlementEventListener}'s {@code @KafkaListener} method.
      *
      * @param entitlementEventConsumerFactory consumer factory for entitlement change events
-     * @param tenantEntitlementService service backing the entitled-tenants cache
-     * @return listener container for entitlement change events
+     * @return listener container factory for entitlement change events
      */
-    @Bean(destroyMethod = "stop")
+    @Bean
     @ConditionalOnBean(KafkaProperties.class)
-    public ConcurrentMessageListenerContainer<String, EntitlementEvent> entitlementEventListenerContainer(
-      ConsumerFactory<String, EntitlementEvent> entitlementEventConsumerFactory,
-      TenantEntitlementService tenantEntitlementService) {
+    public ConcurrentKafkaListenerContainerFactory<String, EntitlementEvent> entitlementEventListenerContainerFactory(
+      ConsumerFactory<String, EntitlementEvent> entitlementEventConsumerFactory) {
 
-      var containerProperties = new ContainerProperties(entitlementTopicName());
-      containerProperties.setMessageListener((MessageListener<String, EntitlementEvent>) consumerRecord -> {
-        var event = consumerRecord.value();
-        if (event != null) {
-          tenantEntitlementService.applyEntitlementEvent(event);
-        }
-      });
-
-      var container = new ConcurrentMessageListenerContainer<>(entitlementEventConsumerFactory, containerProperties);
-      container.start();
-      return container;
+      var factory = new ConcurrentKafkaListenerContainerFactory<String, EntitlementEvent>();
+      factory.setConsumerFactory(entitlementEventConsumerFactory);
+      return factory;
     }
 
-    private static String entitlementTopicName() {
-      var env = StringUtils.firstNonBlank(System.getenv("ENV"), System.getProperty("env"), "folio");
-      return env + "." + ENTITLEMENT_TOPIC_NAME;
+    /**
+     * Applies entitlement change events directly to the cached entitled-tenants set.
+     *
+     * @param tenantEntitlementService service backing the entitled-tenants cache
+     * @return entitlement event listener
+     */
+    @Bean
+    @ConditionalOnBean(KafkaProperties.class)
+    public EntitlementEventListener entitlementEventListener(TenantEntitlementService tenantEntitlementService) {
+      return new EntitlementEventListener(tenantEntitlementService);
     }
   }
 
