@@ -188,21 +188,25 @@ Or
 FOLIO_KAFKA_TENANT_FILTER_ENABLED=true
 ```
 
-| Property                                                    | Description                                                                                                   | Default | Example |
-| ----------------------------------------------------------- |---------------------------------------------------------------------------------------------------------------| ------- | ------- |
-| `folio.kafka.tenant-filter.enabled`                         | Enables the shared `tenantAwareMessageFilter` bean. Can be set as `FOLIO_KAFKA_TENANT_FILTER_ENABLED`.        | `false` | `true`  |
-| `folio.kafka.tenant-filter.ignore-empty-batch`              | Signals Kafka listener containers to skip listener invocation when all records in a batch are filtered out.   | `true`  | `true`  |
-| `folio.kafka.tenant-filter.tenant-disabled-strategy`        | Strategy used when the message tenant is not entitled to the current module.                                  | `SKIP`  | `SKIP`  |
-| `folio.kafka.tenant-filter.all-tenants-disabled-strategy`   | Strategy used when no tenants are entitled to the current module.                                             | `FAIL`  | `SKIP`  |
-| `folio.kafka.tenant-filter.entitlement-refresh-interval`    | How often the entitlement cache is fully re-fetched from the sidecar.                                         | `15m`   | `5m`    |
+| Property                                                         | Environment variable                                             | Description                                                                                                 | Default | Example   |
+|------------------------------------------------------------------|------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|---------|-----------|
+| `folio.kafka.tenant-filter.enabled`                              | `FOLIO_KAFKA_TENANT_FILTER_ENABLED`                              | Enables the shared `tenantAwareMessageFilter` bean.                                                         | `false` | `true`    |
+| `folio.kafka.tenant-filter.ignore-empty-batch`                   | `FOLIO_KAFKA_TENANT_FILTER_IGNORE_EMPTY_BATCH`                   | Signals Kafka listener containers to skip listener invocation when all records in a batch are filtered out. | `true`  | `true`    |
+| `folio.kafka.tenant-filter.tenant-disabled-strategy`             | `FOLIO_KAFKA_TENANT_FILTER_TENANT_DISABLED_STRATEGY`             | Strategy used when the message tenant is not entitled to the current module.                                | `SKIP`  | `SKIP`    |
+| `folio.kafka.tenant-filter.all-tenants-disabled-strategy`        | `FOLIO_KAFKA_TENANT_FILTER_ALL_TENANTS_DISABLED_STRATEGY`        | Strategy used when no tenants are entitled to the current module.                                           | `FAIL`  | `SKIP`    |
+| `folio.kafka.tenant-filter.entitlement-refresh-interval-seconds` | `FOLIO_KAFKA_TENANT_FILTER_ENTITLEMENT_REFRESH_INTERVAL_SECONDS` | How often, in seconds, the entitlement cache is fully re-fetched from the sidecar.                          | `900`   | `300`     |
+
+The environment variable names above are also used by `folio-kafka-wrapper`, the equivalent library for
+non-Spring (Vert.x/RMB) modules, for the settings they have in common (all except `ignore-empty-batch`,
+which has no RMB equivalent) - so both libraries can be configured with the exact same variables.
 
 The following strategy values are supported:
 
-| Value    | Behavior                                                                                                                              |
-| -------- |---------------------------------------------------------------------------------------------------------------------------------------|
-| `ACCEPT` | Accept the Kafka record and pass it to the module listener for normal processing.                                                     |
-| `SKIP`   | Filter out the Kafka record without invoking the listener. The offset will move forward as part of normal consumer commit processing. |
-| `FAIL`   | Throw an exception to fail listener processing. The offset is not committed for that record or batch, so the message can be retried.  |
+| Value    | Behavior                                                                                                                                                                                                                                                       |
+| -------- |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `ACCEPT` | Accept the Kafka record and pass it to the module listener for normal processing.                                                                                                                                                                              |
+| `SKIP`   | Filter out the Kafka record without invoking the listener. The offset will move forward as part of normal consumer commit processing.                                                                                                                          |
+| `FAIL`   | Throw an exception to fail listener processing. The container's configured error handler (retries, if any, then a recoverer) runs first; the offset still commits once it finishes, the same as any other listener failure - it is not held back indefinitely. |
 
 When Kafka tenant filtering is enabled, the `FolioModuleMetadata` bean must provide the
 module name and version. The default metadata bean from `folio-spring-base` uses `spring.application.name`
