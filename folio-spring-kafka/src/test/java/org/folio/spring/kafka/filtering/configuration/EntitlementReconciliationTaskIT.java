@@ -30,7 +30,7 @@ class EntitlementReconciliationTaskIT {
     .withPropertyValues(
       "folio.kafka.tenant-filter.enabled=true",
       "okapi.url=http://localhost:9130",
-      "folio.kafka.tenant-filter.entitlement-refresh-interval=1s");
+      "folio.kafka.tenant-filter.entitlement-refresh-interval-seconds=1");
 
   @Test
   void reconcile_positive_refreshesCacheOnSchedule() {
