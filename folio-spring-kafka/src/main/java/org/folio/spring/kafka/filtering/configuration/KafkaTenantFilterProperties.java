@@ -28,4 +28,10 @@ public class KafkaTenantFilterProperties {
 
   /** Strategy applied when no tenants are entitled to the current module. */
   private DisabledTenantStrategy allTenantsDisabledStrategy = FAIL;
+
+  /**
+   * How often, in seconds, the entitled-tenants cache is fully re-fetched from the entitlement
+   * client, to correct any drift accumulated from a missed or duplicate entitlement change event.
+   */
+  private long entitlementRefreshIntervalSeconds = 900;
 }
