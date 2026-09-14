@@ -25,6 +25,13 @@ import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 @Log4j2
 public class EnabledTenantMessageFilterStrategy<K, V> implements RecordFilterStrategy<K, V> {
 
+  /**
+   * Tenant header set unconditionally by several FOLIO producer utilities - for example
+   * folio-service-tools' {@code FolioMessageProducer} and folio-kafka-wrapper's
+   * {@code KafkaProducerRecordBuilder} - as a fallback alongside or instead of {@code X-Okapi-Tenant}.
+   */
+  private static final String FOLIO_TENANT_ID_HEADER = "folio.tenantId";
+
   private final String moduleId;
   private final TenantEntitlementService tenantEntitlementService;
   private final boolean ignoreEmptyBatch;
@@ -75,18 +82,29 @@ public class EnabledTenantMessageFilterStrategy<K, V> implements RecordFilterStr
   }
 
   private Optional<String> resolveTenant(ConsumerRecord<K, V> consumerRecord) {
+    var tenant = findHeaderValue(consumerRecord, XOkapiHeaders.TENANT);
+    if (tenant == null) {
+      tenant = findHeaderValue(consumerRecord, FOLIO_TENANT_ID_HEADER);
+    }
+
+    if (tenant == null) {
+      log.warn("Received message with missing or blank {}/{} header: messageKey = {}. Filter won't be applied.",
+        XOkapiHeaders.TENANT, FOLIO_TENANT_ID_HEADER, consumerRecord.key());
+      return Optional.empty();
+    }
+    return Optional.of(tenant);
+  }
+
+  private static String findHeaderValue(ConsumerRecord<?, ?> consumerRecord, String headerName) {
     for (Header header : consumerRecord.headers()) {
-      if (XOkapiHeaders.TENANT.equalsIgnoreCase(header.key())) {
-        var tenant = trimToNull(headerValue(header));
-        if (tenant != null) {
-          return Optional.of(tenant);
+      if (headerName.equalsIgnoreCase(header.key())) {
+        var value = trimToNull(headerValue(header));
+        if (value != null) {
+          return value;
         }
       }
     }
-
-    log.warn("Received message with missing or blank {} header: messageKey = {}. Filter won't be applied.",
-      XOkapiHeaders.TENANT, consumerRecord.key());
-    return Optional.empty();
+    return null;
   }
 
   private boolean filterByEnabledTenants(Set<String> enabledTenants, String currentTenant) {

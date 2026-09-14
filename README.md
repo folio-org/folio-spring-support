@@ -148,7 +148,8 @@ message to be processed only when the tenant is entitled to the module.
 
 When enabled, the filter:
 
-1. Reads the `x-okapi-tenant` value from Kafka record headers. The filter does not deserialize the message body.
+1. Reads the tenant from Kafka record headers - `x-okapi-tenant`, falling back to `folio.tenantId` if that's
+   absent. The filter does not deserialize the message body.
 2. Checks if the tenant is entitled to the module, using the in-process entitlement cache described below.
 3. If the tenant is entitled, pass the message to the module listener.
 4. Applies `tenant-disabled-strategy` when the tenant is not entitled to the current module.
