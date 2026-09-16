@@ -4,6 +4,7 @@ import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.testcontainers.containers.MinIOContainer;
+import org.testcontainers.utility.DockerImageName;
 
 public class MinioContainerExtension implements BeforeAllCallback, AfterAllCallback {
   static final String URL_PROPERTY_NAME = "folio.remote-storage.endpoint";
@@ -11,7 +12,8 @@ public class MinioContainerExtension implements BeforeAllCallback, AfterAllCallb
   static final String BUCKET_PROPERTY_NAME = "folio.remote-storage.bucket";
   static final String ACCESS_KEY_PROPERTY_NAME = "folio.remote-storage.accessKey";
   static final String SECRET_KEY_PROPERTY_NAME = "folio.remote-storage.secretKey";
-  private static final String MINIO_IMAGE = "minio/minio:RELEASE.2025-09-07T16-13-09Z";
+  private static final DockerImageName MINIO_IMAGE =
+    DockerImageName.parse("quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z").asCompatibleSubstituteFor("minio/minio");
   private static final MinIOContainer CONTAINER = new MinIOContainer(MINIO_IMAGE)
     .withStartupAttempts(3);
 
