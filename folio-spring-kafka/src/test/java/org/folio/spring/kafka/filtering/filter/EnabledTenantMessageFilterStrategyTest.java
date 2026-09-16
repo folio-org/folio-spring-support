@@ -184,6 +184,18 @@ class EnabledTenantMessageFilterStrategyTest {
   }
 
   @Test
+  void filter_positive_usesFolioTenantIdHeader_whenOkapiTenantHeaderMissing() {
+    var filterStrategy = createFilterStrategy(false, SKIP, SKIP);
+    var kafkaRecord = new ConsumerRecord<>("test-topic", 0, 0L, "key-1", new Object());
+    kafkaRecord.headers().add("folio.tenantId", OTHER_TENANT.getBytes(UTF_8));
+    when(tenantEntitlementService.getEnabledTenants()).thenReturn(ENABLED_TENANTS);
+
+    var result = filterStrategy.filter(kafkaRecord);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
   void ignoreEmptyBatch_positive_returnsTrue() {
     var filterStrategy = createFilterStrategy(true, SKIP, SKIP);
 
