@@ -12,6 +12,7 @@
 
 ### folio-spring-testing
 * [FOLSPRINGS-238](https://folio-org.atlassian.net/browse/FOLSPRINGS-238) Fix MinioContainerExtension image pull failure by switching to quay.io/minio/minio
+* [FOLSPRINGS-242](https://folio-org.atlassian.net/browse/FOLSPRINGS-242) Replace minio with localstack
 
 ## 10.0.0 2026-04-06
 
