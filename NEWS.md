@@ -3,6 +3,7 @@
 * [FOLIO-4553](https://folio-org.atlassian.net/browse/FOLIO-4553) Set "permissions: contents: read" in maven.yml
 
 ### folio-spring-base
+* [FOLSPRINGS-229](https://folio-org.atlassian.net/browse/FOLSPRINGS-229) Add a configurable Apache HttpClient connection pool for HTTP Service Clients
 * [FOLSPRINGS-234](https://folio-org.atlassian.net/browse/FOLSPRINGS-234) Make execution context header lookups case-insensitive
 * [FOLSPRINGS-232](https://folio-org.atlassian.net/browse/FOLSPRINGS-232) Add optional module version support to `FolioModuleMetadata`
 
