@@ -20,6 +20,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
   * [Logging](#logging)
     * [Default logging format](#default-logging-format)
     * [Request and Response Logging](#request-and-response-logging)
+    * [HTTP Service Clients connection pool](#http-service-clients-connection-pool)
   * [Custom `/_/tenant` Logic](#custom-_tenant-logic)
     * [`TenantService` Event Methods](#tenantservice-event-methods)
     * [`TenantService` Methods and Fields](#tenantservice-methods-and-fields)
@@ -304,6 +305,22 @@ logging:
 **Note:** In case you have async requests in your module (DeferredResult, CompletableFuture, etc.) then you should disable default logging for requests.
 
 ---
+
+### HTTP Service Clients connection pool
+
+HTTP Service Clients (`@HttpExchange`) share one pooled Apache HttpClient. Pool size and timeouts are configurable
+through `folio.exchange.http-client.*` properties or `FOLIO_EXCHANGE_HTTP_CLIENT_*` environment variables. See the [HTTP Client Configuration Guide](doc/HTTP_CLIENT_CONFIGURATION.md).
+
+**Quick Configuration:**
+
+```yaml
+folio:
+  exchange:
+    http-client:
+      max-connections-per-route: 50   # FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_PER_ROUTE
+      max-connections-total: 100      # FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_TOTAL
+      connect-timeout: 10s            # FOLIO_EXCHANGE_HTTP_CLIENT_CONNECT_TIMEOUT
+```
 
 ## Custom `/_/tenant` Logic
 
