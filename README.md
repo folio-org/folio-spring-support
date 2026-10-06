@@ -309,7 +309,7 @@ logging:
 ### HTTP Service Clients connection pool
 
 HTTP Service Clients (`@HttpExchange`) share one pooled Apache HttpClient. Pool size and timeouts are configurable
-through `folio.exchange.http-client.*` properties or `FOLIO_EXCHANGE_HTTP_*` environment variables. See the [HTTP Client Configuration Guide](doc/HTTP_CLIENT_CONFIGURATION.md).
+through `folio.exchange.http-client.*` properties or `FOLIO_EXCHANGE_HTTP_CLIENT_*` environment variables. See the [HTTP Client Configuration Guide](doc/HTTP_CLIENT_CONFIGURATION.md).
 
 **Quick Configuration:**
 
@@ -317,9 +317,9 @@ through `folio.exchange.http-client.*` properties or `FOLIO_EXCHANGE_HTTP_*` env
 folio:
   exchange:
     http-client:
-      max-connections-per-route: 50   # FOLIO_EXCHANGE_HTTP_MAX_CONNECTIONS_PER_ROUTE
-      max-connections-total: 100      # FOLIO_EXCHANGE_HTTP_MAX_CONNECTIONS_TOTAL
-      connect-timeout: 10s            # FOLIO_EXCHANGE_HTTP_CONNECT_TIMEOUT
+      max-connections-per-route: 50   # FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_PER_ROUTE
+      max-connections-total: 100      # FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_TOTAL
+      connect-timeout: 10s            # FOLIO_EXCHANGE_HTTP_CLIENT_CONNECT_TIMEOUT
 ```
 
 ## Custom `/_/tenant` Logic

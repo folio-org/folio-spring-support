@@ -16,24 +16,25 @@ The pool is active when HTTP Service Clients are enabled (`folio.exchange.enable
 
 All properties use the prefix `folio.exchange.http-client`. "Not set" means the HttpClient default is used.
 
-Each property can also be set with a `FOLIO_EXCHANGE_HTTP_*` environment variable (listed below). The library maps
-them itself, so modules don't need `${...}` placeholders. Environment variables override values from the module's
+Each property can also be set with a `FOLIO_EXCHANGE_HTTP_CLIENT_*` environment variable (listed below), using
+Spring Boot's standard [relaxed binding](https://docs.spring.io/spring-boot/reference/features/external-config.html#features.external-config.typesafe-configuration-properties.relaxed-binding.environment-variables),
+so modules don't need `${...}` placeholders. Environment variables override values from the module's
 `application.yml`/`application.properties`; command line arguments and JVM system properties still take precedence.
 
-| Property                       | Environment variable                               | Type             | Default                         | Description                                                               |
-|--------------------------------|----------------------------------------------------|------------------|---------------------------------|---------------------------------------------------------------------------|
-| `max-connections-per-route`    | `FOLIO_EXCHANGE_HTTP_MAX_CONNECTIONS_PER_ROUTE`    | int              | `50`                            | Maximum concurrent connections per route (host)                           |
-| `max-connections-total`        | `FOLIO_EXCHANGE_HTTP_MAX_CONNECTIONS_TOTAL`        | int              | `100`                           | Maximum concurrent connections in the pool                                |
-| `pool-concurrency-policy`      | `FOLIO_EXCHANGE_HTTP_POOL_CONCURRENCY_POLICY`      | `STRICT` / `LAX` | `STRICT`                        | `STRICT` enforces limits exactly; `LAX` favors concurrency                |
-| `pool-reuse-policy`            | `FOLIO_EXCHANGE_HTTP_POOL_REUSE_POLICY`            | `LIFO` / `FIFO`  | `LIFO`                          | Which idle connection is reused first                                     |
-| `connect-timeout`              | `FOLIO_EXCHANGE_HTTP_CONNECT_TIMEOUT`              | Duration         | `10s`                           | Timeout for establishing a connection                                     |
-| `socket-timeout`               | `FOLIO_EXCHANGE_HTTP_SOCKET_TIMEOUT`               | Duration         | not set (no limit)              | Maximum inactivity between two data packets                               |
-| `connection-time-to-live`      | `FOLIO_EXCHANGE_HTTP_CONNECTION_TIME_TO_LIVE`      | Duration         | not set                         | Maximum total lifetime of a connection                                    |
-| `validate-after-inactivity`    | `FOLIO_EXCHANGE_HTTP_VALIDATE_AFTER_INACTIVITY`    | Duration         | not set                         | Validate a pooled connection if idle longer than this before reuse        |
-| `connection-request-timeout`   | `FOLIO_EXCHANGE_HTTP_CONNECTION_REQUEST_TIMEOUT`   | Duration         | not set (HttpClient default 3m) | Maximum wait to lease a connection from the pool                          |
-| `response-timeout`             | `FOLIO_EXCHANGE_HTTP_RESPONSE_TIMEOUT`             | Duration         | not set (no limit)              | Maximum wait for a response after the request is sent                     |
-| `evict-idle-connections-after` | `FOLIO_EXCHANGE_HTTP_EVICT_IDLE_CONNECTIONS_AFTER` | Duration         | not set (disabled)              | Close connections idle longer than this using a background evictor thread |
-| `automatic-retries-enabled`    | `FOLIO_EXCHANGE_HTTP_AUTOMATIC_RETRIES_ENABLED`    | boolean          | `true`                          | Automatic retry of requests on I/O errors                                 |
+| Property                       | Environment variable                                      | Type             | Default                         | Description                                                               |
+|--------------------------------|-----------------------------------------------------------|------------------|---------------------------------|---------------------------------------------------------------------------|
+| `max-connections-per-route`    | `FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_PER_ROUTE`    | int              | `50`                            | Maximum concurrent connections per route (host)                           |
+| `max-connections-total`        | `FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_TOTAL`        | int              | `100`                           | Maximum concurrent connections in the pool                                |
+| `pool-concurrency-policy`      | `FOLIO_EXCHANGE_HTTP_CLIENT_POOL_CONCURRENCY_POLICY`      | `STRICT` / `LAX` | `STRICT`                        | `STRICT` enforces limits exactly; `LAX` favors concurrency                |
+| `pool-reuse-policy`            | `FOLIO_EXCHANGE_HTTP_CLIENT_POOL_REUSE_POLICY`            | `LIFO` / `FIFO`  | `LIFO`                          | Which idle connection is reused first                                     |
+| `connect-timeout`              | `FOLIO_EXCHANGE_HTTP_CLIENT_CONNECT_TIMEOUT`              | Duration         | `10s`                           | Timeout for establishing a connection                                     |
+| `socket-timeout`               | `FOLIO_EXCHANGE_HTTP_CLIENT_SOCKET_TIMEOUT`               | Duration         | not set (no limit)              | Maximum inactivity between two data packets                               |
+| `connection-time-to-live`      | `FOLIO_EXCHANGE_HTTP_CLIENT_CONNECTION_TIME_TO_LIVE`      | Duration         | not set                         | Maximum total lifetime of a connection                                    |
+| `validate-after-inactivity`    | `FOLIO_EXCHANGE_HTTP_CLIENT_VALIDATE_AFTER_INACTIVITY`    | Duration         | not set                         | Validate a pooled connection if idle longer than this before reuse        |
+| `connection-request-timeout`   | `FOLIO_EXCHANGE_HTTP_CLIENT_CONNECTION_REQUEST_TIMEOUT`   | Duration         | not set (HttpClient default 3m) | Maximum wait to lease a connection from the pool                          |
+| `response-timeout`             | `FOLIO_EXCHANGE_HTTP_CLIENT_RESPONSE_TIMEOUT`             | Duration         | not set (no limit)              | Maximum wait for a response after the request is sent                     |
+| `evict-idle-connections-after` | `FOLIO_EXCHANGE_HTTP_CLIENT_EVICT_IDLE_CONNECTIONS_AFTER` | Duration         | not set (disabled)              | Close connections idle longer than this using a background evictor thread |
+| `automatic-retries-enabled`    | `FOLIO_EXCHANGE_HTTP_CLIENT_AUTOMATIC_RETRIES_ENABLED`    | boolean          | `true`                          | Automatic retry of requests on I/O errors                                 |
 
 Durations use Spring Boot syntax, e.g. `500ms`, `10s`, `5m`. A `0` timeout means no limit.
 
@@ -63,13 +64,13 @@ folio:
 The same configuration via environment variables:
 
 ```shell
-FOLIO_EXCHANGE_HTTP_MAX_CONNECTIONS_PER_ROUTE=50
-FOLIO_EXCHANGE_HTTP_MAX_CONNECTIONS_TOTAL=100
-FOLIO_EXCHANGE_HTTP_CONNECT_TIMEOUT=10s
-FOLIO_EXCHANGE_HTTP_CONNECTION_REQUEST_TIMEOUT=30s
-FOLIO_EXCHANGE_HTTP_CONNECTION_TIME_TO_LIVE=10m
-FOLIO_EXCHANGE_HTTP_VALIDATE_AFTER_INACTIVITY=5s
-FOLIO_EXCHANGE_HTTP_EVICT_IDLE_CONNECTIONS_AFTER=1m
+FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_PER_ROUTE=50
+FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_TOTAL=100
+FOLIO_EXCHANGE_HTTP_CLIENT_CONNECT_TIMEOUT=10s
+FOLIO_EXCHANGE_HTTP_CLIENT_CONNECTION_REQUEST_TIMEOUT=30s
+FOLIO_EXCHANGE_HTTP_CLIENT_CONNECTION_TIME_TO_LIVE=10m
+FOLIO_EXCHANGE_HTTP_CLIENT_VALIDATE_AFTER_INACTIVITY=5s
+FOLIO_EXCHANGE_HTTP_CLIENT_EVICT_IDLE_CONNECTIONS_AFTER=1m
 ```
 
 ## Tuning Guidance

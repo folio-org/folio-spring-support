@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.time.Duration;
+import java.util.Map;
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
 import org.apache.hc.core5.pool.PoolReusePolicy;
 import org.folio.spring.FolioExecutionContext;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.core.env.SystemEnvironmentPropertySource;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -79,6 +82,23 @@ class HttpServiceClientConfigurationTest {
       assertThat(props.getEvictIdleConnectionsAfter()).isEqualTo(Duration.ofSeconds(30));
       assertThat(props.isAutomaticRetriesEnabled()).isFalse();
     });
+  }
+
+  @Test
+  void context_positive_envVariablesBindAndOverrideConfigFiles() {
+    runner.withPropertyValues("folio.exchange.http-client.max-connections-per-route=10")
+      .withInitializer(context -> context.getEnvironment().getPropertySources().addFirst(
+        new SystemEnvironmentPropertySource(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, Map.of(
+          "FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_PER_ROUTE", "77",
+          "FOLIO_EXCHANGE_HTTP_CLIENT_CONNECTION_REQUEST_TIMEOUT", "30s",
+          "FOLIO_EXCHANGE_HTTP_CLIENT_AUTOMATIC_RETRIES_ENABLED", "false"))))
+      .run(context -> {
+        assertThat(context).hasNotFailed();
+        var props = context.getBean(ExchangeHttpClientProperties.class);
+        assertThat(props.getMaxConnectionsPerRoute()).isEqualTo(77);
+        assertThat(props.getConnectionRequestTimeout()).isEqualTo(Duration.ofSeconds(30));
+        assertThat(props.isAutomaticRetriesEnabled()).isFalse();
+      });
   }
 
   @Test
