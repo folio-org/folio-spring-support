@@ -4,6 +4,7 @@
 * [FOLSPRINGS-243](https://folio-org.atlassian.net/browse/FOLSPRINGS-243) Add `folio-spring-parent` pom that pins `liquibase.version` to 4.33.0 and manages `folio-spring-*` versions for modules that use it as their parent (see [Parent pom](README.md#parent-pom))
 
 ### folio-spring-base
+* [FOLSPRINGS-229](https://folio-org.atlassian.net/browse/FOLSPRINGS-229) Add a configurable Apache HttpClient connection pool for HTTP Service Clients
 * [FOLSPRINGS-234](https://folio-org.atlassian.net/browse/FOLSPRINGS-234) Make execution context header lookups case-insensitive
 * [FOLSPRINGS-232](https://folio-org.atlassian.net/browse/FOLSPRINGS-232) Add optional module version support to `FolioModuleMetadata`
 
