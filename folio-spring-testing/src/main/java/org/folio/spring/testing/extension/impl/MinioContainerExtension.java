@@ -3,7 +3,8 @@ package org.folio.spring.testing.extension.impl;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.testcontainers.containers.MinIOContainer;
+import org.testcontainers.localstack.LocalStackContainer;
+import org.testcontainers.utility.DockerImageName;
 
 public class MinioContainerExtension implements BeforeAllCallback, AfterAllCallback {
   static final String URL_PROPERTY_NAME = "folio.remote-storage.endpoint";
@@ -11,19 +12,19 @@ public class MinioContainerExtension implements BeforeAllCallback, AfterAllCallb
   static final String BUCKET_PROPERTY_NAME = "folio.remote-storage.bucket";
   static final String ACCESS_KEY_PROPERTY_NAME = "folio.remote-storage.accessKey";
   static final String SECRET_KEY_PROPERTY_NAME = "folio.remote-storage.secretKey";
-  private static final String MINIO_IMAGE = "minio/minio:RELEASE.2025-09-07T16-13-09Z";
-  private static final MinIOContainer CONTAINER = new MinIOContainer(MINIO_IMAGE)
-    .withStartupAttempts(3);
+  private static final LocalStackContainer CONTAINER =
+    new LocalStackContainer(DockerImageName.parse("localstack/localstack:s3-community-archive"))
+      .withServices("s3");
 
   public void beforeAll(ExtensionContext context) {
     if (!CONTAINER.isRunning()) {
       CONTAINER.start();
     }
 
-    System.setProperty(URL_PROPERTY_NAME, CONTAINER.getS3URL());
-    System.setProperty(ACCESS_KEY_PROPERTY_NAME, CONTAINER.getUserName());
-    System.setProperty(SECRET_KEY_PROPERTY_NAME, CONTAINER.getPassword());
-    System.setProperty(REGION_PROPERTY_NAME, "region");
+    System.setProperty(URL_PROPERTY_NAME, CONTAINER.getEndpoint().toString());
+    System.setProperty(ACCESS_KEY_PROPERTY_NAME, CONTAINER.getAccessKey());
+    System.setProperty(SECRET_KEY_PROPERTY_NAME, CONTAINER.getSecretKey());
+    System.setProperty(REGION_PROPERTY_NAME, CONTAINER.getRegion());
     System.setProperty(BUCKET_PROPERTY_NAME, "test-bucket");
   }
 

@@ -18,9 +18,9 @@ class MinioContainerExtensionTest {
     // Assert
 
     assertThat(System.getProperty(MinioContainerExtension.URL_PROPERTY_NAME)).startsWith("http://");
-    assertEquals("minioadmin", System.getProperty(MinioContainerExtension.ACCESS_KEY_PROPERTY_NAME));
-    assertEquals("minioadmin", System.getProperty(MinioContainerExtension.SECRET_KEY_PROPERTY_NAME));
-    assertEquals("region", System.getProperty(MinioContainerExtension.REGION_PROPERTY_NAME));
+    assertEquals("test", System.getProperty(MinioContainerExtension.ACCESS_KEY_PROPERTY_NAME));
+    assertEquals("test", System.getProperty(MinioContainerExtension.SECRET_KEY_PROPERTY_NAME));
+    assertEquals("us-east-1", System.getProperty(MinioContainerExtension.REGION_PROPERTY_NAME));
     assertEquals("test-bucket", System.getProperty(MinioContainerExtension.BUCKET_PROPERTY_NAME));
   }
 

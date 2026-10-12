@@ -1,3 +1,6 @@
+## 10.0.0 2026-10-12
+* [FOLSPRINGS-241](https://folio-org.atlassian.net/browse/FOLSPRINGS-241) Upgrade to Spring Boot 4.1.1 and Liquibase 4.33.0
+
 ## 10.0.0 2025-04-06
 
 **Breaking Changes:**
