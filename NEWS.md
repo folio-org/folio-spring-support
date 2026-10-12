@@ -1,4 +1,7 @@
-## 10.0.0 2026-10-12
+## 10.0.2
+* [FOLSPRINGS-246](https://folio-org.atlassian.net/browse/FOLSPRINGS-246), [FOLSPRINGS-243](https://folio-org.atlassian.net/browse/FOLSPRINGS-243) Add `folio-spring-parent` pom that pins `liquibase.version` to 4.33.0 and manages `folio-spring-*` versions for modules that use it as their parent (see [Parent pom](README.md#parent-pom))
+
+## 10.0.1 2026-10-12
 * [FOLSPRINGS-241](https://folio-org.atlassian.net/browse/FOLSPRINGS-241) Upgrade to Spring Boot 4.1.1 and Liquibase 4.33.0
 
 ## 10.0.0 2025-04-06

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>4.1.1</version> <!-- also change spring-boot.version -->
+    <relativePath /> <!-- lookup parent from repository -->
+  </parent>
+
+  <groupId>org.folio</groupId>
+  <artifactId>folio-spring-parent</artifactId>
+  <version>10.1.0-SNAPSHOT</version>
+  <name>folio-spring-parent</name>
+  <description>Parent pom for FOLIO Spring modules. Extends spring-boot-starter-parent and pins
+    the dependency versions that FOLIO modules must share, so that they are inherited by consumers.
+  </description>
+  <packaging>pom</packaging>
+
+  <properties>
+    <java.version>21</java.version>
+    <spring-boot.version>4.1.1</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
+
+    <!-- Must be a literal: ${project.version} would resolve to the consuming module's version. Bump on release. -->
+    <folio-spring-support.version>10.1.0-SNAPSHOT</folio-spring-support.version>
+
+    <!-- Overrides of the versions managed by spring-boot-dependencies -->
+    <liquibase.version>4.33.0</liquibase.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.folio</groupId>
+        <artifactId>folio-spring-base</artifactId>
+        <version>${folio-spring-support.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.folio</groupId>
+        <artifactId>folio-spring-cql</artifactId>
+        <version>${folio-spring-support.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.folio</groupId>
+        <artifactId>folio-spring-i18n</artifactId>
+        <version>${folio-spring-support.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.folio</groupId>
+        <artifactId>folio-spring-kafka</artifactId>
+        <version>${folio-spring-support.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.folio</groupId>
+        <artifactId>folio-spring-system-user</artifactId>
+        <version>${folio-spring-support.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.folio</groupId>
+        <artifactId>folio-spring-tenant-settings</artifactId>
+        <version>${folio-spring-support.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.folio</groupId>
+        <artifactId>folio-spring-testing</artifactId>
+        <version>${folio-spring-support.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <!-- Fails the build if folio-spring-support.version is not bumped together with the project version. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <inherited>false</inherited>
+        <executions>
+          <execution>
+            <id>enforce-folio-spring-support-version</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireProperty>
+                  <property>folio-spring-support.version</property>
+                  <regex>\Q${project.version}\E</regex>
+                  <regexMessage>folio-spring-support.version must equal the project version ${project.version}; update it in folio-spring-parent/pom.xml</regexMessage>
+                </requireProperty>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
