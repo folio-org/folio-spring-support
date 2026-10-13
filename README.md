@@ -12,6 +12,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
   * [Table of Contents](#table-of-contents)
   * [Introduction](#introduction)
   * [Code structure](#code-structure)
+  * [Parent pom](#parent-pom)
   * [Execution Context](#execution-context)
   * [Properties](#properties)
   * [Kafka Tenant Filtering](#kafka-tenant-filtering)
@@ -50,6 +51,33 @@ The library includes the following submodules:
 * **folio-spring-cql** - facilitates CQL querying (refer to the [CQL support](#cql-support) section below)
 * **folio-spring-kafka** - provides common Kafka support for Spring modules, including tenant-aware message filtering.
 * ~~**folio-spring-system-user**~~ - (deprecated) provides [functionality](folio-spring-system-user/README.md) for system-user creation and utilization 
+
+## Parent pom
+
+`org.folio:folio-spring-parent` is a parent pom for FOLIO Spring modules. It extends `spring-boot-starter-parent` and adds:
+* the dependency versions that the library pins on top of Spring Boot, for example `liquibase.version`. A property set in the library's own pom is not inherited by modules that depend on it, so a module only gets these pins through this parent;
+* version management of all `folio-spring-*` artifacts, so they are declared without `<version>`.
+
+To use it, replace `spring-boot-starter-parent` with it:
+```xml
+  <parent>
+    <groupId>org.folio</groupId>
+    <artifactId>folio-spring-parent</artifactId>
+    <version>10.1.0</version>
+    <relativePath /> <!-- lookup parent from repository -->
+  </parent>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>folio-spring-base</artifactId>
+    </dependency>
+  </dependencies>
+```
+
+Using it is optional. A module that keeps `spring-boot-starter-parent` still works, but Spring Boot's dependency management applies, so for example `liquibase-core` resolves to the version Boot manages, not the one the library is built with. Such a module can set the property itself, for example `<liquibase.version>4.33.0</liquibase.version>`.
+
+The `folio-spring-parent` version is the library version. When releasing, update `folio-spring-support.version` in `folio-spring-parent/pom.xml` to the new version; it must be a literal, because `${project.version}` would resolve to the version of the consuming module. The build fails (maven-enforcer `requireProperty`) if it differs from the project version, so a forgotten bump is caught by `release:prepare`'s `clean verify`; the plugin does not update it for you.
 
 ## Execution Context
 

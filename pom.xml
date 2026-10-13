@@ -3,15 +3,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.1.1</version> <!-- also change spring-boot.version -->
-    <relativePath /> <!-- lookup parent from repository -->
+    <groupId>org.folio</groupId>
+    <artifactId>folio-spring-parent</artifactId>
+    <version>10.1.0-SNAPSHOT</version>
+    <relativePath>folio-spring-parent/pom.xml</relativePath>
   </parent>
 
-  <groupId>org.folio</groupId>
   <artifactId>folio-spring-support</artifactId>
-  <version>10.1.0-SNAPSHOT</version>
   <name>folio-spring-support</name>
   <description>This is a library (jar) that contains the basic functionality and main dependencies required for
     development FOLIO modules using a Spring framework.
@@ -19,6 +17,7 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>folio-spring-parent</module>
     <module>folio-spring-cql</module>
     <module>folio-spring-base</module>
     <module>folio-spring-kafka</module>
@@ -30,8 +29,6 @@
   </modules>
 
   <properties>
-    <java.version>21</java.version>
-    <spring-boot.version>4.1.1</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
     <jackson-databind-nullable.version>0.2.12</jackson-databind-nullable.version>
     <swagger-annotations.version>2.2.55</swagger-annotations.version>
     <mapstruct.version>1.6.3</mapstruct.version>
