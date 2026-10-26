@@ -34,7 +34,7 @@
     <mapstruct.version>1.6.3</mapstruct.version>
     <folio-util.version>36.0.1</folio-util.version>
     <rhino.version>1.9.1</rhino.version>
-    <icu4j.version>78.3</icu4j.version>
+    <icu4j.version>79.1</icu4j.version>
     <commons-fileupload.version>1.6.0</commons-fileupload.version>
     <commons-lang3.version>3.21.0</commons-lang3.version>
     <caffeine.version>3.2.4</caffeine.version>
