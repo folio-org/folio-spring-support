@@ -29,8 +29,8 @@
   </modules>
 
   <properties>
-    <jackson-databind-nullable.version>0.2.12</jackson-databind-nullable.version>
-    <swagger-annotations.version>2.2.55</swagger-annotations.version>
+    <jackson-databind-nullable.version>0.2.13</jackson-databind-nullable.version>
+    <swagger-annotations.version>3.0.0</swagger-annotations.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <folio-util.version>36.0.1</folio-util.version>
     <rhino.version>1.9.1</rhino.version>
