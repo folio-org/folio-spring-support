@@ -11,7 +11,7 @@
 
   <groupId>org.folio</groupId>
   <artifactId>folio-spring-parent</artifactId>
-  <version>10.1.0-SNAPSHOT</version>
+  <version>10.0.2-SNAPSHOT</version>
   <name>folio-spring-parent</name>
   <description>Parent pom for FOLIO Spring modules. Extends spring-boot-starter-parent and pins
     the dependency versions that FOLIO modules must share, so that they are inherited by consumers.
@@ -23,7 +23,7 @@
     <spring-boot.version>4.1.1</spring-boot.version> <!-- also change spring-boot-starter-parent version above -->
 
     <!-- Must be a literal: ${project.version} would resolve to the consuming module's version. Bump on release. -->
-    <folio-spring-support.version>10.1.0-SNAPSHOT</folio-spring-support.version>
+    <folio-spring-support.version>10.0.2-SNAPSHOT</folio-spring-support.version>
 
     <!-- Overrides of the versions managed by spring-boot-dependencies -->
     <liquibase.version>4.33.0</liquibase.version>
