@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.folio</groupId>
     <artifactId>folio-spring-parent</artifactId>
-    <version>10.0.2-SNAPSHOT</version>
+    <version>10.0.3-SNAPSHOT</version>
     <relativePath>folio-spring-parent/pom.xml</relativePath>
   </parent>
 
